@@ -50,7 +50,7 @@ public class Main {
 		options.addOption("f", true, "configuration file");
 		options.addOption("l", true, "log file");
 		options.addOption("w", true, "filter worker number");
-		options.addOption("s", true, "input queue size");
+		options.addOption("q", true, "input queue size");
 		options.addOption("v", false, "print info log");
 		options.addOption("vv", false, "print debug log");
 		options.addOption("vvvv", false, "print trace log");
