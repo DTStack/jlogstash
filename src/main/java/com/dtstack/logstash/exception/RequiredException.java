@@ -9,7 +9,8 @@ package com.dtstack.logstash.exception;
  * @author sishu.yss
  *
  */
-public class RequiredException extends Exception{
+@SuppressWarnings("serial")
+public class RequiredException extends LogstashException{
 	
 	private static String message = "param: %s is not empty";
 	

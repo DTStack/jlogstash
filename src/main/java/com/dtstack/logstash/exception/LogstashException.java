@@ -8,6 +8,7 @@ package com.dtstack.logstash.exception;
  * @author sishu.yss
  *
  */
+@SuppressWarnings("serial")
 public class LogstashException extends Exception{
 	
 	public LogstashException(String message){

@@ -1,6 +1,5 @@
 package com.dtstack.logstash.annotation.plugin;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import com.dtstack.logstash.annotation.Required;
 import com.dtstack.logstash.exception.RequiredException;

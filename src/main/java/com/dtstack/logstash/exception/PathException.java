@@ -8,6 +8,13 @@ package com.dtstack.logstash.exception;
  * @author sishu.yss
  *
  */
-public class PathException extends Exception{
+@SuppressWarnings("serial")
+public class PathException extends LogstashException{
+	
+	private static String message = "Path: %s format is error";
+
+	public PathException(String name){
+		super(String.format(message, name));
+	}
 	
 }
