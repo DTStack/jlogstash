@@ -30,10 +30,10 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 
     public IDecode createDecoder() {
         String codec = (String) this.config.get("codec");
-        if (codec != null && codec.equalsIgnoreCase("plain")) {
-            return new PlainDecoder();
+        if ("json".equals(codec)) {
+             return new JsonDecoder();
         } else {
-            return new JsonDecoder();
+        	 return new PlainDecoder();
         }
     }
 
