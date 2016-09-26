@@ -1,8 +1,8 @@
 package com.dtstack.logstash.inputs;
 
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import com.dtstack.logstash.assembly.InputQueueList;
 import com.dtstack.logstash.decoder.IDecode;
 import com.dtstack.logstash.decoder.JsonDecoder;
@@ -22,10 +22,10 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 	 */
 	private static final long serialVersionUID = -7059206319577707365L;
 
-	private static final Logger logger = LoggerFactory.getLogger(BaseInput.class);
+//	private static final Logger logger = LoggerFactory.getLogger(BaseInput.class);
 
     protected Map<String, Object> config;
-    protected IDecode decoder;
+    protected IDecode decoder = createDecoder();
     protected InputQueueList inputQueueList;
 
     public IDecode createDecoder() {
