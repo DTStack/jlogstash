@@ -9,14 +9,8 @@ package com.dtstack.logstash.utils;
  * @author sishu.yss
  *
  */
-public class Machine {
-	
+public class Machine {	
   public static int availableProcessors(){
 	  return Runtime.getRuntime().availableProcessors();
-  }
-	
-  
-  public static void main(String[] args){
-	  System.out.println(availableProcessors());
   }
 }

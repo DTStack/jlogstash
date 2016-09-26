@@ -13,8 +13,7 @@ import com.dtstack.logstash.property.SystemProperty;
  * @author sishu.yss
  *
  */
-public class Package {
-	
+public class Package {	
 	private static String point =".";
 	
 	public static String getRealClassName(String name,String key){
@@ -22,9 +21,4 @@ public class Package {
 		if(name.indexOf(point)>=0)return name;
 		return SystemProperty.getSystemProperty(key)+point+name;
 	}
-	
-	public static void main(String[] args){
-		System.out.println(getRealClassName("com.dtstack.log.sysdev.outputs.File","output"));
-	}
-
 }
