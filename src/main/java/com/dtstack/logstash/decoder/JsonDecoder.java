@@ -31,8 +31,11 @@ public class JsonDecoder implements IDecode {
             if(!event.containsKey("@timestamp")){
             	event.put("@timestamp", DateTime.now(DateTimeZone.UTC).toString());
             }
+            if(!event.containsKey("message")){
+            	event.put("message", message);
+            } 
         } catch (Exception e) {
-            logger.warn(e.getLocalizedMessage());
+            logger.error(e.getMessage());
             event = new HashMap<String, Object>() {
                 {
                     put("message", message);
@@ -40,15 +43,6 @@ public class JsonDecoder implements IDecode {
                 }
             };
             return event;
-        }
-
-        if (event == null) {
-            event = new HashMap<String, Object>() {
-                {
-                    put("message", message);
-                    put("@timestamp", DateTime.now(DateTimeZone.UTC).toString());
-                }
-            };
         }
         return event;
     }
