@@ -49,9 +49,8 @@ public class FilterAndOutputThread implements Runnable {
 				event = inputQueue.take();
 				if (this.filterProcessors != null) {
 					for (BaseFilter bf : filterProcessors) {
-						event = bf.process(event);
-						if (event == null || event.size() == 0)
-							continue A;
+						if (event == null || event.size() == 0)continue A;
+						bf.process(event);
 					}
 				}
 				if (event != null && event.size() > 0) {
