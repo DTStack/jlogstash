@@ -25,7 +25,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 //	private static final Logger logger = LoggerFactory.getLogger(BaseInput.class);
 
     protected Map<String, Object> config;
-    protected IDecode decoder = createDecoder();
+    protected IDecode decoder;
     protected InputQueueList inputQueueList;
 
     public IDecode createDecoder() {
@@ -40,6 +40,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     public BaseInput(Map config,InputQueueList inputQueueList){
         this.config = config;
         this.inputQueueList = inputQueueList;
+        decoder = createDecoder();
     }
 
     public abstract void prepare();
