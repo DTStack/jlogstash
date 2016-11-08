@@ -4,11 +4,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.logstash.render.FreeMarkerRender;
 import com.dtstack.logstash.render.TemplateRender;
+import com.google.common.collect.Queues;
 
 /**
  * 
@@ -32,7 +37,9 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 	protected AtomicInteger ato = new AtomicInteger(0);
 	
 	//数据强一致性是否开启
-	protected static boolean consistency =false;
+	protected boolean consistency =false;
+	
+	public BlockingQueue<Object> failedMsgQueue = Queues.newLinkedBlockingDeque();
 
 	public BaseOutput(Map config) {
 		this.config = config;
@@ -49,6 +56,10 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 			}
 		} else {
 			IF = null;
+		}
+		
+		if(this.config.containsKey("consistency")){
+			consistency = (boolean) this.config.get("consistency");
 		}
 	}
 
@@ -78,9 +89,35 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 		return ato;
 	}
 
-
-	public static boolean isConsistency() {
+	public boolean isConsistency() {
 		return consistency;
+	}
+	
+	public boolean dealFailedMsg(){
+		if(failedMsgQueue.size() == 0){
+    		return false;
+    	}
+		
+    	Object msg = null;
+    	while(true){
+    		msg = failedMsgQueue.poll();
+    		if(msg == null){
+    			break;
+    		}
+    		
+    		sendFailedMsg(msg);
+    	}
+    	
+    	return true;
+	}
+	
+	public void addFailedMsg(Object msg){
+		if(consistency){
+			failedMsgQueue.offer(msg);
+		}
+	}
+	
+	public void sendFailedMsg(Object msg){
 	}
 
 

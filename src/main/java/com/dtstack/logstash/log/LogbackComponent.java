@@ -19,7 +19,7 @@ import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
  */
 public class LogbackComponent extends LogComponent{
 	
-	private static String formatePattern ="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n";
+	private static String formatePattern ="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n";
 	
 	private static int day = 7;
 	
