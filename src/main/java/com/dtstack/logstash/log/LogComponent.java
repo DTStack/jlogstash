@@ -16,8 +16,7 @@ public abstract class LogComponent {
 	
 	protected String checkFile(CommandLine cmdLine){
 		if(!cmdLine.hasOption("l")){
-			System.out.println("log file is not empty");
-			System.exit(1);
+            return System.getenv("basedir")+"/logs/jlogstash.log";
 		}
         return 	cmdLine.getOptionValue("l")	;
 	}

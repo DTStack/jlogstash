@@ -3,7 +3,7 @@
 HO_HEAP_SIZE="${HO_HEAP_SIZE:=30m}"
 
 unset CDPATH
-basedir=$(cd `dirname $0`/..; pwd)
+export basedir=$(cd `dirname $0`/..; pwd)
 
 JAVA_OPTS="$JAVA_OPTS -Xmx${HO_HEAP_SIZE}"
 
