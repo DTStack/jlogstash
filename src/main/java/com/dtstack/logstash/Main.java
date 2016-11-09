@@ -88,7 +88,7 @@ public class Main {
 			logbackComponent.setupLogger(cmdLine);
 			//组装管道
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			System.out.println("Error:" +e.getMessage());
 			System.exit(-1);
 		}
 		//add shutdownhook
