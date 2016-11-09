@@ -4,4 +4,4 @@ target/*
 .settings
 .classpath
 .metadata/
-.idea
+.idea/

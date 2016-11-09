@@ -38,7 +38,7 @@ public class Main {
 	}
 
 	private static CommandLine parseArg(String[] args) throws ParseException {
-		Options options = new Options();
+        Options options = new Options();
 		options.addOption("h", false, "usage help");
 		options.addOption("help", false, "usage help");
 		options.addOption("f", true, "configuration file");
@@ -85,10 +85,11 @@ public class Main {
 		InputQueueList inputQueueList = null;
 		try {
 			cmdLine = parseArg(args);
-			logbackComponent.setupLogger(cmdLine);
-			//组装管道
+            logbackComponent.setupLogger(cmdLine);
+            inputQueueList =assemblyPipeline.assemblyPipeline(cmdLine);
+            //组装管道
 		} catch (Exception e) {
-			System.out.println("Error:" +e.getMessage());
+			System.out.println("Error: " +e.getMessage());
 			System.exit(-1);
 		}
 		//add shutdownhook
