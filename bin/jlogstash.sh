@@ -1,6 +1,6 @@
 #!/bin/sh
 
-HO_HEAP_SIZE="${HO_HEAP_SIZE:=30m}"
+HO_HEAP_SIZE="${HO_HEAP_SIZE:=300m}"
 
 unset CDPATH
 export basedir=$(cd `dirname $0`/..; pwd)
