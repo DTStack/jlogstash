@@ -1,5 +1,6 @@
 package com.dtstack.logstash.log;
 
+import ch.qos.logback.classic.Logger;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
@@ -27,7 +28,7 @@ public class LogbackComponent extends LogComponent{
 	public void setupLogger(CommandLine cmdLine) {
 	    String file = checkFile(cmdLine);
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        ch.qos.logback.classic.Logger newLogger =loggerContext.getLogger("ROOT");
+        Logger newLogger =loggerContext.getLogger("ROOT");
         //Remove all previously added appenders from this logger instance.
         newLogger.detachAndStopAllAppenders();
         //define appender
@@ -65,8 +66,13 @@ public class LogbackComponent extends LogComponent{
 		file =file+"_%d{yyyy-MM-dd}.log";
 		return file;
 	}
-	
-     private void setLevel(ch.qos.logback.classic.Logger logger,CommandLine cmdLine){
+
+    /**
+     * Set logger level in runtime
+     * @param logger
+     * @param cmdLine
+     */
+     private void setLevel(Logger logger, CommandLine cmdLine){
     		if (cmdLine.hasOption("vvvv")) {
     			logger.setLevel(Level.TRACE);
     		} else if (cmdLine.hasOption("vv")) {

@@ -37,14 +37,8 @@ public class Main {
 		}
 	}
 
-	/**
-	 *  parse the input command arguments
-	 * @param args
-	 * @return
-	 * @throws ParseException
-	 */
 	private static CommandLine parseArg(String[] args) throws ParseException {
-		Options options = new Options();
+        Options options = new Options();
 		options.addOption("h", false, "usage help");
 		options.addOption("help", false, "usage help");
 		options.addOption("f", true, "configuration file");
@@ -60,9 +54,9 @@ public class Main {
 			usage();
 			System.exit(-1);
 		}
-		// TODO need process invalid arguments
-		if(!cmdLine.hasOption("f")) {
-			throw new IllegalArgumentException("Required -f argument to specify config file");
+
+		if (!cmdLine.hasOption("f")) {
+			throw new ParseException("Required -f argument to specify config file");
 		}
 		return cmdLine;
 	}
@@ -78,7 +72,7 @@ public class Main {
 				.append("-l").append("\t\t\tlog file that store the output").append("\n")
 				.append("-w").append("\t\t\tfilter worker numbers").append("\n")
 				.append("-q").append("\t\t\tinput queue size").append("\n")
-			    .append("-t").append("\t\t\tlog input queue size").append("\n")
+				.append("-t").append("\t\t\tlog input queue size").append("\n")
 				.append("-v").append("\t\t\tprint info log").append("\n")
 				.append("-vv").append("\t\t\tprint debug log").append("\n")
 				.append("-vvvv").append("\t\t\tprint trace log").append("\n");
@@ -86,20 +80,22 @@ public class Main {
 	}
 
 
-	public static void main(String[] args) throws Exception {
-		CommandLine cmdLine =null;
-		try{
-			cmdLine= parseArg(args);
-			logbackComponent.setupLogger(cmdLine);
-		}catch(Exception t){
-			System.out.println("Main.main is error:"+t);
-			System.exit(1);
+	public static void main(String[] args) {
+		CommandLine cmdLine = null;
+		InputQueueList inputQueueList = null;
+		try {
+			cmdLine = parseArg(args);
+            logbackComponent.setupLogger(cmdLine);
+            inputQueueList =assemblyPipeline.assemblyPipeline(cmdLine);
+            //组装管道
+		} catch (Exception e) {
+			System.out.println("Error: " +e.getMessage());
+			System.exit(-1);
 		}
-		//组装管道
-		InputQueueList inputQueueList =assemblyPipeline.assemblyPipeline(cmdLine);
 		//add shutdownhook
-		ShutDownHook  shutDownHook = new ShutDownHook(inputQueueList,assemblyPipeline.getBaseInputs());
+		ShutDownHook shutDownHook = new ShutDownHook(inputQueueList, assemblyPipeline.getBaseInputs());
 		shutDownHook.addShutDownHook();
 	}
+
 	
 }
