@@ -86,10 +86,10 @@ public class Main {
 		try {
 			cmdLine = parseArg(args);
             logbackComponent.setupLogger(cmdLine);
-            inputQueueList =assemblyPipeline.assemblyPipeline(cmdLine);
             //组装管道
+            inputQueueList =assemblyPipeline.assemblyPipeline(cmdLine);
 		} catch (Exception e) {
-			System.out.println("Error: " +e.getMessage());
+			logger.error("jlogstash_start error:{}",e.getCause());
 			System.exit(-1);
 		}
 		//add shutdownhook
