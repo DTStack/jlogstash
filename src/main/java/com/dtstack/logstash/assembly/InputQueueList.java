@@ -28,9 +28,6 @@ public class InputQueueList {
     
 	private static ExecutorService executor = Executors.newFixedThreadPool(2);
 
-	public InputQueueList() {
-	}
-
 	private static List<LinkedBlockingQueue<Map<String, Object>>> queueList = Lists.newArrayList();
 
 	private final AtomicInteger index = new AtomicInteger(0);
@@ -40,6 +37,8 @@ public class InputQueueList {
 	private AtomicBoolean ato = new AtomicBoolean(false);
 
 	private ReentrantLock lock = new ReentrantLock();
+	
+	public InputQueueList() {}
 
 	/**
 	 * 
