@@ -22,6 +22,7 @@ public class PlainDecoder implements IDecode {
 			{
 				put("message", message);
 				put("@timestamp", DateTime.now(DateTimeZone.UTC).toString());
+				put("timestamp", DateTime.now(DateTimeZone.UTC).toString());
 			}
 		};
 		return event;
