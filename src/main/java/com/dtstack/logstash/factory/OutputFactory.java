@@ -20,15 +20,18 @@ import com.google.common.collect.Maps;
  */
 public class OutputFactory extends InstanceFactory{
 
+	@SuppressWarnings("rawtypes")
 	public static BaseOutput getInstance(String outputType,Map outputConfig) throws Exception{
 		 Class<?> outputClass = Class.forName(Package.getRealClassName(outputType,"output"));
-		 configInstance(outputClass,outputConfig);
+		 configInstance(outputClass,outputConfig);//设置static field
          Constructor<?> ctor = outputClass.getConstructor(Map.class);
          BaseOutput baseOutput = (BaseOutput) ctor.newInstance(outputConfig);
+		 configInstance(baseOutput,outputConfig);//设置非static field
          baseOutput.prepare();
          return baseOutput;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<BaseOutput> getBatchInstance(List<Map> outputs) throws Exception{
 		if(outputs==null||outputs.size()==0)return null;
 		List<BaseOutput> baseoutputs = Lists.newArrayList();

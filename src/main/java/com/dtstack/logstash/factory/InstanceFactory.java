@@ -1,9 +1,7 @@
 package com.dtstack.logstash.factory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -24,30 +22,66 @@ public abstract class InstanceFactory {
 	
 	private static Logger logger = LoggerFactory.getLogger(InstanceFactory.class);
 	
+	@SuppressWarnings("rawtypes")
 	protected static void configInstance(Class<?> clasz,Map config) throws Exception{
 		Field[] fields =clasz.getDeclaredFields();
 		if(config!=null&&fields!=null&&fields.length>0){
 			for(Field field:fields){
-				String name =field.getName();
-				Object obj =config.get(name);
-				Annotation[] ans = field.getAnnotations();
-				if(ans!=null){
-					for(Annotation an:ans){
-						if(an!=null){
-							String annotationPackage = SystemProperty.getSystemProperty("annotationPackage");
-							Package pack = an.annotationType().getPackage();
-							if(pack!=null){
-								if(annotationPackage.equals(pack.getName())){
-									logger.warn("field: {} annotation:{} check",name,an.annotationType().getSimpleName());
-									checkAnnotation(field,an,obj);
+				if((field.getModifiers() & java.lang.reflect.Modifier.STATIC) == java.lang.reflect.Modifier.STATIC){			
+					String name =field.getName();
+					Object obj =config.get(name);
+					if(obj!=null){
+						Annotation[] ans = field.getAnnotations();
+						if(ans!=null){
+							for(Annotation an:ans){
+								if(an!=null){
+									String annotationPackage = SystemProperty.getSystemProperty("annotationPackage");
+									Package pack = an.annotationType().getPackage();
+									if(pack!=null){
+										if(annotationPackage.equals(pack.getName())){
+											logger.warn("field: {} annotation:{} check",name,an.annotationType().getSimpleName());
+											checkAnnotation(field,an,obj);
+										}
+									}
 								}
 							}
-						}
+						}				
+						field.setAccessible(true);
+						field.set(null, obj);
 					}
-				}				
-				if(obj!=null){
-					field.setAccessible(true);
-					field.set(null, obj);
+				}
+			}
+		}
+	}
+	
+	
+	@SuppressWarnings("rawtypes")
+	protected static void configInstance(Object instance,Map config) throws Exception{
+		Field[] fields =instance.getClass().getDeclaredFields();
+		if(config!=null&&fields!=null&&fields.length>0){
+			for(Field field:fields){
+				if((field.getModifiers() & java.lang.reflect.Modifier.STATIC) != java.lang.reflect.Modifier.STATIC){			
+					String name =field.getName();
+					Object obj =config.get(name);
+					if(obj!=null){
+						Annotation[] ans = field.getAnnotations();
+						if(ans!=null){
+							for(Annotation an:ans){
+								if(an!=null){
+									String annotationPackage = SystemProperty.getSystemProperty("annotationPackage");
+									Package pack = an.annotationType().getPackage();
+									if(pack!=null){
+										if(annotationPackage.equals(pack.getName())){
+											logger.warn("field: {} annotation:{} check",name,an.annotationType().getSimpleName());
+											checkAnnotation(field,an,obj);
+										}
+									}
+								}
+							}
+						}				
+						field.setAccessible(true);
+						field.set(instance, obj);
+					}
 				}
 			}
 		}
@@ -65,5 +99,4 @@ public abstract class InstanceFactory {
 		AnnotationInterface annotationInterface = (AnnotationInterface) cla.newInstance();	
 		annotationInterface.required(field, obj);
 	}
-
 }

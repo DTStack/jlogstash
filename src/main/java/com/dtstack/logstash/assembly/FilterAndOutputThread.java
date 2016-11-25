@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.logstash.filters.BaseFilter;
 import com.dtstack.logstash.outputs.BaseOutput;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+//import com.google.common.collect.Lists;
+//import com.google.common.collect.Maps;
 
 /**
  * 
@@ -39,39 +39,42 @@ public class FilterAndOutputThread implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		A: while (true) {
+	     while (true) {
 			Map<String, Object> event = null;
 			try {
-				
-				//优先处理失败信息
-				boolean dealFailMsg = false;
-				for (BaseOutput bo : outputProcessors) {
-					if (bo.isConsistency()) {
-						dealFailMsg = dealFailMsg || bo.dealFailedMsg();
+//				if(dealFailMsg){
+//					continue A;
+//				}	
+				if(!priorityFail()){
+					event = inputQueue.take();
+					if (this.filterProcessors != null) {
+						for (BaseFilter bf : filterProcessors) {
+							if (event == null || event.size() == 0)continue;
+							bf.process(event);
+						}
 					}
-				}
-				
-				if(dealFailMsg){
-					continue A;
-				}
-				
-				event = inputQueue.take();
-				if (this.filterProcessors != null) {
-					for (BaseFilter bf : filterProcessors) {
-						if (event == null || event.size() == 0)continue A;
-						bf.process(event);
-					}
-				}
-				if (event != null && event.size() > 0) {
-					for (BaseOutput bo : outputProcessors) {
-						bo.process(event);
-					}
-				}
+					if (event != null && event.size() > 0) {
+						for (BaseOutput bo : outputProcessors) {
+							bo.process(event);
+						}
+					}	
+				}		
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				logger.error("process event failed:" + event, e.getCause());
 			}
 		}
+	}
+	
+	private boolean priorityFail(){
+		//优先处理失败信息
+		boolean dealFailMsg = false;
+		for (BaseOutput bo : outputProcessors) {
+			if (bo.isConsistency()) {
+				dealFailMsg = dealFailMsg || bo.dealFailedMsg();
+			}
+		}
+		return dealFailMsg;
 	}
 
 }
