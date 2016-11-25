@@ -1,9 +1,12 @@
 package com.dtstack.logstash.assembly;
 
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.logstash.inputs.BaseInput;
+import com.dtstack.logstash.outputs.BaseOutput;
 
 /**
  * 
@@ -19,13 +22,16 @@ public class ShutDownHook {
 	
     private InputQueueList initInputQueueList;
     
-    private List<BaseInput> baseInputs;
+    private List<BaseInput> baseInputs; 
+    
+    private List<BaseOutput> baseOutputs;
     
     private static int sleep =1000;
     
-    public ShutDownHook(InputQueueList initInputQueueList,List<BaseInput> baseInputs){
+    public ShutDownHook(InputQueueList initInputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
     	this.initInputQueueList = initInputQueueList;
     	this.baseInputs  = baseInputs;
+    	this.baseOutputs = baseOutputs;
     }
 	
 	public void addShutDownHook(){
@@ -48,6 +54,19 @@ public class ShutDownHook {
 					}
 				}
 				logger.warn("inputRelease success...");
+			}catch(Exception e){
+				logger.error(e.getMessage());
+			}
+		}
+		
+		private void outPutRelease(){
+			try{
+				if(baseOutputs!=null){
+					for(BaseOutput outPut:baseOutputs){
+						outPut.release();
+					}
+				}
+				logger.warn("outPutRelease success...");
 			}catch(Exception e){
 				logger.error(e.getMessage());
 			}
@@ -84,6 +103,7 @@ public class ShutDownHook {
 			// TODO Auto-generated method stub
 			inputRelease();
 			inputQueueRelease();
+			outPutRelease();
 		}
 	}
 }
