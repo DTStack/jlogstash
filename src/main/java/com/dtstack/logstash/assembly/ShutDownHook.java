@@ -55,7 +55,7 @@ public class ShutDownHook {
 				}
 				logger.warn("inputRelease success...");
 			}catch(Exception e){
-				logger.error(e.getMessage());
+				logger.error("inputRelease error:{}",e.getMessage());
 			}
 		}
 		
@@ -68,7 +68,7 @@ public class ShutDownHook {
 				}
 				logger.warn("outPutRelease success...");
 			}catch(Exception e){
-				logger.error(e.getMessage());
+				logger.error("outPutRelease error:{}",e.getMessage());
 			}
 		}
 		
@@ -83,15 +83,15 @@ public class ShutDownHook {
 						empty =initInputQueueList.allQueueEmpty();
 					}
 					logger.warn("queue size=="+initInputQueueList.allQueueSize());
-				    logger.warn("ShutDown jvm success ...");
+				    logger.warn("inputQueueRelease success ...");
 				}catch(Exception e){
-				    logger.error(e.getMessage());
+				    logger.error("inputQueueRelease error:{}",e.getMessage());
 				}
 				finally{
 					try{
 						initInputQueueList.getLock().unlock();
 					}catch(Exception e){
-					    logger.error(e.getMessage());
+					    logger.error("inputQueueRelease error:{}",e.getMessage());
 					}
 				}
 			}
@@ -103,7 +103,7 @@ public class ShutDownHook {
 			// TODO Auto-generated method stub
 			inputRelease();
 			inputQueueRelease();
-			outPutRelease();
+			outPutRelease();	
 		}
 	}
 }
