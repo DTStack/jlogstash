@@ -6,27 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.logstash.annotation.Required;
 import com.dtstack.logstash.assembly.InputQueueList;
 import com.dtstack.logstash.decoder.IDecode;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import freemarker.template.utility.Execute;
-
 /**
  * 
  * Reason: TODO ADD REASON(可选)
