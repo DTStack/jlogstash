@@ -85,15 +85,16 @@ public class Main {
 		InputQueueList inputQueueList = null;
 		try {
 			cmdLine = parseArg(args);
+			//logger config
             logbackComponent.setupLogger(cmdLine);
-            //组装管道
+            //assembly pipeline
             inputQueueList =assemblyPipeline.assemblyPipeline(cmdLine);
+    		//add shutdownhook
+    		ShutDownHook shutDownHook = new ShutDownHook(inputQueueList, assemblyPipeline.getBaseInputs(),assemblyPipeline.getBaseOutPuts());
+    		shutDownHook.addShutDownHook();
 		} catch (Exception e) {
 			logger.error("jlogstash_start error:{}",e.getCause());
 			System.exit(-1);
 		}
-		//add shutdownhook
-		ShutDownHook shutDownHook = new ShutDownHook(inputQueueList, assemblyPipeline.getBaseInputs(),assemblyPipeline.getBaseOutPuts());
-		shutDownHook.addShutDownHook();
 	}
 }

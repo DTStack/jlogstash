@@ -6,12 +6,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.logstash.configs.YamlConfig;
 import com.dtstack.logstash.factory.FilterFactory;
 import com.dtstack.logstash.factory.InputFactory;
@@ -80,7 +78,7 @@ public class AssemblyPipeline {
 			logger.debug("FilterAndOutput thread start ...");
 		    initFilterAndOutputThread(outputs,filters,initInputQueueList.getQueueList(),getOutBatchSize(cmdLine));
 		}catch(Exception t){
-			logger.error("assemblyPipeline is error", t);
+			logger.error("assemblyPipeline is error:{}", t.getCause());
 			System.exit(1);
 		}
         return initInputQueueList;
