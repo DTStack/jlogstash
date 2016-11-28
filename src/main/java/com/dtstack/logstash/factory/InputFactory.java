@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import com.dtstack.logstash.assembly.InputQueueList;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.utils.Package;
@@ -21,18 +22,21 @@ import com.google.common.collect.Maps;
  */
 public class InputFactory extends InstanceFactory{
 	
+	@SuppressWarnings("rawtypes")
 	public static BaseInput getInstance(String inputType,Map inputConfig,InputQueueList inputQueueList) throws Exception{
 		Class<?> inputClass = Class
 				.forName(Package.getRealClassName(inputType,"input"));
-		configInstance(inputClass,inputConfig);
+		configInstance(inputClass,inputConfig);//设置static field
 		Constructor<?> ctor = inputClass.getConstructor(Map.class,
 				InputQueueList.class);
 		BaseInput inputInstance = (BaseInput) ctor.newInstance(
 				inputConfig,inputQueueList);
+		configInstance(inputInstance,inputConfig);//设置非static field
 		inputInstance.prepare();
 		return inputInstance;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<BaseInput> getBatchInstance(List<Map> inputs,InputQueueList inputQueueList) throws Exception{
 		List<BaseInput> baseinputs =Lists.newArrayList();
 		for (Map input : inputs) {
@@ -42,7 +46,7 @@ public class InputFactory extends InstanceFactory{
 				String inputType = inputEntry.getKey();
 				Map inputConfig = inputEntry.getValue();
 				if(inputConfig==null)inputConfig=Maps.newLinkedHashMap();
-				BaseInput baseInput =InputFactory.getInstance(inputType, inputConfig, inputQueueList);
+				BaseInput baseInput =getInstance(inputType, inputConfig, inputQueueList);
 				baseinputs.add(baseInput);
 			}
 		}

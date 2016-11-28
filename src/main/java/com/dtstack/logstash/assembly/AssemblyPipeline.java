@@ -6,10 +6,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.logstash.configs.YamlConfig;
 import com.dtstack.logstash.factory.FilterFactory;
 import com.dtstack.logstash.factory.InputFactory;
@@ -19,6 +21,7 @@ import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.outputs.BaseOutput;
 import com.dtstack.logstash.property.SystemProperty;
 import com.dtstack.logstash.utils.Machine;
+import com.google.common.collect.Lists;
 
 /**
  * 
@@ -39,6 +42,8 @@ public class AssemblyPipeline {
 	private InputQueueList initInputQueueList =null;
 	
 	private List<BaseInput> baseInputs =null;
+	
+	private List<BaseOutput> baseOutputs = Lists.newCopyOnWriteArrayList();
 	
 	/**
 	 * 组装管道
@@ -102,12 +107,14 @@ public class AssemblyPipeline {
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	protected void initFilterAndOutputThread(List<Map> outputs, List<Map> filters, List<LinkedBlockingQueue<Map<String,Object>>> queues,int batchSize) throws Exception{
 		filterOutputExecutor= Executors.newFixedThreadPool(queues.size());
 		for(LinkedBlockingQueue<Map<String,Object>> queue:queues){
-			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);		
+			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);
 			List<BaseFilter> baseFilters = FilterFactory.getBatchInstance(filters);	
 			filterOutputExecutor.submit(new FilterAndOutputThread(queue,baseFilters,baseOutputs,batchSize));
+			baseOutputs.addAll(baseOutputs);
 		}
 	}
 	
@@ -155,6 +162,10 @@ public class AssemblyPipeline {
 
 
 	public List<BaseInput> getBaseInputs() {
-		return baseInputs;
+		return this.baseInputs;
+	}
+	
+	public List<BaseOutput> getBaseOutPuts() {
+		return this.baseOutputs;
 	}
 }

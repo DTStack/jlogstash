@@ -32,7 +32,7 @@ public class InputQueueList {
 
 	private final AtomicInteger index = new AtomicInteger(0);
 
-	private static int SLEEP = 10;
+	private static int SLEEP = 2;//queue选取的间隔时间
 
 	private AtomicBoolean ato = new AtomicBoolean(false);
 

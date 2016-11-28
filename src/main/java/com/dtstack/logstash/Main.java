@@ -93,9 +93,7 @@ public class Main {
 			System.exit(-1);
 		}
 		//add shutdownhook
-		ShutDownHook shutDownHook = new ShutDownHook(inputQueueList, assemblyPipeline.getBaseInputs());
+		ShutDownHook shutDownHook = new ShutDownHook(inputQueueList, assemblyPipeline.getBaseInputs(),assemblyPipeline.getBaseOutPuts());
 		shutDownHook.addShutDownHook();
 	}
-
-	
 }

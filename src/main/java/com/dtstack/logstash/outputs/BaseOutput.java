@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 
 	private static final Logger logger = LoggerFactory.getLogger(BaseOutput.class);
 
+	@SuppressWarnings("rawtypes")
 	protected Map config;
 	
 	protected List<TemplateRender> IF;
@@ -41,6 +41,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 	
 	public BlockingQueue<Object> failedMsgQueue = Queues.newLinkedBlockingDeque();
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public BaseOutput(Map config) {
 		this.config = config;
 
@@ -65,8 +66,13 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 
 	public abstract void prepare();
 
+	@SuppressWarnings("rawtypes")
 	protected abstract void emit(Map event);
 	
+	public void release(){};
+
+	
+	@SuppressWarnings("rawtypes")
 	public void process(Map event) {
 		if(event != null && event.size() > 0){
 			boolean succuess = true;
@@ -125,7 +131,5 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 	@Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
-    }
-    
-    
+    }   
 }

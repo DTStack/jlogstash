@@ -28,8 +28,11 @@ public class JsonDecoder implements IDecode {
         Map<String, Object> event = null;
         try {
             event = objectMapper.readValue(message, Map.class);
-            if(!event.containsKey("@timestamp")){
+            if(!event.containsKey("@timestamp")){//日志生成的时间
             	event.put("@timestamp", DateTime.now(DateTimeZone.UTC).toString());
+            }
+            if(!event.containsKey("timestamp")){//日志接收的时间
+            	event.put("timestamp", DateTime.now(DateTimeZone.UTC).toString());
             }
             if(!event.containsKey("message")){
             	event.put("message", message);
@@ -40,6 +43,7 @@ public class JsonDecoder implements IDecode {
                 {
                     put("message", message);
                     put("@timestamp", DateTime.now(DateTimeZone.UTC).toString());
+                    put("timestamp", DateTime.now(DateTimeZone.UTC).toString());
                 }
             };
             return event;
