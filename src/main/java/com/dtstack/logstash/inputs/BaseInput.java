@@ -65,7 +65,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     		negate = (boolean) codecConfig.get("negate");
     	}
     	
-    	return new MultilineDecoder(patternStr, what, negate);
+    	return new MultilineDecoder(patternStr, what, negate, inputQueueList);
     }
     
 

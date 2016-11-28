@@ -44,15 +44,8 @@ public class FilterAndOutputThread implements Runnable {
 			try {
 				
 				//优先处理失败信息
-				boolean dealFailMsg = false;
-				for (BaseOutput bo : outputProcessors) {
-					if (bo.isConsistency()) {
-						dealFailMsg = dealFailMsg || bo.dealFailedMsg();
-					}
-				}
-				
-				if(dealFailMsg){
-					continue A;
+				if(dealFailMsg()){
+					continue;
 				}
 				
 				event = inputQueue.take();
@@ -72,6 +65,17 @@ public class FilterAndOutputThread implements Runnable {
 				logger.error("process event failed:" + event, e.getCause());
 			}
 		}
+	}
+	
+	public boolean dealFailMsg(){
+		boolean dealFailMsg = false;
+		for (BaseOutput bo : outputProcessors) {
+			if (bo.isConsistency()) {
+				dealFailMsg = dealFailMsg || bo.dealFailedMsg();
+			}
+		}
+		
+		return dealFailMsg;
 	}
 
 }

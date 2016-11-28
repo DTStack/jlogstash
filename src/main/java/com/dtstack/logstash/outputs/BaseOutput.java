@@ -98,6 +98,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
     		return false;
     	}
 		
+		logger.error("deal failed msg, queue size:{}", failedMsgQueue.size());
     	Object msg = null;
     	while(true){
     		msg = failedMsgQueue.poll();

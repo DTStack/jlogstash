@@ -2,6 +2,7 @@ package com.dtstack.logstash.decoder;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -26,4 +27,11 @@ public class PlainDecoder implements IDecode {
 		};
 		return event;
 	}
+
+	@Override
+	public Map<String, Object> decode(String message, String identify) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

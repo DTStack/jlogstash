@@ -1,8 +1,15 @@
 package com.dtstack.logstash.decoder;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,9 +20,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dtstack.logstash.annotation.Required;
+import com.dtstack.logstash.assembly.InputQueueList;
 import com.dtstack.logstash.decoder.IDecode;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
+import freemarker.template.utility.Execute;
+
+/**
+ * 
+ * Reason: TODO ADD REASON(可选)
+ * Date: 2016年11月18日
+ * Company: www.dtstack.com
+ * @author xuchao
+ *
+ */
 public class MultilineDecoder implements IDecode {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MultilineDecoder.class);
@@ -28,27 +47,37 @@ public class MultilineDecoder implements IDecode {
 	
 	private Pattern patternReg; //FIXME 是否需要支持grok
 	
-	private List<String> buffer = Lists.newArrayList();
+	private Map<String, List<String>> bufferMap = new ConcurrentHashMap<String, List<String>>();
 	
-	/**最大累加行数**/
-	private int maxLines = 50;
-
-	private String customLineDelimiter = "$|$";
+	private Map<String, Integer> readSizeMap = new ConcurrentHashMap<String, Integer>();
 	
-	private String multilineTag = "multiline";
+	private Map<String, Long> lastFlushMap = new ConcurrentHashMap<String, Long>();
 	
-	public MultilineDecoder(String pattern, String what){
+	/**累计最大的内存大小**/
+	private int max_size = 5 * 1024;
+	
+	private String customLineDelimiter = (char)29 +"";//使用不可见字符作为分隔符
+	
+	/**数据刷新间隔,默认20s内未有新数据刷新buff*/
+	private int flushInterval = 20 * 1000;
+	
+	private int expiredInterval = 60 * 60 * 1000;//FIXME 失效时间不要设置超过INTEGER_MAX
+	
+	private InputQueueList inputQueueList;
+	
+	private ScheduledExecutorService scheduleExecutor;
 		
-		init(pattern, what);
+	public MultilineDecoder(String pattern, String what, InputQueueList queuelist){
+		init(pattern, what, queuelist);
 	}
 	
-	public MultilineDecoder(String pattern, String what, boolean negate){
+	public MultilineDecoder(String pattern, String what, boolean negate, InputQueueList queuelist){
 		
 		this.negate = negate;
-		this.init(pattern, what);
+		this.init(pattern, what, queuelist);
 	}
 		
-	public void init(String pattern, String what){
+	public void init(String pattern, String what, InputQueueList queuelist){
 		
 		if(pattern == null || what == null){
 			logger.error("pattern and what must not be null.");
@@ -60,79 +89,140 @@ public class MultilineDecoder implements IDecode {
 			System.out.println(-1);
 		}
 		
+		this.inputQueueList = queuelist;
+		
 		logger.warn("MultilineDecoder param pattern:{}, what:{}, negate:{}.", new Object[]{pattern, what, negate});
 		
 		this.pattern = pattern;
 		this.what = what;
 		
 		patternReg = Pattern.compile(this.pattern);
+		scheduleExecutor = Executors.newScheduledThreadPool(1);
+		scheduleExecutor.scheduleWithFixedDelay(new FlushMonitor(), flushInterval, flushInterval, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
-	public Map<String, Object> decode(String message) {
+	public Map<String, Object> decode(String message, String identify) {
 		
 		Matcher matcher = patternReg.matcher(message);
 		boolean isMathcer = matcher.find();
 		boolean hasMatcher = (isMathcer && !negate) || (!isMathcer && negate);
 		Map<String, Object> rst;
+				
+		int readSize = getAndAdd(identify, message.length()) ;
 		
 		if("next".equals(what)){
-			rst = doNext(message, hasMatcher);
+			rst = doNext(identify, message, hasMatcher);
 		}else{
-			rst = doPrevious(message, hasMatcher);
+			rst = doPrevious(identify, message, hasMatcher);
 		}
 		
-		if(buffer.size() >= maxLines){
-			rst =  flush();
+		if(readSize >= max_size){
+			rst = flush(identify);
 		}
 		
 		return rst;
-		
 	}
 	
-	private void buffer(String msg){
+	private void buffer(String identify, String msg){
+		List<String> buffer = bufferMap.get(identify);
+		if(buffer == null){
+			buffer = Lists.newArrayList();
+			bufferMap.put(identify, buffer);
+		}
+		
 		buffer.add(msg);
 	}
 	
-	private Map<String, Object> flush(){
+	private int getAndAdd(String identify, int addNum){
+		Integer currNum = readSizeMap.get(identify);
+		currNum = currNum == null ? addNum : (currNum + addNum);
+		readSizeMap.put(identify, currNum);
+		return currNum;
+	}
+	
+	private Map<String, Object> flush(String identify){
 		
-		if(buffer.size() == 0){
+		List<String> buffer = bufferMap.get(identify);
+		
+		if(buffer == null || buffer.size() == 0){
 			return null;
 		}
 		
 		String msg = StringUtils.join(buffer, customLineDelimiter);
 		Map<String, Object> event = new HashMap<String, Object>();
-		if(buffer.size() > 1){
-			event.put(multilineTag, "true");
-		}
 		
+		String timestamp = DateTime.now(DateTimeZone.UTC).toString();
 		event.put("message", msg);
-		event.put("@timestamp", DateTime.now(DateTimeZone.UTC).toString());
+		event.put("@timestamp", timestamp);
+		event.put("timestamp", timestamp);
 		buffer.clear();
+		readSizeMap.remove(identify);
+		lastFlushMap.put(identify, System.currentTimeMillis());
 		return event;
 	}
 	
-	private Map<String, Object> doNext(String msg, boolean matched){
+	private Map<String, Object> doNext(String identify, String msg, boolean matched){
 		
 		Map<String, Object> event = null;
-		buffer(msg);
+		buffer(identify, msg);
 		if(!matched){
-			event = flush();
+			event = flush(identify);
 		}
 		
 		return event;
 	}
 	
-	private Map<String, Object> doPrevious(String msg, boolean matched){
+	private Map<String, Object> doPrevious(String identify, String msg, boolean matched){
 		
 		Map<String, Object> event = null;
 		if(!matched){
-			event = flush();
+			event = flush(identify);
 		}
 		
-		buffer(msg);
+		buffer(identify, msg);
 		
 		return event;
 	}
 
+	@Override
+	public Map<String, Object> decode(String message) {
+		// TODO Auto-generated method stub
+		logger.error("not support for this func");
+		return null;
+	}
+	
+	class FlushMonitor implements Runnable{
+
+		@Override
+		public void run() {
+			long currTime = System.currentTimeMillis();
+			
+			Iterator<Entry<String, List<String>>> it = bufferMap.entrySet().iterator();
+			for( ; it.hasNext() ; ){
+				Entry<String, List<String>> buffer = it.next();
+				Long lastUpdate = lastFlushMap.get(buffer.getKey());
+				if(lastUpdate == null){
+					lastFlushMap.put(buffer.getKey(), currTime);
+					continue;
+				}
+				
+				if(currTime - lastUpdate > flushInterval){
+					Map<String, Object> event = flush(buffer.getKey());
+					if(event != null){
+						event.put("path", buffer.getKey());
+						inputQueueList.put(event);
+					}
+				}
+				
+				if(currTime - lastUpdate > expiredInterval){
+					it.remove();
+					lastFlushMap.remove(buffer.getKey());
+				}
+			}
+		}
+	}
+	
 }
+
+

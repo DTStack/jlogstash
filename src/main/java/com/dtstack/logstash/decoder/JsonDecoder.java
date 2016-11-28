@@ -46,4 +46,11 @@ public class JsonDecoder implements IDecode {
         }
         return event;
     }
+
+	@Override
+	public Map<String, Object> decode(String message, String identify) {
+		return null;
+	}
+    
+    
 }
