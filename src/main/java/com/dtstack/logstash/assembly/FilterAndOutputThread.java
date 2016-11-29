@@ -7,8 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.logstash.filters.BaseFilter;
 import com.dtstack.logstash.outputs.BaseOutput;
-//import com.google.common.collect.Lists;
-//import com.google.common.collect.Maps;
 
 /**
  * 
@@ -39,17 +37,14 @@ public class FilterAndOutputThread implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-	     while (true) {
+	    A:while (true) {
 			Map<String, Object> event = null;
 			try {
-//				if(dealFailMsg){
-//					continue A;
-//				}	
 				if(!priorityFail()){
 					event = inputQueue.take();
 					if (this.filterProcessors != null) {
 						for (BaseFilter bf : filterProcessors) {
-							if (event == null || event.size() == 0)continue;
+							if (event == null || event.size() == 0)continue A;
 							bf.process(event);
 						}
 					}
