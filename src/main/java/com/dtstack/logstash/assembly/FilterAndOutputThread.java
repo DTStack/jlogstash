@@ -56,7 +56,7 @@ public class FilterAndOutputThread implements Runnable {
 				}		
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				logger.error("process event failed:" + event, e.getCause());
+				logger.error("process event failed:{}",event, e.getCause());
 			}
 		}
 	}
