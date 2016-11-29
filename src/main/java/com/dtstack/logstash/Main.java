@@ -8,7 +8,6 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.logstash.assembly.AssemblyPipeline;
-import com.dtstack.logstash.assembly.InputQueueList;
 import com.dtstack.logstash.assembly.ShutDownHook;
 import com.dtstack.logstash.log.LogComponent;
 import com.dtstack.logstash.log.LogbackComponent;
@@ -71,7 +70,11 @@ public class Main {
 				.append("-f").append("\t\t\trequired config, indicate config file").append("\n")
 				.append("-l").append("\t\t\tlog file that store the output").append("\n")
 				.append("-w").append("\t\t\tfilter worker numbers").append("\n")
-				.append("-q").append("\t\t\tinput queue size").append("\n")
+				.append("-o").append("\t\t\toutput worker numbers").append("\n")
+			    .append("-iqn").append("\t\t\tinput queue numbers").append("\n")
+				.append("-iqs").append("\t\t\tinput queue size").append("\n")
+			    .append("-oqn").append("\t\t\toutput queue numbers").append("\n")
+				.append("-oqs").append("\t\t\toutput queue size").append("\n")
 				.append("-t").append("\t\t\tlog input queue size").append("\n")
 				.append("-v").append("\t\t\tprint info log").append("\n")
 				.append("-vv").append("\t\t\tprint debug log").append("\n")
@@ -82,15 +85,14 @@ public class Main {
 
 	public static void main(String[] args) {
 		CommandLine cmdLine = null;
-		InputQueueList inputQueueList = null;
 		try {
 			cmdLine = parseArg(args);
 			//logger config
             logbackComponent.setupLogger(cmdLine);
             //assembly pipeline
-            inputQueueList =assemblyPipeline.assemblyPipeline(cmdLine);
+            assemblyPipeline.assemblyPipeline(cmdLine);
     		//add shutdownhook
-    		ShutDownHook shutDownHook = new ShutDownHook(inputQueueList, assemblyPipeline.getBaseInputs(),assemblyPipeline.getBaseOutPuts());
+    		ShutDownHook shutDownHook = new ShutDownHook(assemblyPipeline.getInitInputQueueList(), assemblyPipeline.getBaseInputs(),assemblyPipeline.getAllBaseOutputs());
     		shutDownHook.addShutDownHook();
 		} catch (Exception e) {
 			logger.error("jlogstash_start error:{}",e.getCause());

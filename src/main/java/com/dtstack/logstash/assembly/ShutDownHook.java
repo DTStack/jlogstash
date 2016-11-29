@@ -75,7 +75,7 @@ public class ShutDownHook {
 		private void inputQueueRelease(){
 			if(initInputQueueList!=null){
 				try{
-					initInputQueueList.getLock().lock();
+					initInputQueueList.getLock().lockInterruptibly();
 					initInputQueueList.getAto().getAndSet(true);
 					Thread.sleep(sleep);
 					boolean empty =initInputQueueList.allQueueEmpty();

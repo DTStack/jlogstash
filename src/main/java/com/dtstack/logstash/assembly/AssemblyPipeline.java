@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.logstash.configs.YamlConfig;
@@ -17,8 +16,6 @@ import com.dtstack.logstash.factory.OutputFactory;
 import com.dtstack.logstash.filters.BaseFilter;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.outputs.BaseOutput;
-import com.dtstack.logstash.property.SystemProperty;
-import com.dtstack.logstash.utils.Machine;
 import com.google.common.collect.Lists;
 
 /**
@@ -33,15 +30,19 @@ public class AssemblyPipeline {
 	
 	private static Logger logger = LoggerFactory.getLogger(AssemblyPipeline.class);
 	
-	private static ExecutorService filterOutputExecutor =null;
+	private static ExecutorService filterExecutor =null;
+	
+	private static ExecutorService outputExecutor =null;
 	
 	private static ExecutorService inputExecutor =null;
 	
 	private InputQueueList initInputQueueList =null;
 	
+	private OutPutQueueList initOutputQueueList =null;
+
 	private List<BaseInput> baseInputs =null;
 	
-	private List<BaseOutput> baseOutputs = Lists.newCopyOnWriteArrayList();
+	private List<BaseOutput> allBaseOutputs = Lists.newCopyOnWriteArrayList();
 	
 	/**
 	 * 组装管道
@@ -50,7 +51,7 @@ public class AssemblyPipeline {
 	 * @throws IOException
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public InputQueueList assemblyPipeline(CommandLine cmdLine) throws IOException{
+	public void assemblyPipeline(CommandLine cmdLine) throws IOException{
 		try{
 			logger.debug("load config start ...");
 			Map configs = new YamlConfig().parse(cmdLine.getOptionValue("f"));
@@ -62,7 +63,8 @@ public class AssemblyPipeline {
 				logger.error("input plugin is not empty");
 				System.exit(1);
 			}
-			
+			logger.debug("initOutputQueueList start ...");
+			initOutputQueueList = initOutputQueueList(cmdLine);
 		    List<Map> outputs = (List<Map>) configs.get("outputs");
 			if(outputs==null||outputs.size()==0){
 				logger.error("output plugin is not empty");
@@ -72,32 +74,58 @@ public class AssemblyPipeline {
 			logger.debug("init input plugin start ...");
 			baseInputs =InputFactory.getBatchInstance(inputs, initInputQueueList);
 			initInputQueueList.startElectionIdleQueue();
-			if(isInputQueueSizeLog(cmdLine))initInputQueueList.startLogQueueSize();
+			if(CmdLineParams.isInputQueueSizeLog(cmdLine))initInputQueueList.startLogQueueSize();
 			logger.debug("input thread start ...");
-			initInputPutThread(baseInputs);
-			logger.debug("FilterAndOutput thread start ...");
-		    initFilterAndOutputThread(outputs,filters,initInputQueueList.getQueueList(),getOutBatchSize(cmdLine));
+			initInputThread(baseInputs);
+			logger.debug("filter thread start ...");
+			initFilterThread(filters,CmdLineParams.getFilterWork(cmdLine));
+			logger.debug("output thread start ...");
+			initOutPutThread(outputs,CmdLineParams.getOutputWork(cmdLine));
 		}catch(Exception t){
 			logger.error("assemblyPipeline is error:{}", t.getCause());
 			System.exit(1);
 		}
-        return initInputQueueList;
 	}
 
-
+ /**
+  *   
+  * @param cmdLine
+  * @return
+  */
 	protected InputQueueList initInputQueueList(CommandLine cmdLine){
-		int filterWorks = getFilterWork(cmdLine);
-        int queueSize = getInputQueueSize(cmdLine);
+		int inputQueue = CmdLineParams.getInputQueueNumber(cmdLine);
+        int queueSize = CmdLineParams.getInputQueueSize(cmdLine);
         InputQueueList queueList = new InputQueueList();
         List<LinkedBlockingQueue<Map<String,Object>>> list =queueList.getQueueList();
-        for(int i=0;i<filterWorks;i++){
+        for(int i=0;i<inputQueue;i++){
         	list.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
         }
 		return queueList;
 	}
 	
 	
-	protected void initInputPutThread(List<BaseInput> baseInputs) {
+    /**
+     * 
+     * @param cmdLine
+     * @return
+     */
+	protected OutPutQueueList initOutputQueueList(CommandLine cmdLine){
+		int outPutQueue = CmdLineParams.getOutputQueueNumber(cmdLine);
+        int queueSize = CmdLineParams.getOutputQueueSize(cmdLine);
+        OutPutQueueList queueList = new OutPutQueueList();
+        List<LinkedBlockingQueue<Map<String,Object>>> list =queueList.getQueueList();
+        for(int i=0;i<outPutQueue;i++){
+        	list.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
+        }
+		return queueList;
+	}
+	
+	
+    /**
+     * 
+     * @param baseInputs
+     */
+	protected void initInputThread(List<BaseInput> baseInputs) {
 		// TODO Auto-generated method stub
 		inputExecutor= Executors.newFixedThreadPool(baseInputs.size());
 		for(BaseInput input:baseInputs){
@@ -105,65 +133,58 @@ public class AssemblyPipeline {
 		}
 	}
 	
+	
+	/**
+	 * 
+	 * @param filters
+	 * @param works
+	 * @throws Exception
+	 */
 	@SuppressWarnings("rawtypes")
-	protected void initFilterAndOutputThread(List<Map> outputs, List<Map> filters, List<LinkedBlockingQueue<Map<String,Object>>> queues,int batchSize) throws Exception{
-		filterOutputExecutor= Executors.newFixedThreadPool(queues.size());
-		for(LinkedBlockingQueue<Map<String,Object>> queue:queues){
-			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);
+	protected void initFilterThread(List<Map> filters,int works) throws Exception{
+		FilterThread.setInPutQueueList(initInputQueueList);
+		FilterThread.setOutPutQueueList(initOutputQueueList);
+		filterExecutor= Executors.newFixedThreadPool(works);
+		for(int i=0;i<works;i++){
 			List<BaseFilter> baseFilters = FilterFactory.getBatchInstance(filters);	
-			filterOutputExecutor.submit(new FilterAndOutputThread(queue,baseFilters,baseOutputs,batchSize));
-			baseOutputs.addAll(baseOutputs);
+			filterExecutor.submit(new FilterThread(baseFilters));
 		}
 	}
 	
-	/**
-	 * 获取filter线程数
-	 * @param line
-	 * @return
-	 */
-	protected static int getFilterWork(CommandLine line){
-		String number =line.getOptionValue("w");
-        int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):Machine.availableProcessors();	
-        logger.warn("getFilterWork--->"+works); 	
-        return works;
-	}
 	
 	/**
-	 *获取queue size的大小
-	 * @param line
-	 * @return
+	 * 
+	 * @param outputs
+	 * @param works
+	 * @throws Exception
 	 */
-	protected static int getInputQueueSize(CommandLine line){
-		String number =line.getOptionValue("q");
-        return 	StringUtils.isNotBlank(number)?Integer.parseInt(number):Integer.parseInt(SystemProperty.getSystemProperty("inputQueueSize"));	
+	@SuppressWarnings("rawtypes")
+	protected void initOutPutThread(List<Map> outputs,int works) throws Exception{
+		OutputThread.setOutPutQueueList(initOutputQueueList);
+		outputExecutor= Executors.newFixedThreadPool(works);
+		for(int i=0;i<works;i++){
+			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);
+			allBaseOutputs.addAll(baseOutputs);
+			outputExecutor.submit(new OutputThread(baseOutputs));
+		}
 	}
-	
-	/**
-	 * 获取batch size的大小
-	 * @param line
-	 * @return
-	 */
-	protected static int getOutBatchSize(CommandLine line){
-		String number =line.getOptionValue("b");
-        return 	StringUtils.isNotBlank(number)?Integer.parseInt(number):Integer.parseInt(SystemProperty.getSystemProperty("batchSize"));	
-	}
-	
-	
-	/**
-	 * 是否开启InputQueueSize log日志标准输出
-	 * @param line
-	 * @return
-	 */
-	protected static boolean isInputQueueSizeLog(CommandLine line){
-		return line.hasOption("t");
-	}
-
 
 	public List<BaseInput> getBaseInputs() {
 		return this.baseInputs;
 	}
-	
-	public List<BaseOutput> getBaseOutPuts() {
-		return this.baseOutputs;
+
+
+	public InputQueueList getInitInputQueueList() {
+		return initInputQueueList;
 	}
+
+	public OutPutQueueList getInitOutputQueueList() {
+		return initOutputQueueList;
+	}
+
+
+	public List<BaseOutput> getAllBaseOutputs() {
+		return allBaseOutputs;
+	}
+
 }
