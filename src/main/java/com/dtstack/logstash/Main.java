@@ -92,7 +92,7 @@ public class Main {
             //assembly pipeline
             assemblyPipeline.assemblyPipeline(cmdLine);
     		//add shutdownhook
-    		ShutDownHook shutDownHook = new ShutDownHook(assemblyPipeline.getInitInputQueueList(), assemblyPipeline.getBaseInputs(),assemblyPipeline.getAllBaseOutputs());
+    		ShutDownHook shutDownHook = new ShutDownHook(assemblyPipeline.getInitInputQueueList(),assemblyPipeline.getInitOutputQueueList(),assemblyPipeline.getBaseInputs(),assemblyPipeline.getAllBaseOutputs());
     		shutDownHook.addShutDownHook();
 		} catch (Exception e) {
 			logger.error("jlogstash_start error:{}",e.getCause());

@@ -1,4 +1,4 @@
-package com.dtstack.logstash.assembly;
+package com.dtstack.logstash.assembly.queueList;
 
 import java.util.List;
 import java.util.Map;
@@ -17,18 +17,18 @@ import com.google.common.collect.Lists;
 /**
  * 
  * Reason: TODO ADD REASON(可选)
- * Date: 2016年8月31日 下午1:25:23
+ * Date: 2016年11月29日 下午1:25:23
  * Company: www.dtstack.com
  * @author sishu.yss
  *
  */
-public class InputQueueList {
+public class OutPutQueueList implements QueueList{
 
-	private static Logger logger = LoggerFactory.getLogger(InputQueueList.class);
+	private static Logger logger = LoggerFactory.getLogger(OutPutQueueList.class);
     
 	private static ExecutorService executor = Executors.newFixedThreadPool(2);
 
-	private static List<LinkedBlockingQueue<Map<String, Object>>> queueList = Lists.newArrayList();
+	private static List<LinkedBlockingQueue<Map<String, Object>>> outPutQueueList = Lists.newArrayList();
 
 	private final AtomicInteger pIndex = new AtomicInteger(0);
 	
@@ -40,61 +40,63 @@ public class InputQueueList {
 
 	private ReentrantLock lock = new ReentrantLock();
 	
-	public InputQueueList() {}
-
 	/**
 	 * 
 	 * @param message
 	 */
+	@Override
 	public void put(Map<String, Object> message) {
-		if (queueList.size() == 0) {
-			logger.error("InputQueueList is not Initialize");
+		if (outPutQueueList.size() == 0) {
+			logger.error("OutputQueueList is not Initialize");
 			System.exit(1);
 		}
 		try {
 			if (ato.get()) {
 				try {
-					lock.lockInterruptibly();;
-					queueList.get(pIndex.get()).put(message);
+					lock.lockInterruptibly();
+					outPutQueueList.get(pIndex.get()).put(message);
 				} finally {
 					lock.unlock();
 				}
 			} else {
-				queueList.get(pIndex.get()).put(message);
+				outPutQueueList.get(pIndex.get()).put(message);
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			logger.error("put message error:", e);
+			logger.error("put output queue message error:{}",e.getCause());
 		}finally{
 			if(ato.get()){
 				lock.unlock();
 			}
 		}
 	}
-	
+
+	@Override
 	public Map<String,Object> get(){
-		if (queueList.size() == 0) {
-			logger.error("inputQueueList is not Initialize");
+		if (outPutQueueList.size() == 0) {
+			logger.error("OutputQueueList is not Initialize");
 			System.exit(1);
 		}
 		try{
-			return queueList.get(gIndex.get()).take();
+			return outPutQueueList.get(gIndex.get()).take();
 		}catch(Exception e){
-			logger.error("inputQueueList get error:{}",e.getCause());
+			logger.error("OutputQueueList get error:{}",e.getCause());
 		}
 	    return null;
 	}
-
+	
+	
+	
 	public List<LinkedBlockingQueue<Map<String, Object>>> getQueueList() {
-		return queueList;
+		return outPutQueueList;
 	}
 	
-	
+	@Override
 	public void startElectionIdleQueue(){
 		executor.submit(new ElectionIdleQueue());
 	}
 	
-	
+	@Override
 	public void startLogQueueSize(){
 		executor.submit(new LogQueueSize());
 	}
@@ -107,9 +109,9 @@ public class InputQueueList {
 			// TODO Auto-generated method stub
 			try{
 				Thread.sleep(1000);
-				int size = queueList.size();
+				int size = outPutQueueList.size();
 				for(int i = 0; i < size; i++){
-					System.out.println(i+"--->"+queueList.get(i).size());
+					System.out.println(i+"--->"+outPutQueueList.get(i).size());
 				}
 			}catch(Exception e){
 				logger.error(e.getMessage());
@@ -119,11 +121,10 @@ public class InputQueueList {
 	}
 	
 	class ElectionIdleQueue implements Runnable {
-
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			int size = queueList.size();
+			int size = outPutQueueList.size();
 			while (true) {
 				try {
 					if (size > 0) {
@@ -132,7 +133,7 @@ public class InputQueueList {
 						int sz = Integer.MAX_VALUE;
 						int mz  = Integer.MIN_VALUE;
 						for (int i = 0; i < size; i++) {
-							int ssz = queueList.get(i).size();
+							int ssz = outPutQueueList.get(i).size();
 							if (ssz <= sz) {
 								sz = ssz;
 								id = i;
@@ -143,27 +144,29 @@ public class InputQueueList {
 							}
 						}
 						pIndex.getAndSet(id);
-						gIndex.getAndSet(gId);			
+						gIndex.getAndSet(gId);
 					}
 					Thread.sleep(SLEEP);
 				} catch (Exception e) {
-					logger.error("input electionIdleQueue is error:{}",e.getCause());
+					logger.error("electionIdleQueue is error:{}",e.getCause());
 				}
 			}
 		}
 	}
 
+	@Override
 	public boolean allQueueEmpty() {
 		boolean result = true;
-		for (LinkedBlockingQueue<Map<String, Object>> queue : queueList) {
+		for (LinkedBlockingQueue<Map<String, Object>> queue : outPutQueueList) {
 			result = result && queue.isEmpty();
 		}
 		return result;
 	}
 	
+	@Override
 	public int allQueueSize(){
 		int size=0;
-		for (LinkedBlockingQueue<Map<String, Object>> queue : queueList) {
+		for (LinkedBlockingQueue<Map<String, Object>> queue : outPutQueueList) {
 			size = size+queue.size();
 		}
 		return size;

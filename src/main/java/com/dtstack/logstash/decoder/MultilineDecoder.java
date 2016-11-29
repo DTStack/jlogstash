@@ -11,12 +11,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.logstash.assembly.InputQueueList;
+
+import com.dtstack.logstash.assembly.queueList.InputQueueList;
 import com.dtstack.logstash.decoder.IDecode;
 import com.google.common.collect.Lists;
 /**

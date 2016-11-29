@@ -1,9 +1,12 @@
-package com.dtstack.logstash.assembly;
+package com.dtstack.logstash.assembly.pluginThread;
 
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.dtstack.logstash.assembly.queueList.OutPutQueueList;
 import com.dtstack.logstash.outputs.BaseOutput;
 
 /**

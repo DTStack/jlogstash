@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.dtstack.logstash.assembly.InputQueueList;
+import com.dtstack.logstash.assembly.queueList.InputQueueList;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.utils.Package;
 import com.google.common.collect.Lists;

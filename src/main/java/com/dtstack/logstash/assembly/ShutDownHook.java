@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dtstack.logstash.assembly.queueList.InputQueueList;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.outputs.BaseOutput;
 
@@ -22,14 +23,17 @@ public class ShutDownHook {
 	
     private InputQueueList initInputQueueList;
     
+    private InputQueueList initOutputQueueList;
+
     private List<BaseInput> baseInputs; 
     
     private List<BaseOutput> baseOutputs;
     
     private static int sleep =1000;
     
-    public ShutDownHook(InputQueueList initInputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
+    public ShutDownHook(InputQueueList initInputQueueList,InputQueueList initOutputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
     	this.initInputQueueList = initInputQueueList;
+    	this.initOutputQueueList = initOutputQueueList;
     	this.baseInputs  = baseInputs;
     	this.baseOutputs = baseOutputs;
     }
