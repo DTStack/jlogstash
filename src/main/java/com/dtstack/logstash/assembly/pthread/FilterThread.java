@@ -1,4 +1,4 @@
-package com.dtstack.logstash.assembly.pluginThread;
+package com.dtstack.logstash.assembly.pthread;
 
 import java.util.List;
 import java.util.Map;
@@ -8,8 +8,8 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.logstash.assembly.queueList.InputQueueList;
-import com.dtstack.logstash.assembly.queueList.OutPutQueueList;
+import com.dtstack.logstash.assembly.qlist.InputQueueList;
+import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.logstash.factory.FilterFactory;
 import com.dtstack.logstash.filters.BaseFilter;
 

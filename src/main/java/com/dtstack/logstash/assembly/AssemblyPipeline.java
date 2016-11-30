@@ -3,14 +3,16 @@ package com.dtstack.logstash.assembly;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.logstash.assembly.pluginThread.FilterThread;
-import com.dtstack.logstash.assembly.pluginThread.InputThread;
-import com.dtstack.logstash.assembly.pluginThread.OutputThread;
-import com.dtstack.logstash.assembly.queueList.InputQueueList;
-import com.dtstack.logstash.assembly.queueList.OutPutQueueList;
+
+import com.dtstack.logstash.assembly.pthread.FilterThread;
+import com.dtstack.logstash.assembly.pthread.InputThread;
+import com.dtstack.logstash.assembly.pthread.OutputThread;
+import com.dtstack.logstash.assembly.qlist.InputQueueList;
+import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.logstash.configs.YamlConfig;
 import com.dtstack.logstash.factory.InputFactory;
 import com.dtstack.logstash.inputs.BaseInput;

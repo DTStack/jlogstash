@@ -1,4 +1,4 @@
-package com.dtstack.logstash.assembly.pluginThread;
+package com.dtstack.logstash.assembly.pthread;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;

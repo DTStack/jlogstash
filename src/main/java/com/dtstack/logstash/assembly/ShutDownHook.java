@@ -5,9 +5,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.logstash.assembly.queueList.InputQueueList;
-import com.dtstack.logstash.assembly.queueList.OutPutQueueList;
-import com.dtstack.logstash.assembly.queueList.QueueList;
+import com.dtstack.logstash.assembly.qlist.InputQueueList;
+import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
+import com.dtstack.logstash.assembly.qlist.QueueList;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.outputs.BaseOutput;
 

@@ -18,7 +18,7 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.logstash.assembly.queueList.InputQueueList;
+import com.dtstack.logstash.assembly.qlist.InputQueueList;
 import com.dtstack.logstash.decoder.IDecode;
 import com.google.common.collect.Lists;
 /**

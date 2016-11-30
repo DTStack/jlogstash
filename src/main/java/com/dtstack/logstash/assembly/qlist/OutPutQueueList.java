@@ -1,4 +1,4 @@
-package com.dtstack.logstash.assembly.queueList;
+package com.dtstack.logstash.assembly.qlist;
 
 import java.util.List;
 import java.util.Map;
@@ -13,14 +13,14 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * Reason: TODO ADD REASON(可选)
- * Date: 2016年8月31日 下午1:25:23
+ * Date: 2016年11月29日 下午1:25:23
  * Company: www.dtstack.com
  * @author sishu.yss
  *
  */
-public class InputQueueList extends QueueList{
+public class OutPutQueueList extends QueueList{
 
-	private static Logger logger = LoggerFactory.getLogger(InputQueueList.class);
+	private static Logger logger = LoggerFactory.getLogger(OutPutQueueList.class);
     
 	private static ExecutorService executor = Executors.newFixedThreadPool(2);
 
@@ -30,19 +30,19 @@ public class InputQueueList extends QueueList{
 
 	private static int SLEEP = 1;//queue选取的间隔时间
 	
-	private static InputQueueList inputQueueList;
+	private static OutPutQueueList outPutQueueList;
 	
-	public static InputQueueList getInputQueueListInstance(int queueNumber,int queueSize){
-		if(inputQueueList!=null)return inputQueueList;
-		inputQueueList = new InputQueueList();
-        List<LinkedBlockingQueue<Map<String,Object>>> list =inputQueueList.getQueueList();
+	public static OutPutQueueList getOutPutQueueListInstance(int queueNumber,int queueSize){
+		if(outPutQueueList!=null)return outPutQueueList;
+		outPutQueueList = new OutPutQueueList();
+        List<LinkedBlockingQueue<Map<String,Object>>> list =outPutQueueList.getQueueList();
         for(int i=0;i<queueNumber;i++){
         	list.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
         }
-		return inputQueueList;
+		return outPutQueueList;
 	}
-	
 
+	
 	/**
 	 * 
 	 * @param message
@@ -50,13 +50,13 @@ public class InputQueueList extends QueueList{
 	@Override
 	public void put(Map<String, Object> message) {
 		if (queueList.size() == 0) {
-			logger.error("InputQueueList is not Initialize");
+			logger.error("queueList is not Initialize");
 			System.exit(1);
 		}
 		try {
 			if (ato.get()) {
 				try {
-					lock.lockInterruptibly();;
+					lock.lockInterruptibly();
 					queueList.get(pIndex.get()).put(message);
 				} finally {
 					lock.unlock();
@@ -66,24 +66,24 @@ public class InputQueueList extends QueueList{
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			logger.error("put message error:", e);
+			logger.error("put output queue message error:{}",e.getCause());
 		}finally{
 			if(ato.get()){
 				lock.unlock();
 			}
 		}
 	}
-	
+
 	@Override
 	public Map<String,Object> get(){
 		if (queueList.size() == 0) {
-			logger.error("inputQueueList is not Initialize");
+			logger.error("queueList is not Initialize");
 			System.exit(1);
 		}
 		try{
 			return queueList.get(gIndex.get()).take();
 		}catch(Exception e){
-			logger.error("inputQueueList get error:{}",e.getCause());
+			logger.error("queueList get error:{}",e.getCause());
 		}
 	    return null;
 	}
@@ -108,16 +108,16 @@ public class InputQueueList extends QueueList{
 				Thread.sleep(1000);
 				int size = queueList.size();
 				for(int i = 0; i < size; i++){
-					logger.debug("inputqueue:"+i+"--->"+queueList.get(i).size());
+					logger.debug("outputqueue:"+i+"--->"+queueList.get(i).size());
 				}
 			}catch(Exception e){
 				logger.error(e.getMessage());
 			}
-		}	
+		}
+		
 	}
 	
 	class ElectionIdleQueue implements Runnable {
-
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
@@ -141,11 +141,11 @@ public class InputQueueList extends QueueList{
 							}
 						}
 						pIndex.getAndSet(id);
-						gIndex.getAndSet(gId);			
+						gIndex.getAndSet(gId);
 					}
 					Thread.sleep(SLEEP);
 				} catch (Exception e) {
-					logger.error("input electionIdleQueue is error:{}",e.getCause());
+					logger.error("electionIdleQueue is error:{}",e.getCause());
 				}
 			}
 		}

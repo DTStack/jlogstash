@@ -1,4 +1,4 @@
-package com.dtstack.logstash.assembly.queueList;
+package com.dtstack.logstash.assembly.qlist;
 
 import java.util.List;
 import java.util.Map;

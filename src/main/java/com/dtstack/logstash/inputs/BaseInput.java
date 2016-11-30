@@ -15,7 +15,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.logstash.assembly.queueList.InputQueueList;
+import com.dtstack.logstash.assembly.qlist.InputQueueList;
 import com.dtstack.logstash.decoder.IDecode;
 import com.dtstack.logstash.decoder.JsonDecoder;
 import com.dtstack.logstash.decoder.MultilineDecoder;
