@@ -68,7 +68,7 @@ public class AssemblyPipeline {
 			}
 		    List<Map> filters = (List<Map>) configs.get("filters");
 			logger.debug("init input plugin start ...");
-			baseInputs =InputFactory.getBatchInstance(inputs, initInputQueueList);
+			baseInputs =InputFactory.getBatchInstance(inputs,initInputQueueList);
 			initInputQueueList.startElectionIdleQueue();
 			if(CmdLineParams.isQueueSizeLog(cmdLine)){
 				initInputQueueList.startLogQueueSize();
@@ -84,7 +84,7 @@ public class AssemblyPipeline {
     		ShutDownHook shutDownHook = new ShutDownHook(initInputQueueList,initOutputQueueList,baseInputs,allBaseOutputs);
     		shutDownHook.addShutDownHook();
 		}catch(Exception t){
-			logger.error("assemblyPipeline is error:{}", t.getCause());
+			logger.error("assemblyPipeline is error:{}",t.getMessage());
 			System.exit(1);
 		}
 	}

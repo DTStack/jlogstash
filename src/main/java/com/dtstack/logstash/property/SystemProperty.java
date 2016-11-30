@@ -1,5 +1,7 @@
 package com.dtstack.logstash.property;
 
+import java.math.BigDecimal;
+
 
 /**
  * 
@@ -17,10 +19,15 @@ public class SystemProperty {
 		System.setProperty("output", "com.dtstack.logstash.outputs");
 		System.setProperty("annotationPlugin", "com.dtstack.logstash.annotation.plugin");
 		System.setProperty("annotationPackage","com.dtstack.logstash.annotation");
-		System.setProperty("proportion",Double.toString(500/1024));
 	}
 	
 	public static String getSystemProperty(String key){
 		return System.getProperty(key);
 	}
+	
+	public static Double getProportion(){
+		BigDecimal bg = new BigDecimal(500f/1024);
+       return bg.setScale(5, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
+	
 }

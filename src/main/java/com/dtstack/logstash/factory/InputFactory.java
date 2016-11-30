@@ -23,14 +23,12 @@ import com.google.common.collect.Maps;
 public class InputFactory extends InstanceFactory{
 	
 	@SuppressWarnings("rawtypes")
-	public static BaseInput getInstance(String inputType,Map inputConfig,InputQueueList inputQueueList) throws Exception{
+	public static BaseInput getInstance(String inputType,Map inputConfig) throws Exception{
 		Class<?> inputClass = Class
 				.forName(Package.getRealClassName(inputType,"input"));
 		configInstance(inputClass,inputConfig);//设置static field
-		Constructor<?> ctor = inputClass.getConstructor(Map.class,
-				InputQueueList.class);
-		BaseInput inputInstance = (BaseInput) ctor.newInstance(
-				inputConfig,inputQueueList);
+		Constructor<?> ctor = inputClass.getConstructor(Map.class);
+		BaseInput inputInstance = (BaseInput) ctor.newInstance(inputConfig);
 		configInstance(inputInstance,inputConfig);//设置非static field
 		inputInstance.prepare();
 		return inputInstance;
@@ -38,6 +36,7 @@ public class InputFactory extends InstanceFactory{
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<BaseInput> getBatchInstance(List<Map> inputs,InputQueueList inputQueueList) throws Exception{
+		BaseInput.setInputQueueList(inputQueueList);
 		List<BaseInput> baseinputs =Lists.newArrayList();
 		for (Map input : inputs) {
 			Iterator<Entry<String, Map>> inputIT = input.entrySet().iterator();
@@ -46,7 +45,7 @@ public class InputFactory extends InstanceFactory{
 				String inputType = inputEntry.getKey();
 				Map inputConfig = inputEntry.getValue();
 				if(inputConfig==null)inputConfig=Maps.newLinkedHashMap();
-				BaseInput baseInput =getInstance(inputType, inputConfig, inputQueueList);
+				BaseInput baseInput =getInstance(inputType, inputConfig);
 				baseinputs.add(baseInput);
 			}
 		}

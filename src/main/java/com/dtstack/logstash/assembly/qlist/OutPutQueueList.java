@@ -103,10 +103,12 @@ public class OutPutQueueList extends QueueList{
 		public void run() {
 			// TODO Auto-generated method stub
 			try{
-				Thread.sleep(1000);
-				int size = queueList.size();
-				for(int i = 0; i < size; i++){
-					logger.debug("outputqueue:"+i+"--->"+queueList.get(i).size());
+				while(true){
+					Thread.sleep(1000);
+					int size = queueList.size();
+					for(int i = 0; i < size; i++){
+						logger.debug("outputqueue:"+i+"--->"+queueList.get(i).size());
+					}
 				}
 			}catch(Exception e){
 				logger.error(e.getMessage());

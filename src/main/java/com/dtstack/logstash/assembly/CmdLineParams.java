@@ -51,7 +51,7 @@ public class CmdLineParams {
 	public static int getInputQueueSize(CommandLine line){
 		String number =line.getOptionValue("iqs");
 		if(StringUtils.isNotBlank(number))return Integer.parseInt(number);
-		return Public.getIntValue(monitorInfo.getJvmMaxMemory()*Double.parseDouble(SystemProperty.getSystemProperty("proportion")));
+		return Public.getIntValue(monitorInfo.getJvmMaxMemory()*SystemProperty.getProportion());
 	}
 	
 	
@@ -73,7 +73,8 @@ public class CmdLineParams {
 	public static int getOutputQueueSize(CommandLine line){
 		String number =line.getOptionValue("oqs");
 		if(StringUtils.isNotBlank(number))return Integer.parseInt(number);
-		return Public.getIntValue(monitorInfo.getJvmMaxMemory()*Double.parseDouble(SystemProperty.getSystemProperty("proportion")));	}
+		return Public.getIntValue(monitorInfo.getJvmMaxMemory()*SystemProperty.getProportion());	
+		}
 	
 	
 	/**

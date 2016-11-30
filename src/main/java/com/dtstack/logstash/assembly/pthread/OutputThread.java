@@ -55,9 +55,10 @@ public class OutputThread implements Runnable{
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
+	 Map<String, Object> event = null;
+	 try {
+		Thread.sleep(2000); 
 	    while (true) {
-			Map<String, Object> event = null;
-			try {
 				if(!priorityFail()){
 					event = outPutQueueList.get();
 					if (event != null && event.size() > 0) {
@@ -66,11 +67,11 @@ public class OutputThread implements Runnable{
 						}
 					}	
 				}		
-			} catch (Exception e) {
+			} 
+	    }catch (Exception e) {
 				// TODO Auto-generated catch block
 				logger.error("{}:output event failed:{}",event, e.getCause());
-			}
-		}	
+		}
 	}
 	
 	private boolean priorityFail(){

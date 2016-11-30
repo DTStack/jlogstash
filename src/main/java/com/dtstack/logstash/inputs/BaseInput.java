@@ -26,9 +26,13 @@ import com.dtstack.logstash.utils.Public;
 public abstract class BaseInput implements Cloneable, java.io.Serializable{
 		
 	private static final Logger baseLogger = LoggerFactory.getLogger(BaseInput.class);
+	
     protected Map<String, Object> config;
+    
     protected IDecode decoder;
-    protected InputQueueList inputQueueList;
+    
+    private static InputQueueList inputQueueList;
+    
     protected Map<String, Object> addFields=null;
     
 
@@ -71,9 +75,8 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	public BaseInput(Map config,InputQueueList inputQueueList){
+	public BaseInput(Map config){
         this.config = config;
-        this.inputQueueList = inputQueueList;
         decoder = createDecoder();
         if(this.config!=null){
         	addFields = (Map<String, Object>) this.config.get("addFields");
@@ -88,7 +91,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     	if(addFields!=null){
     		addFields(event);
     	}
-    	this.inputQueueList.put(event);
+    	inputQueueList.put(event);
     }
     
     public abstract void release();
@@ -135,6 +138,10 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 			return ((Map<String,Object>)obj).get(value);
 		} 
         return null;
+	}
+
+	public static void setInputQueueList(InputQueueList inputQueueList) {
+		BaseInput.inputQueueList = inputQueueList;
 	}
     
 }
