@@ -2,11 +2,14 @@ package com.dtstack.logstash.assembly.pluginThread;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dtstack.logstash.assembly.queueList.OutPutQueueList;
+import com.dtstack.logstash.factory.OutputFactory;
 import com.dtstack.logstash.outputs.BaseOutput;
 
 /**
@@ -24,14 +27,29 @@ public class OutputThread implements Runnable{
 	private static OutPutQueueList outPutQueueList;
 	
 	private List<BaseOutput> outputProcessors;
-
-	public static void setOutPutQueueList(OutPutQueueList outPutQueueList) {
-		OutputThread.outPutQueueList = outPutQueueList;
-	}
+	
+	private static ExecutorService outputExecutor;
 
     public OutputThread(List<BaseOutput> outputProcessors){
     	this.outputProcessors  = outputProcessors;
     }
+    
+	/**
+	 * 
+	 * @param outputs
+	 * @param works
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public static  void initOutPutThread(List<Map> outputs,int works,OutPutQueueList outPutQueueList,List<BaseOutput> allBaseOutputs) throws Exception{
+		OutputThread.outPutQueueList = outPutQueueList;
+		if(outputExecutor==null)outputExecutor= Executors.newFixedThreadPool(works);
+		for(int i=0;i<works;i++){
+			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);
+			allBaseOutputs.addAll(baseOutputs);
+			outputExecutor.submit(new OutputThread(baseOutputs));
+		}
+	}
 
 
 	@Override

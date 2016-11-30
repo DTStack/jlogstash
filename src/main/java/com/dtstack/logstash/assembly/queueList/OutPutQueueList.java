@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,18 @@ public class OutPutQueueList extends QueueList{
 	private final AtomicInteger gIndex = new AtomicInteger(0);
 
 	private static int SLEEP = 1;//queue选取的间隔时间
+	
+	private static OutPutQueueList outPutQueueList;
+	
+	public static OutPutQueueList getOutPutQueueListInstance(int queueNumber,int queueSize){
+		if(outPutQueueList!=null)return outPutQueueList;
+		outPutQueueList = new OutPutQueueList();
+        List<LinkedBlockingQueue<Map<String,Object>>> list =outPutQueueList.getQueueList();
+        for(int i=0;i<queueNumber;i++){
+        	list.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
+        }
+		return outPutQueueList;
+	}
 
 	
 	/**
@@ -95,7 +108,7 @@ public class OutPutQueueList extends QueueList{
 				Thread.sleep(1000);
 				int size = queueList.size();
 				for(int i = 0; i < size; i++){
-					System.out.println(i+"--->"+queueList.get(i).size());
+					logger.debug("outputqueue:"+i+"--->"+queueList.get(i).size());
 				}
 			}catch(Exception e){
 				logger.error(e.getMessage());

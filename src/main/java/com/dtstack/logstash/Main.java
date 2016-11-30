@@ -8,7 +8,6 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.logstash.assembly.AssemblyPipeline;
-import com.dtstack.logstash.assembly.ShutDownHook;
 import com.dtstack.logstash.log.LogComponent;
 import com.dtstack.logstash.log.LogbackComponent;
 
@@ -91,9 +90,6 @@ public class Main {
             logbackComponent.setupLogger(cmdLine);
             //assembly pipeline
             assemblyPipeline.assemblyPipeline(cmdLine);
-    		//add shutdownhook
-    		ShutDownHook shutDownHook = new ShutDownHook(assemblyPipeline.getInitInputQueueList(),assemblyPipeline.getInitOutputQueueList(),assemblyPipeline.getBaseInputs(),assemblyPipeline.getAllBaseOutputs());
-    		shutDownHook.addShutDownHook();
 		} catch (Exception e) {
 			logger.error("jlogstash_start error:{}",e.getCause());
 			System.exit(-1);

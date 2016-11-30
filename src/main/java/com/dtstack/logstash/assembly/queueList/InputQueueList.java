@@ -1,9 +1,12 @@
 package com.dtstack.logstash.assembly.queueList;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +29,18 @@ public class InputQueueList extends QueueList{
 	private final AtomicInteger gIndex = new AtomicInteger(0);
 
 	private static int SLEEP = 1;//queue选取的间隔时间
-
+	
+	private static InputQueueList inputQueueList;
+	
+	public static InputQueueList getInputQueueListInstance(int queueNumber,int queueSize){
+		if(inputQueueList!=null)return inputQueueList;
+		inputQueueList = new InputQueueList();
+        List<LinkedBlockingQueue<Map<String,Object>>> list =inputQueueList.getQueueList();
+        for(int i=0;i<queueNumber;i++){
+        	list.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
+        }
+		return inputQueueList;
+	}
 	
 
 	/**
@@ -94,7 +108,7 @@ public class InputQueueList extends QueueList{
 				Thread.sleep(1000);
 				int size = queueList.size();
 				for(int i = 0; i < size; i++){
-					System.out.println(i+"--->"+queueList.get(i).size());
+					logger.debug("inputqueue:"+i+"--->"+queueList.get(i).size());
 				}
 			}catch(Exception e){
 				logger.error(e.getMessage());
