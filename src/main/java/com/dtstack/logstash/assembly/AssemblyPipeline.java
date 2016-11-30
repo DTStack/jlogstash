@@ -41,7 +41,7 @@ public class AssemblyPipeline {
 	
 	private List<BaseInput> baseInputs =null;
 	
-	private List<BaseOutput> baseOutputs = Lists.newCopyOnWriteArrayList();
+	private List<BaseOutput> allBaseOutputs = Lists.newCopyOnWriteArrayList();
 	
 	/**
 	 * 组装管道
@@ -112,7 +112,7 @@ public class AssemblyPipeline {
 			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);
 			List<BaseFilter> baseFilters = FilterFactory.getBatchInstance(filters);	
 			filterOutputExecutor.submit(new FilterAndOutputThread(queue,baseFilters,baseOutputs,batchSize));
-			baseOutputs.addAll(baseOutputs);
+			allBaseOutputs.addAll(baseOutputs);
 		}
 	}
 	
@@ -162,8 +162,10 @@ public class AssemblyPipeline {
 	public List<BaseInput> getBaseInputs() {
 		return this.baseInputs;
 	}
-	
-	public List<BaseOutput> getBaseOutPuts() {
-		return this.baseOutputs;
+
+
+	public List<BaseOutput> getAllBaseOutputs() {
+		return allBaseOutputs;
 	}
+
 }
