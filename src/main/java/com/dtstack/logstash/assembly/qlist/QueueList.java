@@ -3,9 +3,6 @@ package com.dtstack.logstash.assembly.qlist;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
-
 import com.google.common.collect.Lists;
 
 
@@ -22,22 +19,13 @@ public abstract class QueueList {
 	
 	protected List<LinkedBlockingQueue<Map<String, Object>>> queueList = Lists.newArrayList();
 
-	protected AtomicBoolean ato = new AtomicBoolean(false);
+	public abstract void put(Map<String, Object> message);
 
-	protected ReentrantLock lock = new ReentrantLock();
+	public abstract Map<String, Object> get();
 
-	public void put(Map<String, Object> message) {
-	}
-
-	public Map<String, Object> get() {
-		return null;
-	}
-
-	public void startElectionIdleQueue() {
-	}
-
-	public void startLogQueueSize() {
-	}
+	public abstract void startElectionIdleQueue();
+	
+	public abstract void startLogQueueSize();
 	
 	public boolean allQueueEmpty() {
 		boolean result = true;
@@ -54,16 +42,7 @@ public abstract class QueueList {
 		}
 		return size;
 	} 
-
-	public AtomicBoolean getAto() {
-		return ato;
-	}
-
-	public ReentrantLock getLock() {
-		return lock;
-	}
 	
-    public List<LinkedBlockingQueue<Map<String, Object>>> getQueueList() {
-	    return queueList;
-    }
+	public abstract void queueRelease();
+
 }

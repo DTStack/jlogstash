@@ -1,12 +1,8 @@
 package com.dtstack.logstash.assembly;
 
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.logstash.assembly.qlist.InputQueueList;
-import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.logstash.assembly.qlist.QueueList;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.outputs.BaseOutput;
@@ -30,9 +26,7 @@ public class ShutDownHook {
     private List<BaseInput> baseInputs; 
     
     private List<BaseOutput> baseOutputs;
-    
-    private static int sleep =1000;
-    
+        
     public ShutDownHook(QueueList initInputQueueList,QueueList initOutputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
     	this.initInputQueueList = initInputQueueList;
     	this.initOutputQueueList = initOutputQueueList;
@@ -45,10 +39,6 @@ public class ShutDownHook {
 	   shut.setDaemon(true);
 	   Runtime.getRuntime().addShutdownHook(shut);
 	   logger.debug("addShutDownHook success ...");
-	}
-	
-	public void setInitInputQueueList(InputQueueList initInputQueueList) {
-		this.initInputQueueList = initInputQueueList;
 	}
 	
 	class ShutDownHookThread implements Runnable{
@@ -78,37 +68,13 @@ public class ShutDownHook {
 			}
 		}
 		
-		private void inputQueueRelease(){
-			if(initInputQueueList!=null){
-				try{
-					initInputQueueList.getLock().lockInterruptibly();
-					initInputQueueList.getAto().getAndSet(true);
-					Thread.sleep(sleep);
-					boolean empty =initInputQueueList.allQueueEmpty();
-					while(!empty){
-						empty =initInputQueueList.allQueueEmpty();
-					}
-					logger.warn("queue size=="+initInputQueueList.allQueueSize());
-				    logger.warn("inputQueueRelease success ...");
-				}catch(Exception e){
-				    logger.error("inputQueueRelease error:{}",e.getMessage());
-				}
-				finally{
-					try{
-						initInputQueueList.getLock().unlock();
-					}catch(Exception e){
-					    logger.error("inputQueueRelease error:{}",e.getMessage());
-					}
-				}
-			}
-		}
-		
 
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
 			inputRelease();
-			inputQueueRelease();
+			if(initInputQueueList!=null)initInputQueueList.queueRelease();
+			if(initOutputQueueList!=null)initOutputQueueList.queueRelease();
 			outPutRelease();	
 		}
 	}

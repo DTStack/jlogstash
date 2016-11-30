@@ -1,12 +1,12 @@
 package com.dtstack.logstash.assembly.qlist;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
+import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +32,17 @@ public class InputQueueList extends QueueList{
 	
 	private static InputQueueList inputQueueList;
 	
+    private static int releaseSleep =1000;
+
+	protected AtomicBoolean ato = new AtomicBoolean(false);
+
+	protected ReentrantLock lock = new ReentrantLock();
+	
 	public static InputQueueList getInputQueueListInstance(int queueNumber,int queueSize){
 		if(inputQueueList!=null)return inputQueueList;
 		inputQueueList = new InputQueueList();
-        List<LinkedBlockingQueue<Map<String,Object>>> list =inputQueueList.getQueueList();
         for(int i=0;i<queueNumber;i++){
-        	list.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
+        	inputQueueList.queueList.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
         }
 		return inputQueueList;
 	}
@@ -96,6 +101,31 @@ public class InputQueueList extends QueueList{
 	@Override
 	public void startLogQueueSize(){
 		executor.submit(new LogQueueSize());
+	}
+	
+	
+	@Override
+	public void queueRelease(){
+			try{
+                lock.lockInterruptibly();
+				ato.getAndSet(true);
+				Thread.sleep(releaseSleep);
+				boolean empty =allQueueEmpty();
+				while(!empty){
+					empty =allQueueEmpty();
+				}
+				logger.warn("queue size=="+allQueueSize());
+			    logger.warn("inputQueueRelease success ...");
+			}catch(Exception e){
+			    logger.error("inputQueueRelease error:{}",e.getMessage());
+			}
+			finally{
+				try{
+					lock.unlock();
+				}catch(Exception e){
+				    logger.error("inputQueueRelease error:{}",e.getMessage());
+				}
+			}
 	}
 	
 	

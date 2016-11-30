@@ -1,12 +1,10 @@
 package com.dtstack.logstash.assembly.qlist;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +33,8 @@ public class OutPutQueueList extends QueueList{
 	public static OutPutQueueList getOutPutQueueListInstance(int queueNumber,int queueSize){
 		if(outPutQueueList!=null)return outPutQueueList;
 		outPutQueueList = new OutPutQueueList();
-        List<LinkedBlockingQueue<Map<String,Object>>> list =outPutQueueList.getQueueList();
         for(int i=0;i<queueNumber;i++){
-        	list.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
+        	outPutQueueList.queueList.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
         }
 		return outPutQueueList;
 	}
@@ -54,23 +51,10 @@ public class OutPutQueueList extends QueueList{
 			System.exit(1);
 		}
 		try {
-			if (ato.get()) {
-				try {
-					lock.lockInterruptibly();
-					queueList.get(pIndex.get()).put(message);
-				} finally {
-					lock.unlock();
-				}
-			} else {
-				queueList.get(pIndex.get()).put(message);
-			}
+			queueList.get(pIndex.get()).put(message);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			logger.error("put output queue message error:{}",e.getCause());
-		}finally{
-			if(ato.get()){
-				lock.unlock();
-			}
 		}
 	}
 
@@ -98,6 +82,20 @@ public class OutPutQueueList extends QueueList{
 		executor.submit(new LogQueueSize());
 	}
 	
+	
+	@Override
+	public void queueRelease(){
+			try{
+				boolean empty =allQueueEmpty();
+				while(!empty){
+					empty =allQueueEmpty();
+				}
+				logger.warn("out queue size=="+allQueueSize());
+			    logger.warn("outputQueueRelease success ...");
+			}catch(Exception e){
+			    logger.error("outputQueueRelease error:{}",e.getCause());
+			}
+	}
 	
 	class LogQueueSize implements Runnable{
 
