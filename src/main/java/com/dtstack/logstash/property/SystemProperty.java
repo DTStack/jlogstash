@@ -17,8 +17,7 @@ public class SystemProperty {
 		System.setProperty("output", "com.dtstack.logstash.outputs");
 		System.setProperty("annotationPlugin", "com.dtstack.logstash.annotation.plugin");
 		System.setProperty("annotationPackage","com.dtstack.logstash.annotation");
-		System.setProperty("inputQueueSize", "1000");
-		System.setProperty("batchSize", "2000");
+		System.setProperty("proportion",Double.toString(500/1024));
 	}
 	
 	public static String getSystemProperty(String key){

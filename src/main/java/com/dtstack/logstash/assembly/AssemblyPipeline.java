@@ -6,11 +6,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.logstash.assembly.pluginThread.FilterThread;
 import com.dtstack.logstash.assembly.pluginThread.InputThread;
 import com.dtstack.logstash.assembly.pluginThread.OutputThread;
@@ -81,7 +79,7 @@ public class AssemblyPipeline {
 			logger.debug("init input plugin start ...");
 			baseInputs =InputFactory.getBatchInstance(inputs, initInputQueueList);
 			initInputQueueList.startElectionIdleQueue();
-			if(CmdLineParams.isInputQueueSizeLog(cmdLine))initInputQueueList.startLogQueueSize();
+			if(CmdLineParams.isQueueSizeLog(cmdLine))initInputQueueList.startLogQueueSize();
 			logger.debug("input thread start ...");
 			initInputThread(baseInputs);
 			logger.debug("filter thread start ...");

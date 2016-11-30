@@ -1,18 +1,11 @@
 package com.dtstack.logstash.assembly.queueList;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * 
@@ -22,13 +15,11 @@ import com.google.common.collect.Lists;
  * @author sishu.yss
  *
  */
-public class InputQueueList implements QueueList{
+public class InputQueueList extends QueueList{
 
 	private static Logger logger = LoggerFactory.getLogger(InputQueueList.class);
     
 	private static ExecutorService executor = Executors.newFixedThreadPool(2);
-
-	private static List<LinkedBlockingQueue<Map<String, Object>>> queueList = Lists.newArrayList();
 
 	private final AtomicInteger pIndex = new AtomicInteger(0);
 	
@@ -36,11 +27,7 @@ public class InputQueueList implements QueueList{
 
 	private static int SLEEP = 1;//queue选取的间隔时间
 
-	private AtomicBoolean ato = new AtomicBoolean(false);
-
-	private ReentrantLock lock = new ReentrantLock();
 	
-	public InputQueueList() {}
 
 	/**
 	 * 
@@ -86,11 +73,6 @@ public class InputQueueList implements QueueList{
 		}
 	    return null;
 	}
-
-	public List<LinkedBlockingQueue<Map<String, Object>>> getQueueList() {
-		return queueList;
-	}
-	
 	
 	@Override
 	public void startElectionIdleQueue(){
@@ -117,8 +99,7 @@ public class InputQueueList implements QueueList{
 			}catch(Exception e){
 				logger.error(e.getMessage());
 			}
-		}
-		
+		}	
 	}
 	
 	class ElectionIdleQueue implements Runnable {
@@ -154,31 +135,5 @@ public class InputQueueList implements QueueList{
 				}
 			}
 		}
-	}
-
-	@Override
-	public boolean allQueueEmpty() {
-		boolean result = true;
-		for (LinkedBlockingQueue<Map<String, Object>> queue : queueList) {
-			result = result && queue.isEmpty();
-		}
-		return result;
-	}
-	
-	@Override
-	public int allQueueSize(){
-		int size=0;
-		for (LinkedBlockingQueue<Map<String, Object>> queue : queueList) {
-			size = size+queue.size();
-		}
-		return size;
-	} 
-
-	public AtomicBoolean getAto() {
-		return ato;
-	}
-
-	public ReentrantLock getLock() {
-		return lock;
 	}
 }

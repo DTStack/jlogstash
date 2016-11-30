@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dtstack.logstash.assembly.queueList.InputQueueList;
+import com.dtstack.logstash.assembly.queueList.OutPutQueueList;
+import com.dtstack.logstash.assembly.queueList.QueueList;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.outputs.BaseOutput;
 
@@ -21,9 +23,9 @@ public class ShutDownHook {
 	
 	private Logger logger = LoggerFactory.getLogger(ShutDownHook.class);
 	
-    private InputQueueList initInputQueueList;
+    private QueueList initInputQueueList;
     
-    private InputQueueList initOutputQueueList;
+    private QueueList initOutputQueueList;
 
     private List<BaseInput> baseInputs; 
     
@@ -31,7 +33,7 @@ public class ShutDownHook {
     
     private static int sleep =1000;
     
-    public ShutDownHook(InputQueueList initInputQueueList,InputQueueList initOutputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
+    public ShutDownHook(QueueList initInputQueueList,QueueList initOutputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
     	this.initInputQueueList = initInputQueueList;
     	this.initOutputQueueList = initOutputQueueList;
     	this.baseInputs  = baseInputs;

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.dtstack.logstash.monitor.MonitorInfo;
 import com.dtstack.logstash.monitor.MonitorService;
 import com.dtstack.logstash.property.SystemProperty;
+import com.dtstack.logstash.utils.Public;
 
 
 /**
@@ -49,7 +50,8 @@ public class CmdLineParams {
 	 */
 	public static int getInputQueueSize(CommandLine line){
 		String number =line.getOptionValue("iqs");
-        return 	StringUtils.isNotBlank(number)?Integer.parseInt(number):Integer.parseInt(SystemProperty.getSystemProperty("inputQueueSize"));	
+		if(StringUtils.isNotBlank(number))return Integer.parseInt(number);
+		return Public.getIntValue(monitorInfo.getJvmMaxMemory()*Double.parseDouble(SystemProperty.getSystemProperty("proportion")));
 	}
 	
 	
@@ -70,8 +72,8 @@ public class CmdLineParams {
 	 */
 	public static int getOutputQueueSize(CommandLine line){
 		String number =line.getOptionValue("oqs");
-        return 	StringUtils.isNotBlank(number)?Integer.parseInt(number):Integer.parseInt(SystemProperty.getSystemProperty("inputQueueSize"));	
-	}
+		if(StringUtils.isNotBlank(number))return Integer.parseInt(number);
+		return Public.getIntValue(monitorInfo.getJvmMaxMemory()*Double.parseDouble(SystemProperty.getSystemProperty("proportion")));	}
 	
 	
 	/**
@@ -86,12 +88,11 @@ public class CmdLineParams {
 	
 	
 	/**
-	 * 是否开启InputQueueSize log日志输出
+	 * 是否开启QueueSize log日志输出
 	 * @param line
 	 * @return
 	 */
-	public static boolean isInputQueueSizeLog(CommandLine line){
+	public static boolean isQueueSizeLog(CommandLine line){
 		return line.hasOption("t");
 	}
-
 }

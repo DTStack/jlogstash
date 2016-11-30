@@ -5,14 +5,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * 
@@ -22,13 +17,11 @@ import com.google.common.collect.Lists;
  * @author sishu.yss
  *
  */
-public class OutPutQueueList implements QueueList{
+public class OutPutQueueList extends QueueList{
 
 	private static Logger logger = LoggerFactory.getLogger(OutPutQueueList.class);
     
 	private static ExecutorService executor = Executors.newFixedThreadPool(2);
-
-	private static List<LinkedBlockingQueue<Map<String, Object>>> outPutQueueList = Lists.newArrayList();
 
 	private final AtomicInteger pIndex = new AtomicInteger(0);
 	
@@ -36,9 +29,6 @@ public class OutPutQueueList implements QueueList{
 
 	private static int SLEEP = 1;//queue选取的间隔时间
 
-	private AtomicBoolean ato = new AtomicBoolean(false);
-
-	private ReentrantLock lock = new ReentrantLock();
 	
 	/**
 	 * 
@@ -46,20 +36,20 @@ public class OutPutQueueList implements QueueList{
 	 */
 	@Override
 	public void put(Map<String, Object> message) {
-		if (outPutQueueList.size() == 0) {
-			logger.error("OutputQueueList is not Initialize");
+		if (queueList.size() == 0) {
+			logger.error("queueList is not Initialize");
 			System.exit(1);
 		}
 		try {
 			if (ato.get()) {
 				try {
 					lock.lockInterruptibly();
-					outPutQueueList.get(pIndex.get()).put(message);
+					queueList.get(pIndex.get()).put(message);
 				} finally {
 					lock.unlock();
 				}
 			} else {
-				outPutQueueList.get(pIndex.get()).put(message);
+				queueList.get(pIndex.get()).put(message);
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -73,22 +63,16 @@ public class OutPutQueueList implements QueueList{
 
 	@Override
 	public Map<String,Object> get(){
-		if (outPutQueueList.size() == 0) {
-			logger.error("OutputQueueList is not Initialize");
+		if (queueList.size() == 0) {
+			logger.error("queueList is not Initialize");
 			System.exit(1);
 		}
 		try{
-			return outPutQueueList.get(gIndex.get()).take();
+			return queueList.get(gIndex.get()).take();
 		}catch(Exception e){
-			logger.error("OutputQueueList get error:{}",e.getCause());
+			logger.error("queueList get error:{}",e.getCause());
 		}
 	    return null;
-	}
-	
-	
-	
-	public List<LinkedBlockingQueue<Map<String, Object>>> getQueueList() {
-		return outPutQueueList;
 	}
 	
 	@Override
@@ -109,9 +93,9 @@ public class OutPutQueueList implements QueueList{
 			// TODO Auto-generated method stub
 			try{
 				Thread.sleep(1000);
-				int size = outPutQueueList.size();
+				int size = queueList.size();
 				for(int i = 0; i < size; i++){
-					System.out.println(i+"--->"+outPutQueueList.get(i).size());
+					System.out.println(i+"--->"+queueList.get(i).size());
 				}
 			}catch(Exception e){
 				logger.error(e.getMessage());
@@ -124,7 +108,7 @@ public class OutPutQueueList implements QueueList{
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			int size = outPutQueueList.size();
+			int size = queueList.size();
 			while (true) {
 				try {
 					if (size > 0) {
@@ -133,7 +117,7 @@ public class OutPutQueueList implements QueueList{
 						int sz = Integer.MAX_VALUE;
 						int mz  = Integer.MIN_VALUE;
 						for (int i = 0; i < size; i++) {
-							int ssz = outPutQueueList.get(i).size();
+							int ssz = queueList.get(i).size();
 							if (ssz <= sz) {
 								sz = ssz;
 								id = i;
@@ -152,31 +136,5 @@ public class OutPutQueueList implements QueueList{
 				}
 			}
 		}
-	}
-
-	@Override
-	public boolean allQueueEmpty() {
-		boolean result = true;
-		for (LinkedBlockingQueue<Map<String, Object>> queue : outPutQueueList) {
-			result = result && queue.isEmpty();
-		}
-		return result;
-	}
-	
-	@Override
-	public int allQueueSize(){
-		int size=0;
-		for (LinkedBlockingQueue<Map<String, Object>> queue : outPutQueueList) {
-			size = size+queue.size();
-		}
-		return size;
-	} 
-
-	public AtomicBoolean getAto() {
-		return ato;
-	}
-
-	public ReentrantLock getLock() {
-		return lock;
 	}
 }
