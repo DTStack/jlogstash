@@ -26,8 +26,6 @@ public class InputQueueList extends QueueList{
 
 	private final AtomicInteger pIndex = new AtomicInteger(0);
 	
-	private final AtomicInteger gIndex = new AtomicInteger(0);
-
 	private static int SLEEP = 1;//queue选取的间隔时间
 	
 	private static InputQueueList inputQueueList;
@@ -78,21 +76,7 @@ public class InputQueueList extends QueueList{
 			}
 		}
 	}
-	
-	@Override
-	public Map<String,Object> get(){
-		if (queueList.size() == 0) {
-			logger.error("inputQueueList is not Initialize");
-			System.exit(1);
-		}
-		try{
-			return queueList.get(gIndex.get()).take();
-		}catch(Exception e){
-			logger.error("inputQueueList get error:{}",e.getCause());
-		}
-	    return null;
-	}
-	
+		
 	@Override
 	public void startElectionIdleQueue(){
 		executor.submit(new ElectionIdleQueue());
@@ -158,22 +142,15 @@ public class InputQueueList extends QueueList{
 				try {
 					if (size > 0) {
 						int id = 0;
-						int gId =0;
 						int sz = Integer.MAX_VALUE;
-						int mz  = Integer.MIN_VALUE;
 						for (int i = 0; i < size; i++) {
 							int ssz = queueList.get(i).size();
 							if (ssz <= sz) {
 								sz = ssz;
 								id = i;
 							}
-							if(ssz>=mz){
-								mz = ssz;
-								gId = i;
-							}
 						}
 						pIndex.getAndSet(id);
-						gIndex.getAndSet(gId);			
 					}
 					Thread.sleep(SLEEP);
 				} catch (Exception e) {

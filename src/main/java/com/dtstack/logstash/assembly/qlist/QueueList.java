@@ -21,8 +21,6 @@ public abstract class QueueList {
 
 	public abstract void put(Map<String, Object> message);
 
-	public abstract Map<String, Object> get();
-
 	public abstract void startElectionIdleQueue();
 	
 	public abstract void startLogQueueSize();
@@ -45,4 +43,7 @@ public abstract class QueueList {
 	
 	public abstract void queueRelease();
 
+	public List<LinkedBlockingQueue<Map<String, Object>>> getQueueList() {
+		return queueList;
+	}
 }

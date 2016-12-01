@@ -26,8 +26,7 @@ public class SystemProperty {
 	}
 	
 	public static Double getProportion(){
-		BigDecimal bg = new BigDecimal(500f/1024);
+	   BigDecimal bg = new BigDecimal(500f/1024);
        return bg.setScale(5, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
-	
 }

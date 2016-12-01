@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +25,17 @@ public class OutputThread implements Runnable{
 	
 	private static Logger logger = LoggerFactory.getLogger(OutputThread.class);
 	
-	private static OutPutQueueList outPutQueueList;
 	
 	private List<BaseOutput> outputProcessors;
 	
 	private static ExecutorService outputExecutor;
+	
+	private LinkedBlockingQueue<Map<String, Object>> outputQueue;
 
-    public OutputThread(List<BaseOutput> outputProcessors){
+
+    public OutputThread(List<BaseOutput> outputProcessors,LinkedBlockingQueue<Map<String, Object>> outputQueue){
     	this.outputProcessors  = outputProcessors;
+    	this.outputQueue = outputQueue;
     }
     
 	/**
@@ -41,13 +45,12 @@ public class OutputThread implements Runnable{
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public static  void initOutPutThread(List<Map> outputs,int works,OutPutQueueList outPutQueueList,List<BaseOutput> allBaseOutputs) throws Exception{
-		OutputThread.outPutQueueList = outPutQueueList;
-		if(outputExecutor==null)outputExecutor= Executors.newFixedThreadPool(works);
-		for(int i=0;i<works;i++){
+	public static  void initOutPutThread(List<Map> outputs,OutPutQueueList outPutQueueList,List<BaseOutput> allBaseOutputs) throws Exception{
+		if(outputExecutor==null)outputExecutor= Executors.newFixedThreadPool(outPutQueueList.getQueueList().size());
+		for(int i=0;i<outPutQueueList.getQueueList().size();i++){
 			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);
 			allBaseOutputs.addAll(baseOutputs);
-			outputExecutor.submit(new OutputThread(baseOutputs));
+			outputExecutor.submit(new OutputThread(baseOutputs,outPutQueueList.getQueueList().get(i)));
 		}
 	}
 
@@ -60,7 +63,7 @@ public class OutputThread implements Runnable{
 		Thread.sleep(2000); 
 	    while (true) {
 				if(!priorityFail()){
-					event = outPutQueueList.get();
+					event = this.outputQueue.take();
 					if (event != null && event.size() > 0) {
 						for (BaseOutput bo : outputProcessors) {
 							bo.process(event);

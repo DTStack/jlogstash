@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.logstash.assembly.qlist.InputQueueList;
 import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.logstash.factory.FilterFactory;
@@ -24,8 +23,8 @@ import com.dtstack.logstash.filters.BaseFilter;
 public class FilterThread implements Runnable {
 
 	private static Logger logger = LoggerFactory.getLogger(FilterThread.class);
-
-	private static InputQueueList inPutQueueList;
+	
+	private LinkedBlockingQueue<Map<String, Object>> inputQueue;
 
 	private static OutPutQueueList outPutQueueList;
 
@@ -33,8 +32,9 @@ public class FilterThread implements Runnable {
 	
 	private static ExecutorService filterExecutor;
 	
-	public FilterThread(List<BaseFilter> filterProcessors){
+	public FilterThread(List<BaseFilter> filterProcessors,LinkedBlockingQueue<Map<String, Object>> inputQueue){
 		this.filterProcessors = filterProcessors;
+		this.inputQueue = inputQueue;
 	}
 	
 	/**
@@ -44,13 +44,12 @@ public class FilterThread implements Runnable {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("rawtypes")
-	public static void initFilterThread(List<Map> filters,int works,InputQueueList inPutQueueList,OutPutQueueList outPutQueueList) throws Exception{
-		if(filterExecutor==null)filterExecutor= Executors.newFixedThreadPool(works);
-		FilterThread.inPutQueueList=inPutQueueList;
+	public static void initFilterThread(List<Map> filters,InputQueueList inPutQueueList,OutPutQueueList outPutQueueList) throws Exception{
+		if(filterExecutor==null)filterExecutor= Executors.newFixedThreadPool(inPutQueueList.getQueueList().size());
 		FilterThread.outPutQueueList = outPutQueueList;
-		for(int i=0;i<works;i++){
+		for(int i=0;i<inPutQueueList.getQueueList().size();i++){
 			List<BaseFilter> baseFilters = FilterFactory.getBatchInstance(filters);	
-			filterExecutor.submit(new FilterThread(baseFilters));
+			filterExecutor.submit(new FilterThread(baseFilters,inPutQueueList.getQueueList().get(i)));
 		}
 	}
 
@@ -60,7 +59,7 @@ public class FilterThread implements Runnable {
 		A: while (true) {
 			Map<String, Object> event = null;
 			try {
-				event = inPutQueueList.get();
+				event = this.inputQueue.take();
 				if (filterProcessors != null) {
 					for (BaseFilter bf : filterProcessors) {
 						if (event == null || event.size() == 0)
