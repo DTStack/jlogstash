@@ -52,6 +52,10 @@ public class AssemblyPipeline {
 			logger.debug(configs.toString());
 			logger.debug("initInputQueueList start ...");
 			initInputQueueList=InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(cmdLine), CmdLineParams.getInputQueueSize(cmdLine));
+			if(initInputQueueList==null||initInputQueueList.getQueueList().size()==0){
+				logger.error("init inputQueueList is error");
+				System.exit(1);
+			}
 			List<Map> inputs = (List<Map>) configs.get("inputs");
 			if(inputs==null||inputs.size()==0){
 				logger.error("input plugin is not empty");
@@ -59,6 +63,10 @@ public class AssemblyPipeline {
 			}
 			logger.debug("initOutputQueueList start ...");
 			initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(cmdLine), CmdLineParams.getOutputQueueSize(cmdLine));
+			if(initOutputQueueList==null||initOutputQueueList.getQueueList().size()==0){
+				logger.error("init outputQueueList is error");
+				System.exit(1);
+			}	
 			List<Map> outputs = (List<Map>) configs.get("outputs");
 			if(outputs==null||outputs.size()==0){
 				logger.error("output plugin is not empty");
@@ -83,7 +91,7 @@ public class AssemblyPipeline {
     		ShutDownHook shutDownHook = new ShutDownHook(initInputQueueList,initOutputQueueList,baseInputs,allBaseOutputs);
     		shutDownHook.addShutDownHook();
 		}catch(Exception t){
-			logger.error("assemblyPipeline is error:{}",t.getMessage());
+			logger.error("assemblyPipeline is error",t.getCause());
 			System.exit(1);
 		}
 	}

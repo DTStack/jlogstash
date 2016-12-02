@@ -5,7 +5,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +44,6 @@ public class OutPutQueueList extends QueueList{
 	 */
 	@Override
 	public void put(Map<String, Object> message) {
-		if (queueList.size() == 0) {
-			logger.error("queueList is not Initialize");
-			System.exit(1);
-		}
 		try {
 			queueList.get(pIndex.get()).put(message);
 		} catch (InterruptedException e) {

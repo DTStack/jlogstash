@@ -52,10 +52,6 @@ public class InputQueueList extends QueueList{
 	 */
 	@Override
 	public void put(Map<String, Object> message) {
-		if (queueList.size() == 0) {
-			logger.error("InputQueueList is not Initialize");
-			System.exit(1);
-		}
 		try {
 			if (ato.get()) {
 				try {
