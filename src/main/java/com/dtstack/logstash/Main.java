@@ -45,7 +45,8 @@ public class Main {
 		options.addOption("t", false, "logqueue start");
 		options.addOption("w", false, "filter worker number");
 		options.addOption("o", false, "output worker number");
-		options.addOption("c", false, "queue size coefficient");
+		options.addOption("c", false, "output queue size coefficient");
+		options.addOption("i", false, "input queue size coefficient");
 		options.addOption("v", false, "print info log");
 		options.addOption("vv", false, "print debug log");
 		options.addOption("vvvv", false, "print trace log");
@@ -74,7 +75,8 @@ public class Main {
 				.append("-w").append("\t\t\tfilter worker numbers").append("\n")
 				.append("-o").append("\t\t\toutput worker numbers").append("\n")
 				.append("-t").append("\t\t\tlog input queue size").append("\n")
-				.append("-c").append("\t\t\t queue size coefficient").append("\n")
+				.append("-c").append("\t\t\t output queue size coefficient").append("\n")
+				.append("-i").append("\t\t\t input queue size coefficient").append("\n")
 				.append("-v").append("\t\t\tprint info log").append("\n")
 				.append("-vv").append("\t\t\tprint debug log").append("\n")
 				.append("-vvvv").append("\t\t\tprint trace log").append("\n");

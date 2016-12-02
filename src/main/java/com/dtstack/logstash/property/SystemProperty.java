@@ -25,8 +25,13 @@ public class SystemProperty {
 		return System.getProperty(key);
 	}
 	
-	public static Double getProportion(){
-	   BigDecimal bg = new BigDecimal(500f/1024);
+	public static Double getInputProportion(){
+	   BigDecimal bg = new BigDecimal(200f/1024);
        return bg.setScale(5, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
+	
+	public static Double getOutputProportion(){
+		   BigDecimal bg = new BigDecimal(500f/1024);
+	       return bg.setScale(5, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
 }

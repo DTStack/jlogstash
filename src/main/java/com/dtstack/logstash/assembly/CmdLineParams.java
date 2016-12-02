@@ -26,14 +26,26 @@ public class CmdLineParams {
 	
 	
     /**
-     * 获取queue size 系数
+     * 获取input queue size 系数
      * @param line
      * @return
      */
-	public static double getCoefficient(CommandLine line){
+	public static double getInputQueueCoefficient(CommandLine line){
 		String number =line.getOptionValue("c");
-		double coefficient =StringUtils.isNotBlank(number)?Double.parseDouble(number):SystemProperty.getProportion();	
-		logger.warn("queue size:{}",String.valueOf(coefficient));
+		double coefficient =StringUtils.isNotBlank(number)?Double.parseDouble(number):SystemProperty.getInputProportion();	
+		logger.warn("input queue size:{}",String.valueOf(coefficient));
+		return coefficient;
+	}
+	
+    /**
+     * 获取output queue size 系数
+     * @param line
+     * @return
+     */
+	public static double getOutputQueueCoefficient(CommandLine line){
+		String number =line.getOptionValue("i");
+		double coefficient =StringUtils.isNotBlank(number)?Double.parseDouble(number):SystemProperty.getOutputProportion();	
+		logger.warn("output queue size:{}",String.valueOf(coefficient));
 		return coefficient;
 	}
 	
@@ -44,7 +56,7 @@ public class CmdLineParams {
 	 */
 	public static int getFilterWork(CommandLine line){
 		String number =line.getOptionValue("w");
-        int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):monitorInfo.getProcessors()+1;	
+        int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):getInputBase();	
 		logger.warn("filter works:{}",String.valueOf(works));
         return works;
 	}
@@ -57,7 +69,7 @@ public class CmdLineParams {
 	 */
 	public static int getOutputWork(CommandLine line){
 		String number =line.getOptionValue("o");
-        int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):monitorInfo.getProcessors();	
+        int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):getOutputBase();	
 		logger.warn("output works:{}",String.valueOf(works));
         return works;
 	}
@@ -69,9 +81,19 @@ public class CmdLineParams {
 	 */
 	public static int getInputQueueSize(CommandLine line){
 		float number = getFilterWork(line);
-        int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getCoefficient(line)*(number/(monitorInfo.getProcessors()+1)));
+        int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getInputQueueCoefficient(line)*((float)getInputBase()/number));
 		logger.warn("input queue size:{}",String.valueOf(size));
         return size;
+	}
+	
+	private static int getInputBase(){
+		int process = monitorInfo.getProcessors();
+		return process + process/2;
+	}
+	
+	private static int getOutputBase(){
+		int process = monitorInfo.getProcessors();
+		return process;
 	}
 		
 	
@@ -82,7 +104,7 @@ public class CmdLineParams {
 	 */
 	public static int getOutputQueueSize(CommandLine line){
 		float number =getOutputWork(line);
-		int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getCoefficient(line)*(number/monitorInfo.getProcessors()));
+		int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getOutputQueueCoefficient(line)*((float)getOutputBase()/number));
 		logger.warn("output queue size:{}",String.valueOf(size));
 		return size;	
 	}
@@ -94,5 +116,5 @@ public class CmdLineParams {
 	 */
 	public static boolean isQueueSizeLog(CommandLine line){
 		return line.hasOption("t");
-	}
+	}	
 }
