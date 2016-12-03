@@ -2,7 +2,7 @@ package com.dtstack.logstash.assembly.qlist;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import com.google.common.collect.Lists;
 
 
@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
  */
 public abstract class QueueList {
 	
-	protected List<LinkedBlockingQueue<Map<String, Object>>> queueList = Lists.newArrayList();
+	protected List<BlockingQueue<Map<String, Object>>> queueList = Lists.newArrayList();
 
 	public abstract void put(Map<String, Object> message);
 
@@ -27,7 +27,7 @@ public abstract class QueueList {
 	
 	public boolean allQueueEmpty() {
 		boolean result = true;
-		for (LinkedBlockingQueue<Map<String, Object>> queue : queueList) {
+		for (BlockingQueue<Map<String, Object>> queue : queueList) {
 			result = result && queue.isEmpty();
 		}
 		return result;
@@ -35,7 +35,7 @@ public abstract class QueueList {
 	
 	public int allQueueSize(){
 		int size=0;
-		for (LinkedBlockingQueue<Map<String, Object>> queue : queueList) {
+		for (BlockingQueue<Map<String, Object>> queue : queueList) {
 			size = size+queue.size();
 		}
 		return size;
@@ -43,7 +43,7 @@ public abstract class QueueList {
 	
 	public abstract void queueRelease();
 
-	public List<LinkedBlockingQueue<Map<String, Object>>> getQueueList() {
+	public List<BlockingQueue<Map<String, Object>>> getQueueList() {
 		return queueList;
 	}
 }

@@ -2,14 +2,13 @@ package com.dtstack.logstash.assembly.pthread;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
+import com.dtstack.logstash.exception.ExceptionUtil;
 import com.dtstack.logstash.factory.OutputFactory;
 import com.dtstack.logstash.outputs.BaseOutput;
 
@@ -30,10 +29,10 @@ public class OutputThread implements Runnable{
 	
 	private static ExecutorService outputExecutor;
 	
-	private LinkedBlockingQueue<Map<String, Object>> outputQueue;
+	private BlockingQueue<Map<String, Object>> outputQueue;
 
 
-    public OutputThread(List<BaseOutput> outputProcessors,LinkedBlockingQueue<Map<String, Object>> outputQueue){
+    public OutputThread(List<BaseOutput> outputProcessors,BlockingQueue<Map<String, Object>> outputQueue){
     	this.outputProcessors  = outputProcessors;
     	this.outputQueue = outputQueue;
     }
@@ -64,7 +63,7 @@ public class OutputThread implements Runnable{
 	    while (true) {
 				if(!priorityFail()){
 					event = this.outputQueue.take();
-					if (event != null && event.size() > 0) {
+					if (event != null) {
 						for (BaseOutput bo : outputProcessors) {
 							bo.process(event);
 						}
@@ -73,7 +72,7 @@ public class OutputThread implements Runnable{
 			} 
 	    }catch (Exception e) {
 				// TODO Auto-generated catch block
-				logger.error("{}:output event failed:{}",event, e.getCause());
+				logger.error("{}:output event failed:{}",event, ExceptionUtil.getErrorMessage(e));
 		}
 	}
 	

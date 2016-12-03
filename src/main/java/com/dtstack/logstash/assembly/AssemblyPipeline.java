@@ -3,15 +3,18 @@ package com.dtstack.logstash.assembly;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.logstash.assembly.pthread.FilterThread;
 import com.dtstack.logstash.assembly.pthread.InputThread;
 import com.dtstack.logstash.assembly.pthread.OutputThread;
 import com.dtstack.logstash.assembly.qlist.InputQueueList;
 import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.logstash.configs.YamlConfig;
+import com.dtstack.logstash.exception.ExceptionUtil;
 import com.dtstack.logstash.factory.InputFactory;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.outputs.BaseOutput;
@@ -91,7 +94,7 @@ public class AssemblyPipeline {
     		ShutDownHook shutDownHook = new ShutDownHook(initInputQueueList,initOutputQueueList,baseInputs,allBaseOutputs);
     		shutDownHook.addShutDownHook();
 		}catch(Exception t){
-			logger.error("assemblyPipeline is error",t.getCause());
+			logger.error("assemblyPipeline is error:{}",ExceptionUtil.getErrorMessage(t));
 			System.exit(1);
 		}
 	}

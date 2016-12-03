@@ -33,7 +33,7 @@ public class CmdLineParams {
 	public static double getInputQueueCoefficient(CommandLine line){
 		String number =line.getOptionValue("c");
 		double coefficient =StringUtils.isNotBlank(number)?Double.parseDouble(number):SystemProperty.getInputProportion();	
-		logger.warn("input queue size:{}",String.valueOf(coefficient));
+		logger.warn("input queue coefficient:{}",String.valueOf(coefficient));
 		return coefficient;
 	}
 	
@@ -45,7 +45,7 @@ public class CmdLineParams {
 	public static double getOutputQueueCoefficient(CommandLine line){
 		String number =line.getOptionValue("i");
 		double coefficient =StringUtils.isNotBlank(number)?Double.parseDouble(number):SystemProperty.getOutputProportion();	
-		logger.warn("output queue size:{}",String.valueOf(coefficient));
+		logger.warn("output queue coefficient:{}",String.valueOf(coefficient));
 		return coefficient;
 	}
 	

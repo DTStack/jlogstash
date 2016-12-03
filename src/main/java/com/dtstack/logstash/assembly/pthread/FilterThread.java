@@ -2,13 +2,16 @@ package com.dtstack.logstash.assembly.pthread;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.logstash.assembly.qlist.InputQueueList;
 import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
+import com.dtstack.logstash.exception.ExceptionUtil;
 import com.dtstack.logstash.factory.FilterFactory;
 import com.dtstack.logstash.filters.BaseFilter;
 
@@ -24,7 +27,7 @@ public class FilterThread implements Runnable {
 
 	private static Logger logger = LoggerFactory.getLogger(FilterThread.class);
 	
-	private LinkedBlockingQueue<Map<String, Object>> inputQueue;
+	private BlockingQueue<Map<String, Object>> inputQueue;
 
 	private static OutPutQueueList outPutQueueList;
 
@@ -32,7 +35,7 @@ public class FilterThread implements Runnable {
 	
 	private static ExecutorService filterExecutor;
 	
-	public FilterThread(List<BaseFilter> filterProcessors,LinkedBlockingQueue<Map<String, Object>> inputQueue){
+	public FilterThread(List<BaseFilter> filterProcessors,BlockingQueue<Map<String, Object>> inputQueue){
 		this.filterProcessors = filterProcessors;
 		this.inputQueue = inputQueue;
 	}
@@ -67,10 +70,10 @@ public class FilterThread implements Runnable {
 						bf.process(event);
 					}
 				}
-				outPutQueueList.put(event);
+				if(event!=null)outPutQueueList.put(event);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				logger.error("{}:filter event failed:{}", event, e.getCause());
+				logger.error("{}:filter event failed:{}", event, ExceptionUtil.getErrorMessage(e));
 			}
 		}
 	}

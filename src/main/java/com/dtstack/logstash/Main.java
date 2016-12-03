@@ -7,7 +7,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.logstash.assembly.AssemblyPipeline;
+import com.dtstack.logstash.exception.ExceptionUtil;
 import com.dtstack.logstash.log.LogComponent;
 import com.dtstack.logstash.log.LogbackComponent;
 
@@ -93,7 +95,7 @@ public class Main {
             //assembly pipeline
             assemblyPipeline.assemblyPipeline(cmdLine);
 		} catch (Exception e) {
-			logger.error("jlogstash_start error:{}",e.getMessage());
+			logger.error("jlogstash_start error:{}",ExceptionUtil.getErrorMessage(e));
 			System.exit(-1);
 		}
 	}
