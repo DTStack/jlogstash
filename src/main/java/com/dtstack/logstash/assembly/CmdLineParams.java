@@ -82,7 +82,8 @@ public class CmdLineParams {
 	public static int getInputQueueSize(CommandLine line){
 		float number = getFilterWork(line);
         int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getInputQueueCoefficient(line)*((float)getInputBase()/number));
-		logger.warn("input queue size:{}",String.valueOf(size));
+		size = size<=0?10:size;
+        logger.warn("input queue size:{}",String.valueOf(size));
         return size;
 	}
 	
@@ -96,7 +97,6 @@ public class CmdLineParams {
 		return process;
 	}
 		
-	
 	/**
 	 *获取output queue size的大小
 	 * @param line
@@ -105,6 +105,7 @@ public class CmdLineParams {
 	public static int getOutputQueueSize(CommandLine line){
 		float number =getOutputWork(line);
 		int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getOutputQueueCoefficient(line)*((float)getOutputBase()/number));
+		size = size<=0?10:size;
 		logger.warn("output queue size:{}",String.valueOf(size));
 		return size;	
 	}
