@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.net.InetAddress;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +56,8 @@ public class Public {
 		return "127.0.0.1";
 	}
 
-	public static String getTimeStamp() {
-		return DateTime.now().toString();
+	public static String getTimeStamp(DateTimeZone timeZone) {
+		return timeZone!=null?DateTime.now(timeZone).toString():DateTime.now().toString();
 	}
 
 	public static int getIntValue(double d) {

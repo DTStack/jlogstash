@@ -11,13 +11,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.logstash.assembly.qlist.InputQueueList;
 import com.dtstack.logstash.decoder.IDecode;
 import com.google.common.collect.Lists;
@@ -145,11 +141,7 @@ public class MultilineDecoder implements IDecode {
 		
 		String msg = StringUtils.join(buffer, customLineDelimiter);
 		Map<String, Object> event = new HashMap<String, Object>();
-		
-		String timestamp = DateTime.now(DateTimeZone.UTC).toString();
 		event.put("message", msg);
-		event.put("@timestamp", timestamp);
-		event.put("timestamp", timestamp);
 		buffer.clear();
 		readSizeMap.remove(identify);
 		lastFlushMap.put(identify, System.currentTimeMillis());
@@ -216,7 +208,6 @@ public class MultilineDecoder implements IDecode {
 			}
 		}
 	}
-	
 }
 
 
