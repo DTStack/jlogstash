@@ -92,8 +92,6 @@
 
 -c:output queue size coefficient 默认 500f/1024
 
--q:input queue size 默认是 1000
-
 -v: info级别
 
 -vv:debug级别
