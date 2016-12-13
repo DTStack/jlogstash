@@ -1,7 +1,12 @@
-package com.dtstack.logstash.assembly;
+package com.dtstack.logstash.assembly.pthread;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.logstash.inputs.BaseInput;
 
 /**
@@ -16,7 +21,9 @@ public class InputThread implements Runnable{
 	
 	private Logger logger = LoggerFactory.getLogger(InputThread.class);
 	
-	private BaseInput baseInput=null;
+	private BaseInput baseInput;
+	
+	private static ExecutorService inputExecutor;
 	
 	public InputThread(BaseInput baseInput){
 		this.baseInput = baseInput;
@@ -30,5 +37,18 @@ public class InputThread implements Runnable{
 			System.exit(1);
 		}
 		baseInput.emit();
+	}
+	
+    /**
+     * 
+     * @param baseInputs
+     * @return 
+     */
+	public static void initInputThread(List<BaseInput> baseInputs) {
+		// TODO Auto-generated method stub
+		if(inputExecutor==null)inputExecutor= Executors.newFixedThreadPool(baseInputs.size());
+		for(BaseInput input:baseInputs){
+			inputExecutor.submit(new InputThread(input));
+		}
 	}
 }

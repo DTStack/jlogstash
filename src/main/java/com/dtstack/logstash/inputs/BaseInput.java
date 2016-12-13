@@ -10,26 +10,29 @@ package com.dtstack.logstash.inputs;
  *
  */
 import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.logstash.assembly.InputQueueList;
+import com.dtstack.logstash.assembly.qlist.InputQueueList;
 import com.dtstack.logstash.decoder.IDecode;
 import com.dtstack.logstash.decoder.JsonDecoder;
 import com.dtstack.logstash.decoder.MultilineDecoder;
 import com.dtstack.logstash.decoder.PlainDecoder;
-import com.dtstack.logstash.utils.Public;
+import com.dtstack.logstash.utils.BasePluginUtil;
 
 @SuppressWarnings("serial")
 public abstract class BaseInput implements Cloneable, java.io.Serializable{
 		
 	private static final Logger baseLogger = LoggerFactory.getLogger(BaseInput.class);
+	
     protected Map<String, Object> config;
+    
     protected IDecode decoder;
-    protected InputQueueList inputQueueList;
+    
+    private static InputQueueList inputQueueList;
+    
     protected Map<String, Object> addFields=null;
+    
+    protected static BasePluginUtil basePluginUtil = new BasePluginUtil();
     
 
     public IDecode createDecoder() {
@@ -71,9 +74,8 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	public BaseInput(Map config,InputQueueList inputQueueList){
+	public BaseInput(Map config){
         this.config = config;
-        this.inputQueueList = inputQueueList;
         decoder = createDecoder();
         if(this.config!=null){
         	addFields = (Map<String, Object>) this.config.get("addFields");
@@ -86,9 +88,9 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 
     public void process(Map<String,Object> event) {
     	if(addFields!=null){
-    		addFields(event);
+    		basePluginUtil.addFields(event,addFields);
     	}
-    	this.inputQueueList.put(event);
+    	inputQueueList.put(event);
     }
     
     public abstract void release();
@@ -97,44 +99,9 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-    
-	private void addFields(Map<String,Object> event){
-		Set<Map.Entry<String,Object>> sets =addFields.entrySet();
-		for(Map.Entry<String,Object> entry:sets){
-			String key = entry.getKey();
-			if(event.get(key)==null){
-				Object value = entry.getValue();
-				event.put(key, value);
-				if(event.get(value)!=null){
-					event.put(key, event.get(value));
-				}else if(value instanceof String){
-					String vv =value.toString();
-					if(vv.indexOf(".")>0){
-						String[] vs=vv.split("\\.");
-						Object oo = event;
-						for(int i=0;i<vs.length;i++){
-							oo = loopObject(vs[i],oo);
-							if(oo==null)break;	
-						}
-						if(oo!=null)event.put(key, oo);	
-					}else if ("%{hostname}%".equals(vv)){
-	        			event.put(key, Public.getHostName());
-	        		}else if("%{timestamp}%".equals(vv)){
-	        			event.put(key,Public.getTimeStamp());
-	        		}else if("%{ip}%".equals(vv)){
-	        			event.put(key, Public.getHostAddress());
-	        		}
-	            }
-			} 
-		}
-    }
-  
-	@SuppressWarnings("unchecked")
-	private Object loopObject(String value,Object obj){
-		if(obj instanceof Map){
-			return ((Map<String,Object>)obj).get(value);
-		} 
-        return null;
+   
+	public static void setInputQueueList(InputQueueList inputQueueList) {
+		BaseInput.inputQueueList = inputQueueList;
 	}
     
 }

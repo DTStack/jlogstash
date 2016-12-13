@@ -2,9 +2,6 @@ package com.dtstack.logstash.decoder;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -22,18 +19,12 @@ public class JsonDecoder implements IDecode {
 
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "serial" })
     @Override
     public Map<String, Object> decode(final String message) {
         Map<String, Object> event = null;
         try {
             event = objectMapper.readValue(message, Map.class);
-            if(!event.containsKey("@timestamp")){//日志生成的时间
-            	event.put("@timestamp", DateTime.now(DateTimeZone.UTC).toString());
-            }
-            if(!event.containsKey("timestamp")){//日志接收的时间
-            	event.put("timestamp", DateTime.now(DateTimeZone.UTC).toString());
-            }
             if(!event.containsKey("message")){
             	event.put("message", message);
             } 
@@ -42,8 +33,6 @@ public class JsonDecoder implements IDecode {
             event = new HashMap<String, Object>() {
                 {
                     put("message", message);
-                    put("@timestamp", DateTime.now(DateTimeZone.UTC).toString());
-                    put("timestamp", DateTime.now(DateTimeZone.UTC).toString());
                 }
             };
             return event;
@@ -55,6 +44,4 @@ public class JsonDecoder implements IDecode {
 	public Map<String, Object> decode(String message, String identify) {
 		return null;
 	}
-    
-    
 }

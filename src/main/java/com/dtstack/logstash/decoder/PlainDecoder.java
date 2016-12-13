@@ -3,9 +3,6 @@ package com.dtstack.logstash.decoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
 
 /**
  * 
@@ -17,13 +14,12 @@ import org.joda.time.DateTimeZone;
  */
 public class PlainDecoder implements IDecode {
 
+	@SuppressWarnings("serial")
 	@Override
 	public Map<String, Object> decode(final String message) {
 		HashMap<String, Object> event = new HashMap<String, Object>() {
 			{
 				put("message", message);
-				put("@timestamp", DateTime.now(DateTimeZone.UTC).toString());//日志生成的时间
-				put("timestamp", DateTime.now(DateTimeZone.UTC).toString());//日志接收的时间
 			}
 		};
 		return event;
