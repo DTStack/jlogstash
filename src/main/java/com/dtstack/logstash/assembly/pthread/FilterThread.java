@@ -17,9 +17,9 @@ import com.dtstack.logstash.filters.BaseFilter;
 
 /**
  * 
- * Reason: TODO ADD REASON(可选) Date: 2016年11月29日 下午15:30:18 Company:
- * www.dtstack.com
- * 
+ * Reason: TODO ADD REASON(可选) 
+ * Date: 2016年11月29日 下午15:30:18 
+ * Company:www.dtstack.com
  * @author sishu.yss
  *
  */
