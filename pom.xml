@@ -51,10 +51,6 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-<!-- 
-		<kafka-version>0.9.0.1</kafka-version>
-		<elasticsearch-version>2.3.4</elasticsearch-version> -->
-<!-- 		<jruby-version>2.1.6</jruby-version> -->
 		<joda-time-version>2.8.2</joda-time-version>
 		<freemarker-gae-version>2.3.23</freemarker-gae-version>
 		<common-cli-version>1.2</common-cli-version>
@@ -62,7 +58,6 @@
 		<hamcrest-version>1.1</hamcrest-version>
 		<snakeyaml-version>1.16</snakeyaml-version>
 		<log4j-version>1.2.17</log4j-version>
-
 	</properties>
 	<repositories>
 		<repository>
@@ -76,13 +71,6 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j-version}</version>
 		</dependency>
-
-
-<!-- 		<dependency>
-			<groupId>org.jruby.joni</groupId>
-			<artifactId>joni</artifactId>
-			<version>${jruby-version}</version>
-		</dependency> -->
 
 		<dependency>
 			<groupId>joda-time</groupId>
@@ -155,6 +143,5 @@
 			<artifactId>grok</artifactId>
 			<version>0.1.4</version>
 		</dependency>
-
 	</dependencies>
 </project>

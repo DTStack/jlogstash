@@ -33,13 +33,14 @@ public class JarClassLoader {
 	public Map<String,ClassLoader> loadJar(String env) throws LogstashException{
 		Map<String,ClassLoader> classLoads = Maps.newConcurrentMap();
 		Set<Map.Entry<String,URL[]>> urls = getClassLoadJarUrls().entrySet();
+		ClassLoader classLoader = this.getClass().getClassLoader();
 		for(Map.Entry<String,URL[]> url:urls){
 			String key = url.getKey();
 			if("Produce".equals(env)){
 				URLClassLoader  loader = new URLClassLoader(url.getValue());  
 				classLoads.put(key, loader);
 			}else{
-				classLoads.put(key, this.getClass().getClassLoader());
+				classLoads.put(key,classLoader);
 			}
 		}
 		return classLoads;
