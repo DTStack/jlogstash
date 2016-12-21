@@ -26,7 +26,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 	
     protected Map<String, Object> config;
     
-    protected IDecode decoder;
+    private IDecode decoder;
     
     private static InputQueueList inputQueueList;
     
@@ -46,7 +46,11 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         }
     }
     
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public IDecode getDecoder() {
+		return decoder;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public IDecode createMultiLineDecoder(Map config){
     	
     	if( config.get("multiline") == null){
