@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import com.dtstack.logstash.outputs.BaseOutput;
-import com.dtstack.logstash.utils.Package;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -22,7 +21,7 @@ public class OutputFactory extends InstanceFactory{
 
 	@SuppressWarnings("rawtypes")
 	public static BaseOutput getInstance(String outputType,Map outputConfig) throws Exception{
-		 Class<?> outputClass = Class.forName(Package.getRealClassName(outputType,"output"));
+	     Class<?> outputClass = getPluginClass(outputType, "output");
 		 configInstance(outputClass,outputConfig);//设置static field
          Constructor<?> ctor = outputClass.getConstructor(Map.class);
          BaseOutput baseOutput = (BaseOutput) ctor.newInstance(outputConfig);

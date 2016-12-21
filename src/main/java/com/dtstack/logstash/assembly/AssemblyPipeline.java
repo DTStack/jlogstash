@@ -14,9 +14,11 @@ import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.logstash.configs.YamlConfig;
 import com.dtstack.logstash.exception.ExceptionUtil;
 import com.dtstack.logstash.factory.InputFactory;
+import com.dtstack.logstash.factory.InstanceFactory;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.outputs.BaseOutput;
 import com.google.common.collect.Lists;
+import  com.dtstack.logstash.classloader.JarClassLoader;
 
 /**
  * 
@@ -38,6 +40,8 @@ public class AssemblyPipeline {
 	
 	private List<BaseOutput> allBaseOutputs = Lists.newCopyOnWriteArrayList();
 	
+	private JarClassLoader JarClassLoader = new JarClassLoader();
+	
 
 	/**
 	 * 组装管道
@@ -51,6 +55,8 @@ public class AssemblyPipeline {
 			logger.debug("load config start ...");
 			Map configs = new YamlConfig().parse(cmdLine.getOptionValue("f"));
 			logger.debug(configs.toString());
+			logger.debug("load plugin...");
+			InstanceFactory.setClassCloaders(JarClassLoader.loadJar(cmdLine.getOptionValue("e")));
 			logger.debug("initInputQueueList start ...");
 			initInputQueueList=InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(cmdLine), CmdLineParams.getInputQueueSize(cmdLine));
 			if(initInputQueueList==null||initInputQueueList.getQueueList().size()==0){

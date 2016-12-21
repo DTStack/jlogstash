@@ -42,6 +42,7 @@ public class Main {
         Options options = new Options();
 		options.addOption("h", false, "usage help");
 		options.addOption("help", false, "usage help");
+		options.addOption("e", false, "environment");
 		options.addOption("f", true, "configuration file");
 		options.addOption("l", true, "log file");
 		options.addOption("t", false, "logqueue start");
@@ -72,6 +73,7 @@ public class Main {
 		StringBuilder helpInfo = new StringBuilder();
 		helpInfo.append("-h").append("\t\t\thelp command").append("\n")
 				.append("-help").append("\t\t\thelp command").append("\n")
+			    .append("-e").append("\t\t\tenvironment command 'pro or dev'").append("\n")
 				.append("-f").append("\t\t\trequired config, indicate config file").append("\n")
 				.append("-l").append("\t\t\tlog file that store the output").append("\n")
 				.append("-w").append("\t\t\tfilter worker numbers").append("\n")
@@ -95,7 +97,7 @@ public class Main {
             //assembly pipeline
             assemblyPipeline.assemblyPipeline(cmdLine);
 		} catch (Exception e) {
-			logger.error("jlogstash_start error:{}",ExceptionUtil.getErrorMessage(e));
+			logger.error("jlogstash start error:{}",ExceptionUtil.getErrorMessage(e));
 			System.exit(-1);
 		}
 	}

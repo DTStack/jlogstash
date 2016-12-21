@@ -3,12 +3,11 @@ package com.dtstack.logstash.factory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.logstash.annotation.plugin.AnnotationInterface;
 import com.dtstack.logstash.property.SystemProperty;
+
 
 /**
  * 
@@ -21,6 +20,8 @@ import com.dtstack.logstash.property.SystemProperty;
 public abstract class InstanceFactory {
 	
 	private static Logger logger = LoggerFactory.getLogger(InstanceFactory.class);
+	
+	protected static Map<String,ClassLoader> classCloaders = null;
 	
 	@SuppressWarnings("rawtypes")
 	protected static void configInstance(Class<?> clasz,Map config) throws Exception{
@@ -87,6 +88,18 @@ public abstract class InstanceFactory {
 		}
 	}
 	
+	protected static Class<?> getPluginClass(String type,String pluginType) throws ClassNotFoundException{
+		String className = com.dtstack.logstash.utils.Package.getRealClassName(type, pluginType);
+		String[] names = type.split("\\.");
+		String key = String.format("%s:%s",pluginType, names[names.length-1].toLowerCase());
+		if(classCloaders!=null){
+			ClassLoader cc = classCloaders.get(key);
+			if(cc!=null)return cc.loadClass(className);
+		}
+		logger.warn("{}:not found",className);
+		return null;
+	}
+	
 	private static void checkAnnotation(Field field,Annotation an,Object obj) throws Exception {
 		String className = SystemProperty.getSystemProperty("annotationPlugin")+"."+an.annotationType().getSimpleName()+"Plugin";
 		Class<?> cla =null;
@@ -98,5 +111,11 @@ public abstract class InstanceFactory {
 		}
 		AnnotationInterface annotationInterface = (AnnotationInterface) cla.newInstance();	
 		annotationInterface.required(field, obj);
+	}
+
+	public static void setClassCloaders(Map<String, ClassLoader> classCloaders) {
+//		important
+		Thread.currentThread().setContextClassLoader(null);
+		if (InstanceFactory.classCloaders ==null)InstanceFactory.classCloaders = classCloaders;
 	}
 }

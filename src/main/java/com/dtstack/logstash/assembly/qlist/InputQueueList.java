@@ -1,9 +1,9 @@
 package com.dtstack.logstash.assembly.qlist;
 
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -41,7 +41,7 @@ public class InputQueueList extends QueueList{
 		if(inputQueueList!=null)return inputQueueList;
 		inputQueueList = new InputQueueList();
         for(int i=0;i<queueNumber;i++){
-        	inputQueueList.queueList.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
+        	inputQueueList.queueList.add(new ArrayBlockingQueue<Map<String,Object>>(queueSize));
         }
 		return inputQueueList;
 	}

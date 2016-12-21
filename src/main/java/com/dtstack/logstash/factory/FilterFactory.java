@@ -21,11 +21,9 @@ import com.google.common.collect.Maps;
  */
 public class FilterFactory extends InstanceFactory{
 
-	
 	@SuppressWarnings("rawtypes")
 	public static BaseFilter getInstance(String filterType,Map filterConfig) throws Exception{
-	      Class<?> filterClass = Class
-                  .forName(Package.getRealClassName(filterType, "filter"));
+	      Class<?> filterClass = getPluginClass(filterType, "filter");
 	      configInstance(filterClass,filterConfig);//设置static field
           Constructor<?> ctor = filterClass
                   .getConstructor(Map.class);

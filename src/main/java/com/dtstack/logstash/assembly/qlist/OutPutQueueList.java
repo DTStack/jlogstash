@@ -1,9 +1,9 @@
 package com.dtstack.logstash.assembly.qlist;
 
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class OutPutQueueList extends QueueList{
 		if(outPutQueueList!=null)return outPutQueueList;
 		outPutQueueList = new OutPutQueueList();
         for(int i=0;i<queueNumber;i++){
-        	outPutQueueList.queueList.add(new LinkedBlockingQueue<Map<String,Object>>(queueSize));
+        	outPutQueueList.queueList.add(new ArrayBlockingQueue<Map<String,Object>>(queueSize));
         }
 		return outPutQueueList;
 	}

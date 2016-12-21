@@ -5,10 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import com.dtstack.logstash.assembly.qlist.InputQueueList;
 import com.dtstack.logstash.inputs.BaseInput;
-import com.dtstack.logstash.utils.Package;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -24,8 +22,7 @@ public class InputFactory extends InstanceFactory{
 	
 	@SuppressWarnings("rawtypes")
 	public static BaseInput getInstance(String inputType,Map inputConfig) throws Exception{
-		Class<?> inputClass = Class
-				.forName(Package.getRealClassName(inputType,"input"));
+	    Class<?> inputClass = getPluginClass(inputType, "input");
 		configInstance(inputClass,inputConfig);//设置static field
 		Constructor<?> ctor = inputClass.getConstructor(Map.class);
 		BaseInput inputInstance = (BaseInput) ctor.newInstance(inputConfig);
