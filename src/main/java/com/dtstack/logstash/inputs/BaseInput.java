@@ -124,5 +124,8 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 	public static void setInputQueueList(InputQueueList inputQueueList) {
 		BaseInput.inputQueueList = inputQueueList;
 	}
-    
+
+	public static InputQueueList getInputQueueList() {
+		return inputQueueList;
+	}
 }
