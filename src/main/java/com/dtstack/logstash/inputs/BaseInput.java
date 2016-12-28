@@ -108,10 +108,12 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     public abstract void emit();
 
     public void process(Map<String,Object> event) {
-    	if(addFields!=null){
-    		basePluginUtil.addFields(event,addFields);
+    	if(event!=null&&event.size()>0){
+        	if(addFields!=null){
+        		basePluginUtil.addFields(event,addFields);
+        	}
+        	inputQueueList.put(event);
     	}
-    	inputQueueList.put(event);
     }
     
     public abstract void release();
