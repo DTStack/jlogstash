@@ -88,4 +88,9 @@ public class Formatter {
 		m.appendTail(sb);
 		return sb.toString();
 	}
+	
+	public static boolean isFormat(String format){
+		Matcher m = p.matcher(format);
+		return m.find();
+	}
 }
