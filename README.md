@@ -92,8 +92,6 @@
 
 -c:output queue size coefficient 默认 500f/1024
 
--e:开发环境 dev 生产环境 pro（默认生产环境）
-
 -v: info级别
 
 -vv:debug级别
