@@ -73,7 +73,7 @@ public class AssemblyPipeline {
 			Map configs = new YamlConfig().parse(cmdLine.getOptionValue("f"));
 			logger.debug(configs.toString());
 			logger.debug("load plugin...");
-			InstanceFactory.setClassCloaders(JarClassLoader.loadJar(cmdLine.getOptionValue("e")));
+			InstanceFactory.setClassCloaders(JarClassLoader.loadJar());
 			logger.debug("initInputQueueList start ...");
 			initInputQueueList=InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(cmdLine), CmdLineParams.getInputQueueSize(cmdLine));
 			if(initInputQueueList==null||initInputQueueList.getQueueList().size()==0){

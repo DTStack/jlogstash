@@ -42,9 +42,7 @@ public class JarClassLoader {
 	private static Logger logger = LoggerFactory.getLogger(JarClassLoader.class);
 
 	private static String userDir = System.getProperty("user.dir");
-	
-//	private final static String JAR_UNIQUEID="jar_uniqueid";
-	
+		
 	/**
 	 * 每一个plugin一个classloader
 	 * @param env pro or dev
@@ -53,18 +51,14 @@ public class JarClassLoader {
 	 * @throws MalformedURLException
 	 * @throws IOException
 	 */
-	public Map<String,ClassLoader> loadJar(String env) throws LogstashException, MalformedURLException, IOException{
+	public Map<String,ClassLoader> loadJar() throws LogstashException, MalformedURLException, IOException{
 		Map<String,ClassLoader> classLoads = Maps.newConcurrentMap();
 		Set<Map.Entry<String,URL[]>> urls = getClassLoadJarUrls().entrySet();
 		ClassLoader classLoader = this.getClass().getClassLoader();
 		for(Map.Entry<String,URL[]> url:urls){
 			String key = url.getKey();
-			if("dev".equals(env)){
-				classLoads.put(key,classLoader);
-			}else{
-				URLClassLoader  loader = new URLClassLoader(url.getValue(),classLoader);  
-				classLoads.put(key, loader);
-			}
+			URLClassLoader  loader = new URLClassLoader(url.getValue(),classLoader);  
+			classLoads.put(key, loader);
 		}
 		return classLoads;
 	}
@@ -114,24 +108,4 @@ public class JarClassLoader {
 	    }
 		return jurls;
 	}
-	
-//	private String getJarUniqueId(String jarPath) throws Exception{
-//		URL jarURL = new URL(jarPath);
-//		JarURLConnection jarCon = (JarURLConnection) jarURL.openConnection();
-//		JarFile jarFile = jarCon.getJarFile();
-//		Enumeration<JarEntry> jarEntrys = jarFile.entries();
-//		while (jarEntrys.hasMoreElements()) {
-//		JarEntry entry = jarEntrys.nextElement();
-//		String name = entry.getName();
-//		if (entry.isDirectory()&&name.endsWith("META-INF")) {
-//			File[] files = new File(name).listFiles();
-//			for(File f:files){
-//				if(f.isFile()&&f.getName().equals("MANIFEST.MF")){
-//					
-//				}
-//			 }
-//			}
-//		}
-//		return "";
-//	}
 }

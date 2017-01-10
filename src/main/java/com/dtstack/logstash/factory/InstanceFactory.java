@@ -109,12 +109,12 @@ public abstract class InstanceFactory {
 		String className = com.dtstack.logstash.utils.Package.getRealClassName(type, pluginType);
 		String[] names = type.split("\\.");
 		String key = String.format("%s:%s",pluginType, names[names.length-1].toLowerCase());
-		if(classCloaders!=null){
+		if(classCloaders!=null&&classCloaders.size()>0){
 			ClassLoader cc = classCloaders.get(key);
 			if(cc!=null)return cc.loadClass(className);
 		}
-		logger.warn("{}:not found",className);
-		return null;
+		logger.warn("plugin classLoadder is AppClassLoader");
+		return Thread.currentThread().getContextClassLoader().loadClass(className);
 	}
 	
 	private static void checkAnnotation(Field field,Annotation an,Object obj) throws Exception {
@@ -132,7 +132,9 @@ public abstract class InstanceFactory {
 
 	public static void setClassCloaders(Map<String, ClassLoader> classCloaders) {
 //		important
-		Thread.currentThread().setContextClassLoader(null);
+		if(classCloaders!=null&&classCloaders.size()>0){
+			Thread.currentThread().setContextClassLoader(null);
+		}
 		if (InstanceFactory.classCloaders ==null)InstanceFactory.classCloaders = classCloaders;
 	}
 }
