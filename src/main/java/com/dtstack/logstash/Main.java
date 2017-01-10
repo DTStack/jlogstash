@@ -62,11 +62,11 @@ public class Main {
 		options.addOption("e", true, "environment");
 		options.addOption("f", true, "configuration file");
 		options.addOption("l", true, "log file");
-		options.addOption("t", false, "logqueue start");
-		options.addOption("w", false, "filter worker number");
-		options.addOption("o", false, "output worker number");
-		options.addOption("c", false, "output queue size coefficient");
-		options.addOption("i", false, "input queue size coefficient");
+		options.addOption("t", true, "logqueue start");
+		options.addOption("w", true, "filter worker number");
+		options.addOption("o", true, "output worker number");
+		options.addOption("c", true, "output queue size coefficient");
+		options.addOption("i", true, "input queue size coefficient");
 		options.addOption("v", false, "print info log");
 		options.addOption("vv", false, "print debug log");
 		options.addOption("vvvv", false, "print trace log");
