@@ -59,7 +59,7 @@ public class Main {
         Options options = new Options();
 		options.addOption("h", false, "usage help");
 		options.addOption("help", false, "usage help");
-		options.addOption("e", false, "environment");
+		options.addOption("e", true, "environment");
 		options.addOption("f", true, "configuration file");
 		options.addOption("l", true, "log file");
 		options.addOption("t", false, "logqueue start");
