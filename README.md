@@ -13,6 +13,8 @@
 
 ##inputs: 
     Kafka: 
+    
+    KafkaDistribute:
  
     Stdin: 
 
