@@ -143,5 +143,11 @@
 			<artifactId>grok</artifactId>
 			<version>0.1.4</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.lmax</groupId>
+			<artifactId>disruptor</artifactId>
+			<version>3.3.6</version>
+		</dependency>
 	</dependencies>
 </project>

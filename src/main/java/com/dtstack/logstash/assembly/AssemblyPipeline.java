@@ -23,13 +23,13 @@ import java.util.Map;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.logstash.assembly.pthread.FilterThread;
+import com.dtstack.logstash.assembly.disruptor.JDisruptor;
+import com.dtstack.logstash.assembly.pthread.FilterHandler;
 import com.dtstack.logstash.assembly.pthread.InputThread;
-import com.dtstack.logstash.assembly.pthread.OutputThread;
-import com.dtstack.logstash.assembly.qlist.InputQueueList;
-import com.dtstack.logstash.assembly.qlist.OutPutQueueList;
+import com.dtstack.logstash.assembly.pthread.OutputHandler;
 import com.dtstack.logstash.configs.YamlConfig;
 import com.dtstack.logstash.exception.ExceptionUtil;
+import com.dtstack.logstash.exception.LogstashException;
 import com.dtstack.logstash.factory.InputFactory;
 import com.dtstack.logstash.factory.InstanceFactory;
 import com.dtstack.logstash.inputs.BaseInput;
@@ -48,14 +48,8 @@ import  com.dtstack.logstash.classloader.JarClassLoader;
 public class AssemblyPipeline {
 	
 	private static Logger logger = LoggerFactory.getLogger(AssemblyPipeline.class);
-			
-	private InputQueueList initInputQueueList;
-	
-	private OutPutQueueList initOutputQueueList;
-
-	private List<BaseInput> baseInputs;
-	
-	private List<BaseOutput> allBaseOutputs = Lists.newCopyOnWriteArrayList();
+				
+	private List<List<BaseOutput>> allBaseOutputs = Lists.newCopyOnWriteArrayList();
 	
 	private JarClassLoader JarClassLoader = new JarClassLoader();
 	
@@ -67,52 +61,30 @@ public class AssemblyPipeline {
 	 * @throws IOException
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void assemblyPipeline(CommandLine cmdLine) throws IOException{
+	public void assemblyPipeline(CommandLine cmdLine) throws Exception{
 		try{
 			logger.debug("load config start ...");
 			Map configs = new YamlConfig().parse(cmdLine.getOptionValue("f"));
 			logger.debug(configs.toString());
 			logger.debug("load plugin...");
 			InstanceFactory.setClassCloaders(JarClassLoader.loadJar());
-			logger.debug("initInputQueueList start ...");
-			initInputQueueList=InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(cmdLine), CmdLineParams.getInputQueueSize(cmdLine));
-			if(initInputQueueList==null||initInputQueueList.getQueueList().size()==0){
-				logger.error("init inputQueueList is error");
-				System.exit(1);
-			}
 			List<Map> inputs = (List<Map>) configs.get("inputs");
 			if(inputs==null||inputs.size()==0){
-				logger.error("input plugin is not empty");
-				System.exit(1);
+				throw new LogstashException("input plugin is not empty");
 			}
-			logger.debug("initOutputQueueList start ...");
-			initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(cmdLine), CmdLineParams.getOutputQueueSize(cmdLine));
-			if(initOutputQueueList==null||initOutputQueueList.getQueueList().size()==0){
-				logger.error("init outputQueueList is error");
-				System.exit(1);
-			}	
 			List<Map> outputs = (List<Map>) configs.get("outputs");
 			if(outputs==null||outputs.size()==0){
-				logger.error("output plugin is not empty");
-				System.exit(1);
+				throw new LogstashException("output plugin is not empty");
 			}
 		    List<Map> filters = (List<Map>) configs.get("filters");
-			logger.debug("init input plugin start ...");
-			baseInputs =InputFactory.getBatchInstance(inputs,initInputQueueList);
-			initInputQueueList.startElectionIdleQueue();
-			initOutputQueueList.startElectionIdleQueue();
-			if(CmdLineParams.isQueueSizeLog(cmdLine)){
-				initInputQueueList.startLogQueueSize();
-				initOutputQueueList.startLogQueueSize();	
-			}
-			logger.debug("input thread start ...");
+		    int filterWorks = CmdLineParams.getFilterWork();
+		    JDisruptor inputToFilterDisruptor = new JDisruptor(FilterHandler.getArrayHandlerInstance(filters,filterWorks),CmdLineParams.getFilterRingBuffer(),CmdLineParams.getWaitStrategy(),filterWorks);
+		    int outputWorks = CmdLineParams.getOutputWork();
+		    JDisruptor filterToOutputDisruptor = new JDisruptor(OutputHandler.getArrayHandlerInstance(outputs,outputWorks,allBaseOutputs),CmdLineParams.getFilterRingBuffer(),CmdLineParams.getWaitStrategy(),outputWorks);
+		    List<BaseInput> baseInputs =InputFactory.getBatchInstance(inputs,inputToFilterDisruptor);
 			InputThread.initInputThread(baseInputs);
-			logger.debug("filter thread start ...");
-			FilterThread.initFilterThread(filters,initInputQueueList,initOutputQueueList);
-			logger.debug("output thread start ...");
-			OutputThread.initOutPutThread(outputs,initOutputQueueList,allBaseOutputs);
     		//add shutdownhook
-    		ShutDownHook shutDownHook = new ShutDownHook(initInputQueueList,initOutputQueueList,baseInputs,allBaseOutputs);
+    		ShutDownHook shutDownHook = new ShutDownHook(inputToFilterDisruptor,filterToOutputDisruptor,baseInputs,allBaseOutputs);
     		shutDownHook.addShutDownHook();
 		}catch(Exception t){
 			logger.error("assemblyPipeline is error:{}",ExceptionUtil.getErrorMessage(t));

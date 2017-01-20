@@ -19,6 +19,9 @@ package com.dtstack.logstash.property;
 
 import java.math.BigDecimal;
 
+import com.dtstack.logstash.monitor.MonitorInfo;
+import com.dtstack.logstash.monitor.MonitorService;
+
 
 /**
  * 
@@ -29,6 +32,8 @@ import java.math.BigDecimal;
  *
  */
 public class SystemProperty {
+	
+	private static MonitorInfo monitorInfo = new MonitorService().getMonitorInfoBean();
 	
 	static{
 		System.setProperty("input", "com.dtstack.logstash.inputs");
@@ -42,6 +47,10 @@ public class SystemProperty {
 		return System.getProperty(key);
 	}
 	
+	public static int getBaseIndex(){
+		return 6;
+	}
+	
 	public static Double getInputProportion(){
 	   BigDecimal bg = new BigDecimal(200f/1024);
        return bg.setScale(5, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -51,4 +60,15 @@ public class SystemProperty {
 		   BigDecimal bg = new BigDecimal(500f/1024);
 	       return bg.setScale(5, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
+	
+	
+	public static int getInputBase(){
+		int process = monitorInfo.getProcessors();
+		return process + process/2;
+	}
+	
+	public static int getOutputBase(){
+		int process = monitorInfo.getProcessors();
+		return process;
+	}
 }

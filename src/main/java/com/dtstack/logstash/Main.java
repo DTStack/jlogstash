@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dtstack.logstash.assembly.AssemblyPipeline;
+import com.dtstack.logstash.assembly.CmdLineParams;
 import com.dtstack.logstash.exception.ExceptionUtil;
 import com.dtstack.logstash.log.LogComponent;
 import com.dtstack.logstash.log.LogbackComponent;
@@ -109,6 +110,7 @@ public class Main {
 			cmdLine = parseArg(args);
 			//logger config
             logbackComponent.setupLogger(cmdLine);
+            CmdLineParams.setLine(cmdLine);
             //assembly pipeline
             assemblyPipeline.assemblyPipeline(cmdLine);
 		} catch (Exception e) {

@@ -22,7 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import com.dtstack.logstash.assembly.qlist.InputQueueList;
+
+import com.dtstack.logstash.assembly.disruptor.JDisruptor;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -49,8 +50,8 @@ public class InputFactory extends InstanceFactory{
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static List<BaseInput> getBatchInstance(List<Map> inputs,InputQueueList inputQueueList) throws Exception{
-		BaseInput.setInputQueueList(inputQueueList);
+	public static List<BaseInput> getBatchInstance(List<Map> inputs,JDisruptor inputToFilterDisruptor) throws Exception{
+		BaseInput.setInputToFilterDisruptor(inputToFilterDisruptor);
 		List<BaseInput> baseinputs =Lists.newArrayList();
 		for (Map input : inputs) {
 			Iterator<Entry<String, Map>> inputIT = input.entrySet().iterator();

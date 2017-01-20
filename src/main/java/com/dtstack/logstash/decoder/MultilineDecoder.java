@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.logstash.assembly.qlist.InputQueueList;
+import com.dtstack.logstash.assembly.disruptor.JDisruptor;
 import com.dtstack.logstash.decoder.IDecode;
 import com.google.common.collect.Lists;
 /**
@@ -70,21 +70,21 @@ public class MultilineDecoder implements IDecode {
 	
 	private int expiredInterval = 60 * 60 * 1000;//FIXME 失效时间不要设置超过INTEGER_MAX
 	
-	private InputQueueList inputQueueList;
+	private JDisruptor inputToFilterDisruptor;
 	
 	private ScheduledExecutorService scheduleExecutor;
 		
-	public MultilineDecoder(String pattern, String what, InputQueueList queuelist){
-		init(pattern, what, queuelist);
+	public MultilineDecoder(String pattern, String what, JDisruptor inputToFilterDisruptor){
+		init(pattern, what, inputToFilterDisruptor);
 	}
 	
-	public MultilineDecoder(String pattern, String what, boolean negate, InputQueueList queuelist){
+	public MultilineDecoder(String pattern, String what, boolean negate, JDisruptor inputToFilterDisruptor){
 		
 		this.negate = negate;
-		this.init(pattern, what, queuelist);
+		this.init(pattern, what, inputToFilterDisruptor);
 	}
 		
-	public void init(String pattern, String what, InputQueueList queuelist){
+	public void init(String pattern, String what, JDisruptor inputToFilterDisruptor){
 		
 		if(pattern == null || what == null){
 			logger.error("pattern and what must not be null.");
@@ -96,7 +96,7 @@ public class MultilineDecoder implements IDecode {
 			System.out.println(-1);
 		}
 		
-		this.inputQueueList = queuelist;
+		this.inputToFilterDisruptor = inputToFilterDisruptor;
 		
 		logger.warn("MultilineDecoder param pattern:{}, what:{}, negate:{}.", new Object[]{pattern, what, negate});
 		
@@ -214,7 +214,7 @@ public class MultilineDecoder implements IDecode {
 					Map<String, Object> event = flush(buffer.getKey());
 					if(event != null){
 						event.put("path", buffer.getKey());
-						inputQueueList.put(event);
+						inputToFilterDisruptor.put(event);
 					}
 				}
 				

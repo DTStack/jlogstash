@@ -29,7 +29,7 @@ package com.dtstack.logstash.inputs;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.logstash.assembly.qlist.InputQueueList;
+import com.dtstack.logstash.assembly.disruptor.JDisruptor;
 import com.dtstack.logstash.decoder.IDecode;
 import com.dtstack.logstash.decoder.JsonDecoder;
 import com.dtstack.logstash.decoder.MultilineDecoder;
@@ -45,7 +45,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     
     private IDecode decoder;
     
-    private static InputQueueList inputQueueList;
+    private static JDisruptor inputToFilterDisruptor;
     
     protected Map<String, Object> addFields=null;
     
@@ -90,7 +90,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     		negate = (boolean) codecConfig.get("negate");
     	}
     	
-    	return new MultilineDecoder(patternStr, what, negate, inputQueueList);
+    	return new MultilineDecoder(patternStr, what, negate, inputToFilterDisruptor);
     }
     
 
@@ -112,7 +112,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         	if(addFields!=null){
         		basePluginUtil.addFields(event,addFields);
         	}
-        	inputQueueList.put(event);
+        	inputToFilterDisruptor.put(event);
     	}
     }
     
@@ -123,11 +123,11 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         return super.clone();
     }
    
-	public static void setInputQueueList(InputQueueList inputQueueList) {
-		BaseInput.inputQueueList = inputQueueList;
+	public static void setInputToFilterDisruptor(JDisruptor inputToFilterDisruptor) {
+		BaseInput.inputToFilterDisruptor = inputToFilterDisruptor;
 	}
 
-	public static InputQueueList getInputQueueList() {
-		return inputQueueList;
+	public static JDisruptor getInputToFilterDisruptor() {
+		return inputToFilterDisruptor;
 	}
 }

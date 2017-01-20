@@ -20,7 +20,7 @@ package com.dtstack.logstash.assembly;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.logstash.assembly.qlist.QueueList;
+import com.dtstack.logstash.assembly.disruptor.JDisruptor;
 import com.dtstack.logstash.inputs.BaseInput;
 import com.dtstack.logstash.outputs.BaseOutput;
 
@@ -36,17 +36,17 @@ public class ShutDownHook {
 	
 	private Logger logger = LoggerFactory.getLogger(ShutDownHook.class);
 	
-    private QueueList initInputQueueList;
+    private JDisruptor inputToFilterDisruptor;
     
-    private QueueList initOutputQueueList;
+    private JDisruptor filterToOutputDisruptor;
 
     private List<BaseInput> baseInputs; 
     
-    private List<BaseOutput> baseOutputs;
+    private List<List<BaseOutput>> baseOutputs;
         
-    public ShutDownHook(QueueList initInputQueueList,QueueList initOutputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
-    	this.initInputQueueList = initInputQueueList;
-    	this.initOutputQueueList = initOutputQueueList;
+    public ShutDownHook(JDisruptor inputToFilterDisruptor,JDisruptor filterToOutputDisruptor,List<BaseInput> baseInputs,List<List<BaseOutput>> baseOutputs){
+    	this.inputToFilterDisruptor = inputToFilterDisruptor;
+    	this.filterToOutputDisruptor = filterToOutputDisruptor;
     	this.baseInputs  = baseInputs;
     	this.baseOutputs = baseOutputs;
     }
@@ -75,8 +75,10 @@ public class ShutDownHook {
 		private void outPutRelease(){
 			try{
 				if(baseOutputs!=null){
-					for(BaseOutput outPut:baseOutputs){
-						outPut.release();
+					for(List<BaseOutput> outPuts:baseOutputs){
+						for(BaseOutput outPut:outPuts){
+							outPut.release();
+						}
 					}
 				}
 				logger.warn("outPutRelease success...");
@@ -90,8 +92,8 @@ public class ShutDownHook {
 		public void run() {
 			// TODO Auto-generated method stub
 			inputRelease();
-			if(initInputQueueList!=null)initInputQueueList.queueRelease();
-			if(initOutputQueueList!=null)initOutputQueueList.queueRelease();
+			if(inputToFilterDisruptor!=null)inputToFilterDisruptor.release();
+			if(filterToOutputDisruptor!=null)filterToOutputDisruptor.release();
 			outPutRelease();	
 		}
 	}
