@@ -17,20 +17,13 @@
  */
 package com.dtstack.logstash.assembly.disruptor;
 
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import com.google.common.collect.Lists;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.WorkHandler;
-import com.lmax.disruptor.WorkerPool;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 
 /**
  * 
@@ -46,65 +39,37 @@ public class JDisruptor {
 
 	private int ringBufferSize = 1 << 6;
 
-//	private RingBuffer<MapEvent> ringBuffer;
-
 	private WaitStrategy waitStrategy = new BlockingWaitStrategy();
-
-	private int works;
 	
 	private Disruptor<MapEvent> disruptor;
 	
-	private  ExecutorService executor = Executors.newCachedThreadPool();
-
-	public JDisruptor(WorkHandler<MapEvent>[] processors, int ringBufferSize,
-			int works) {
-		this(processors, works);
+	public JDisruptor(WorkHandler<MapEvent>[] processors, int ringBufferSize) {
+		this(processors);
 		this.ringBufferSize = ringBufferSize;
 	}
 	
 	public JDisruptor(WorkHandler<MapEvent>[] processors,
-			String waitType,int works) {
-		this(processors, works);
+			String waitType) {
+		this(processors);
 		this.waitStrategy = WaitStrategyEnum.getWaitStrategy(waitType);
 	}
 	
-	public JDisruptor(WorkHandler<MapEvent>[] processors, int ringBufferSize,String waitType,
-			int works) {
-		this(processors, works);
+	public JDisruptor(WorkHandler<MapEvent>[] processors, int ringBufferSize,String waitType) {
+		this(processors);
 		this.ringBufferSize = ringBufferSize;
 		this.waitStrategy =  WaitStrategyEnum.getWaitStrategy(waitType);;
 	}
 
-	public JDisruptor(WorkHandler<MapEvent>[] processors, int works) {
+	public JDisruptor(WorkHandler<MapEvent>[] processors) {
 		this.processors = processors;
-		this.works = works;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void init() {
-//		ringBuffer = RingBuffer.createMultiProducer(new MapEventFactory(),
-//				ringBufferSize, waitStrategy);
-//		SequenceBarrier sequenceBarrier = ringBuffer.newBarrier();
-//		List<Sequence> gatingSequences = Lists.newArrayList();
-//		List<WorkerPool<MapEvent>> workerPools = Lists.newArrayList();
-//		for (int i = 0; i < works; i++) {
-//			WorkerPool<MapEvent> workPool = new WorkerPool<MapEvent>(ringBuffer,
-//					sequenceBarrier, new MapEventExceptionHandler(),
-//					new WorkHandler[] { processor });
-//			for (Sequence s : workPool.getWorkerSequences()) {
-//				gatingSequences.add(s);
-//			}
-//			workerPools.add(workPool);
-//		}
-//		ringBuffer.addGatingSequences(gatingSequences.toArray(new Sequence[gatingSequences.size()]));
-//		workerPoolStart(workerPools);
+		disruptor = new Disruptor<MapEvent>(new MapEventFactory(), ringBufferSize,
+				new MapEventThreadFactory(), ProducerType.MULTI, waitStrategy); 
+		disruptor.handleEventsWithWorkerPool(processors);
+		disruptor.setDefaultExceptionHandler(new MapEventExceptionHandler());
 	}
-	
-//	private void workerPoolStart(List<WorkerPool<MapEvent>> workerPools){
-//		for(WorkerPool<MapEvent> wp:workerPools){
-//			wp.start(executor);
-//		}
-//	}
 	
 	public void put(Map<String, Object> event) {
 		RingBuffer<MapEvent> ringBuffer = disruptor.getRingBuffer();

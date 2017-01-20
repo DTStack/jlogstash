@@ -76,9 +76,11 @@ public class AssemblyPipeline {
 			}
 		    List<Map> filters = (List<Map>) configs.get("filters");
 		    int filterWorks = CmdLineParams.getFilterWork();
-		    JDisruptor inputToFilterDisruptor = new JDisruptor(FilterHandler.getArrayHandlerInstance(filters,filterWorks),CmdLineParams.getFilterRingBuffer(),CmdLineParams.getWaitStrategy(),filterWorks);
+		    JDisruptor inputToFilterDisruptor = new JDisruptor(FilterHandler.getArrayHandlerInstance(filters,filterWorks),CmdLineParams.getFilterRingBuffer(),CmdLineParams.getWaitStrategy());
+		    inputToFilterDisruptor.start();
 		    int outputWorks = CmdLineParams.getOutputWork();
-		    JDisruptor filterToOutputDisruptor = new JDisruptor(OutputHandler.getArrayHandlerInstance(outputs,outputWorks,allBaseOutputs),CmdLineParams.getFilterRingBuffer(),CmdLineParams.getWaitStrategy(),outputWorks);
+		    JDisruptor filterToOutputDisruptor = new JDisruptor(OutputHandler.getArrayHandlerInstance(outputs,outputWorks,allBaseOutputs),CmdLineParams.getFilterRingBuffer(),CmdLineParams.getWaitStrategy());
+		    filterToOutputDisruptor.start();
 		    List<BaseInput> baseInputs =InputFactory.getBatchInstance(inputs,inputToFilterDisruptor);
 			InputThread.initInputThread(baseInputs);
     		//add shutdownhook
