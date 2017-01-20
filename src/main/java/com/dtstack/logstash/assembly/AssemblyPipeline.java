@@ -28,7 +28,6 @@ import com.dtstack.logstash.assembly.pthread.FilterHandler;
 import com.dtstack.logstash.assembly.pthread.InputThread;
 import com.dtstack.logstash.assembly.pthread.OutputHandler;
 import com.dtstack.logstash.configs.YamlConfig;
-import com.dtstack.logstash.exception.ExceptionUtil;
 import com.dtstack.logstash.exception.LogstashException;
 import com.dtstack.logstash.factory.InputFactory;
 import com.dtstack.logstash.factory.InstanceFactory;
@@ -62,7 +61,6 @@ public class AssemblyPipeline {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void assemblyPipeline(CommandLine cmdLine) throws Exception{
-		try{
 			logger.debug("load config start ...");
 			Map configs = new YamlConfig().parse(cmdLine.getOptionValue("f"));
 			logger.debug(configs.toString());
@@ -86,9 +84,5 @@ public class AssemblyPipeline {
     		//add shutdownhook
     		ShutDownHook shutDownHook = new ShutDownHook(inputToFilterDisruptor,filterToOutputDisruptor,baseInputs,allBaseOutputs);
     		shutDownHook.addShutDownHook();
-		}catch(Exception t){
-			logger.error("assemblyPipeline is error:{}",ExceptionUtil.getErrorMessage(t));
-			System.exit(1);
-		}
 	}
 }

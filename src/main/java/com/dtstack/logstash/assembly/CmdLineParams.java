@@ -68,7 +68,7 @@ public class CmdLineParams {
 	}
 	
 	public static int getFilterRingBuffer() throws LogstashException{
-		String number =line.getOptionValue("fi");
+		String number =line.getOptionValue("c");
         int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):SystemProperty.getBaseIndex();	
         int size = 1<< works;
         if(size < 0){
@@ -81,7 +81,7 @@ public class CmdLineParams {
 	}
 	
 	public static int getOutputRingBufferIndex() throws LogstashException{
-		String number =line.getOptionValue("oi");
+		String number =line.getOptionValue("i");
         int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):SystemProperty.getBaseIndex();	
         int size =  1<< works;
         if(size < 0){

@@ -62,7 +62,7 @@ public class Main {
 		options.addOption("help", false, "usage help");
 		options.addOption("f", true, "configuration file");
 		options.addOption("l", true, "log file");
-		options.addOption("t", true, "logqueue start");
+		options.addOption("s", true, "disruptor wait stragety");
 		options.addOption("w", true, "filter worker number");
 		options.addOption("o", true, "output worker number");
 		options.addOption("c", true, "output queue size coefficient");
@@ -94,9 +94,8 @@ public class Main {
 				.append("-l").append("\t\t\tlog file that store the output").append("\n")
 				.append("-w").append("\t\t\tfilter worker numbers").append("\n")
 				.append("-o").append("\t\t\toutput worker numbers").append("\n")
-				.append("-t").append("\t\t\tlog input queue size").append("\n")
-				.append("-c").append("\t\t\t output queue size coefficient").append("\n")
-				.append("-i").append("\t\t\t input queue size coefficient").append("\n")
+				.append("-i").append("\t\t\t input queue size").append("\n")
+				.append("-c").append("\t\t\t output queue size").append("\n")
 				.append("-v").append("\t\t\tprint info log").append("\n")
 				.append("-vv").append("\t\t\tprint debug log").append("\n")
 				.append("-vvvv").append("\t\t\tprint trace log").append("\n");

@@ -44,6 +44,7 @@ public class MapEventExceptionHandler implements ExceptionHandler<MapEvent> {
 	public void handleOnStartException(Throwable ex) {
 		// TODO Auto-generated method stub
 		logger.error("handleOnStartException:{}",ExceptionUtil.getErrorMessage(ex));
+		System.exit(-1);
 	}
 
 	@Override
