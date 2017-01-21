@@ -18,8 +18,12 @@
 package com.dtstack.logstash.log;
 
 import ch.qos.logback.classic.Logger;
+
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.LoggerFactory;
+
+import com.dtstack.logstash.assembly.CmdLineParams;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -42,8 +46,8 @@ public class LogbackComponent extends LogComponent{
 	private static int day = 7;
 	
 	@Override
-	public void setupLogger(CommandLine cmdLine) {
-	    String file = checkFile(cmdLine);
+	public void setupLogger() {
+	    String file = checkFile();
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger newLogger =loggerContext.getLogger("ROOT");
         //Remove all previously added appenders from this logger instance.
@@ -70,7 +74,7 @@ public class LogbackComponent extends LogComponent{
         appender.start();
         newLogger.addAppender(appender);
         //setup level
-        setLevel(newLogger,cmdLine);
+        setLevel(newLogger);
         //remove the appenders that inherited 'ROOT'.
         newLogger.setAdditive(false);
 	}
@@ -89,12 +93,12 @@ public class LogbackComponent extends LogComponent{
      * @param logger
      * @param cmdLine
      */
-     private void setLevel(Logger logger, CommandLine cmdLine){
-    		if (cmdLine.hasOption("vvvv")) {
+     public void setLevel(Logger logger){
+    		if (CmdLineParams.hasOptionVVVV()) {
     			logger.setLevel(Level.TRACE);
-    		} else if (cmdLine.hasOption("vv")) {
+    		} else if (CmdLineParams.hasOptionVV()) {
     			logger.setLevel(Level.DEBUG);
-    		} else if (cmdLine.hasOption("v")) {
+    		} else if (CmdLineParams.hasOptionV()) {
     			logger.setLevel(Level.INFO);
     		} else {
     			logger.setLevel(Level.WARN);

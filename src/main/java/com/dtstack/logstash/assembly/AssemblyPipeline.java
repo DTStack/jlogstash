@@ -60,9 +60,9 @@ public class AssemblyPipeline {
 	 * @throws IOException
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void assemblyPipeline(CommandLine cmdLine) throws Exception{
+	public void assemblyPipeline() throws Exception{
 			logger.debug("load config start ...");
-			Map configs = new YamlConfig().parse(cmdLine.getOptionValue("f"));
+			Map configs = new YamlConfig().parse(CmdLineParams.getConfigFilePath());
 			logger.debug(configs.toString());
 			logger.debug("load plugin...");
 			InstanceFactory.setClassCloaders(JarClassLoader.loadJar());

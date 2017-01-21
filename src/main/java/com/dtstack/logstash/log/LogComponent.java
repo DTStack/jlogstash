@@ -17,7 +17,8 @@
  */
 package com.dtstack.logstash.log;
 
-import org.apache.commons.cli.CommandLine;
+import org.apache.commons.lang3.StringUtils;
+import com.dtstack.logstash.assembly.CmdLineParams;
 
 /**
  * 
@@ -29,13 +30,13 @@ import org.apache.commons.cli.CommandLine;
  */
 public abstract class LogComponent {
 	
-	public void setupLogger(CommandLine cmdLine) {}
+	public void setupLogger() {}
 	
-	protected String checkFile(CommandLine cmdLine){
-		if(!cmdLine.hasOption("l")){
+	protected String checkFile(){
+		String logfile = CmdLineParams.getLogFilePath();
+		if(StringUtils.isNoneBlank(logfile)){
             return System.getenv("basedir")+"/logs/jlogstash.log";
 		}
-        return 	cmdLine.getOptionValue("l")	;
+		return logfile;
 	}
-	
 }

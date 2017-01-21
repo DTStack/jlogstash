@@ -46,21 +46,24 @@ public class JDisruptor {
 	public JDisruptor(WorkHandler<MapEvent>[] processors, int ringBufferSize) {
 		this(processors);
 		this.ringBufferSize = ringBufferSize;
+		init();
 	}
 	
 	public JDisruptor(WorkHandler<MapEvent>[] processors,
 			String waitType) {
 		this(processors);
 		this.waitStrategy = WaitStrategyEnum.getWaitStrategy(waitType);
+		init();
 	}
 	
 	public JDisruptor(WorkHandler<MapEvent>[] processors, int ringBufferSize,String waitType) {
 		this(processors);
 		this.ringBufferSize = ringBufferSize;
-		this.waitStrategy =  WaitStrategyEnum.getWaitStrategy(waitType);;
+		this.waitStrategy =  WaitStrategyEnum.getWaitStrategy(waitType);
+		init();
 	}
 
-	public JDisruptor(WorkHandler<MapEvent>[] processors) {
+	private JDisruptor(WorkHandler<MapEvent>[] processors) {
 		this.processors = processors;
 	}
 

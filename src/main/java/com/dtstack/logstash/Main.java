@@ -104,14 +104,13 @@ public class Main {
 
 
 	public static void main(String[] args) {
-		CommandLine cmdLine = null;
 		try {
-			cmdLine = parseArg(args);
-			//logger config
-            logbackComponent.setupLogger(cmdLine);
+			CommandLine cmdLine = parseArg(args);
             CmdLineParams.setLine(cmdLine);
+			//logger config
+            logbackComponent.setupLogger();
             //assembly pipeline
-            assemblyPipeline.assemblyPipeline(cmdLine);
+            assemblyPipeline.assemblyPipeline();
 		} catch (Exception e) {
 			logger.error("jlogstash start error:{}",ExceptionUtil.getErrorMessage(e));
 			System.exit(-1);

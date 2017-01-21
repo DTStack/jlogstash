@@ -97,4 +97,24 @@ public class CmdLineParams {
 		String strategy =line.getOptionValue("s");
         return StringUtils.isNotBlank(strategy)?strategy:"blocking";
 	}
+	
+	public static String getConfigFilePath(){
+		return line.getOptionValue("f");
+	}
+	
+	public static String getLogFilePath(){
+		return line.getOptionValue("l");
+	}
+	
+	public static boolean hasOptionVVVV(){
+		return line.hasOption("vvvv");
+	}
+	
+	public static boolean hasOptionVV(){
+		return line.hasOption("vv");
+	}
+	
+	public static boolean hasOptionV(){
+		return line.hasOption("v");
+	}
 }
