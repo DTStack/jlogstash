@@ -43,6 +43,8 @@ public class JDisruptor {
 	
 	private Disruptor<MapEvent> disruptor;
 	
+	private RingBuffer<MapEvent> ringBuffer;
+	
 	public JDisruptor(WorkHandler<MapEvent>[] processors, int ringBufferSize) {
 		this(processors);
 		this.ringBufferSize = ringBufferSize;
@@ -72,17 +74,18 @@ public class JDisruptor {
 				new MapEventThreadFactory(), ProducerType.MULTI, waitStrategy); 
 		disruptor.handleEventsWithWorkerPool(processors);
 		disruptor.setDefaultExceptionHandler(new MapEventExceptionHandler());
+		ringBuffer = disruptor.getRingBuffer();
 	}
 	
 	public void put(Map<String, Object> event) {
-		RingBuffer<MapEvent> ringBuffer = disruptor.getRingBuffer();
-		long sequence = ringBuffer.next();
-		try {
-			MapEvent mapEvent = ringBuffer.get(sequence);
-			if (event != null && event.size() > 0)
-				mapEvent.setEvent(event);
-		} finally {
-			ringBuffer.publish(sequence);
+		if (event != null && event.size() > 0){
+			long sequence = ringBuffer.next();
+			try {
+				MapEvent mapEvent = ringBuffer.get(sequence);
+			    mapEvent.setEvent(event);
+			} finally {
+				ringBuffer.publish(sequence);
+			}
 		}
 	}
 
