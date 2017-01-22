@@ -35,8 +35,8 @@ public abstract class LogComponent {
 	
 	protected String checkFile(){
 		String logfile = CmdLineParams.getLogFilePath();
-		if(StringUtils.isNoneBlank(logfile)){
-            return System.getenv("basedir")+"/logs/jlogstash.log";
+		if(StringUtils.isBlank(logfile)){
+			return String.format("%s/%s", System.getProperty("user.dir"),"logs/jlogstash.log");
 		}
 		return logfile;
 	}

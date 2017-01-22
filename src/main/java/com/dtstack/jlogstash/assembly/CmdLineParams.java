@@ -69,7 +69,7 @@ public class CmdLineParams {
 	}
 	
 	public static int getFilterRingBuffer() throws LogstashException{
-		String number =line.getOptionValue("c");
+		String number =line.getOptionValue("i");
         int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):SystemProperty.getBaseIndex();	
         int size = 1<< works;
         if(size < 0){
@@ -78,11 +78,12 @@ public class CmdLineParams {
         if(size > Integer.MAX_VALUE){
         	throw new LogstashException("RingBuffer too big");
         }
+		logger.warn("filter ringbuffer:{}",String.valueOf(size));
         return size;
 	}
 	
-	public static int getOutputRingBufferIndex() throws LogstashException{
-		String number =line.getOptionValue("i");
+	public static int getOutputRingBuffer() throws LogstashException{
+		String number =line.getOptionValue("c");
         int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):SystemProperty.getBaseIndex();	
         int size =  1<< works;
         if(size < 0){
@@ -91,6 +92,7 @@ public class CmdLineParams {
         if(size > Integer.MAX_VALUE){
         	throw new LogstashException("RingBuffer too big");
         }
+		logger.warn("output ringbuffer:{}",String.valueOf(size));
         return size;
 	}
 	

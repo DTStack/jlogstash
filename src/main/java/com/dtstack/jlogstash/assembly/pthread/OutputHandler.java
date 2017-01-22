@@ -79,7 +79,7 @@ public class OutputHandler implements WorkHandler<MapEvent>{
 	public static WorkHandler<MapEvent>[] getArrayHandlerInstance(
 			List<Map> outputs, int outputWorks,List<List<BaseOutput>> allOutputs) throws Exception {
 		// TODO Auto-generated method stub
-		WorkHandler<MapEvent>[] handlers = new FilterHandler[outputWorks];
+		WorkHandler<MapEvent>[] handlers = new OutputHandler[outputWorks];
 		for(int i=0;i<outputWorks;i++){
 			List<BaseOutput> os =OutputFactory.getBatchInstance(outputs);
 			handlers[i] = getHandlerInstance(os);

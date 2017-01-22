@@ -92,7 +92,7 @@ public abstract class InstanceFactory {
 									Package pack = an.annotationType().getPackage();
 									if(pack!=null){
 										if(annotationPackage.equals(pack.getName())){
-											logger.warn("field: {} annotation:{} check",name,an.annotationType().getSimpleName());
+											logger.debug("field: {} annotation:{} check",name,an.annotationType().getSimpleName());
 											checkAnnotation(field,an,obj);
 										}
 									}

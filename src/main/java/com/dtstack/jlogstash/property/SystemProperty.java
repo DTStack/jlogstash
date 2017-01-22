@@ -36,11 +36,11 @@ public class SystemProperty {
 	private static MonitorInfo monitorInfo = new MonitorService().getMonitorInfoBean();
 	
 	static{
-		System.setProperty("input", "com.dtstack.logstash.inputs");
-		System.setProperty("filter", "com.dtstack.logstash.filters");
-		System.setProperty("output", "com.dtstack.logstash.outputs");
-		System.setProperty("annotationPlugin", "com.dtstack.logstash.annotation.plugin");
-		System.setProperty("annotationPackage","com.dtstack.logstash.annotation");
+		System.setProperty("input", "com.dtstack.jlogstash.inputs");
+		System.setProperty("filter", "com.dtstack.jlogstash.filters");
+		System.setProperty("output", "com.dtstack.jlogstash.outputs");
+		System.setProperty("annotationPlugin", "com.dtstack.jlogstash.annotation.plugin");
+		System.setProperty("annotationPackage","com.dtstack.jlogstash.annotation");
 	}
 	
 	public static String getSystemProperty(String key){

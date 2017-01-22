@@ -101,7 +101,7 @@ public class AssemblyPipeline {
 	@SuppressWarnings("rawtypes")
 	private JDisruptor filterToOutputDisruptor(List<Map> outputs) throws LogstashException, Exception{
 	    int outputWorks = CmdLineParams.getOutputWork();
-	    JDisruptor filterToOutputDisruptor = new JDisruptor(OutputHandler.getArrayHandlerInstance(outputs,outputWorks,allBaseOutputs),CmdLineParams.getFilterRingBuffer(),CmdLineParams.getWaitStrategy());
+	    JDisruptor filterToOutputDisruptor = new JDisruptor(OutputHandler.getArrayHandlerInstance(outputs,outputWorks,allBaseOutputs),CmdLineParams.getOutputRingBuffer(),CmdLineParams.getWaitStrategy());
 	    return filterToOutputDisruptor;
 	}
 }

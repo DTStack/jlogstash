@@ -19,11 +19,8 @@ package com.dtstack.jlogstash.log;
 
 import ch.qos.logback.classic.Logger;
 
-import org.apache.commons.cli.CommandLine;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.jlogstash.assembly.CmdLineParams;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
