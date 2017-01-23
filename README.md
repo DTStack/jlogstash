@@ -11,8 +11,10 @@
 
 #现在已有的公共插件：
 
-##inputs: 
-    Kafka: 
+##inputs: 详情:https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
+    Kafka: 
+    
+    KafkaDistribute:
  
     Stdin: 
 
@@ -24,8 +26,8 @@
     
     File:
 
-##filters:
-   Add:
+##filters: 详情: https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
+   Add:
 
    DateISO8601:
  
@@ -56,8 +58,8 @@
    URLDecode:
 
 
-##outputs:
-   Elasticsearch5:
+##outputs: 详情: https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
+   Elasticsearch5:
 
    Elasticsearch:
  
@@ -80,27 +82,25 @@
 
 #jlogstash 启动参数：
 
--f:配置文件 yaml格式路径
+  -f:配置文件 yaml格式路径
 
--l:日志文件路径
+  -l:日志文件路径
 
--i:input queue size coefficient 默认 200f/1024
+  -i:input queue size coefficient 默认 200f/1024
 
--w:filter work number 默认是根据的机器cpu核数+2
+  -w:filter work number 默认是根据的机器cpu核数+2
 
--o:output work number 默认是根据的机器cpu核数
+  -o:output work number 默认是根据的机器cpu核数
 
--c:output queue size coefficient 默认 500f/1024
+  -c:output queue size coefficient 默认 500f/1024
 
--e:开发环境 dev 生产环境 pro（默认生产环境）
+  v: info级别
 
--v: info级别
+  vv:debug级别
 
--vv:debug级别
+  vvv:trace级别
 
--vvv:trace级别
-
--vvv:trace级别
+  vvv:trace级别
 
 #注释：
   1.现在各自的plugin 的包 都会有各自的classloder去加载，parent classloder是AppClassLoder，所以各自的plugin的代码即使引用了相同的第三的jar版   本不一样也不会导致版本冲突。
