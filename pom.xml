@@ -147,5 +147,31 @@
 			<artifactId>disruptor</artifactId>
 			<version>3.3.6</version>
 		</dependency>
+<!-- 		<dependency>
+		    <groupId>com.dtstack.jlogstash.output</groupId>
+			<artifactId>file</artifactId>
+			<version>1.0.0</version>
+			<scope>provided</scope> 
+		</dependency> -->
+		
+	<!-- 	<dependency>
+		    <groupId>com.dtstack.jlogstash.input</groupId>
+			<artifactId>file</artifactId>
+			<version>1.0.0</version> 
+		    <scope>provided</scope> 
+		</dependency>
+	    <dependency>
+		    <groupId>com.dtstack.jlogstash.output</groupId>
+			<artifactId>performance</artifactId>
+			<version>1.0.0</version> 
+		    <scope>provided</scope> 
+		</dependency>
+		
+	    <dependency>
+		    <groupId>dtstack</groupId>
+			<artifactId>dtlogparser</artifactId>
+			<version>1.0.0</version> 
+		    <scope>provided</scope> 
+		</dependency> -->
 	</dependencies>
 </project>
