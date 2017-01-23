@@ -115,7 +115,7 @@ public abstract class InstanceFactory {
 			ClassLoader cc = classCloaders.get(key);
 			if(cc!=null)return cc.loadClass(className);
 		}
-		logger.warn("plugin classLoadder is AppClassLoader");
+		logger.warn("{}:plugin classLoadder is AppClassLoader",key);
 		return Thread.currentThread().getContextClassLoader().loadClass(className);
 	}
 	

@@ -47,7 +47,6 @@ public class JarClassLoader {
 		
 	/**
 	 * 每一个plugin一个classloader
-	 * @param env pro or dev
 	 * @return
 	 * @throws LogstashException
 	 * @throws MalformedURLException
