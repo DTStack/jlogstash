@@ -17,14 +17,9 @@
  */
 package com.dtstack.jlogstash.assembly.disruptor;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.WorkHandler;
@@ -48,19 +43,11 @@ public class JDisruptor {
 
 	private int ringBufferSize = 1 << 6;
 
-	private WaitStrategy waitStrategy = new BlockingWaitStrategy();
+	private WaitStrategy waitStrategy = null;
 	
-	private List<Disruptor<MapEvent>> disruptors = Lists.newArrayList();
+	private Disruptor<MapEvent> disruptor = null;
 	
-	private List<RingBuffer<MapEvent>> ringBuffers = Lists.newArrayList();
-
-	private Map<Long,Integer> threadIds = Maps.newConcurrentMap();
-	
-	private Map<Integer,List<Long>> ringBufferIndexThreadId = Maps.newLinkedHashMap();
-	
-//	private final AtomicInteger pIndex = new AtomicInteger(0);
-
-//	private ExecutorService executor = Executors.newFixedThreadPool(1);
+	private RingBuffer<MapEvent> ringBuffer = null;
 
 	
 	public JDisruptor(WorkHandler<MapEvent>[] processors, int ringBufferSize) {
@@ -87,36 +74,16 @@ public class JDisruptor {
 		this.processors = processors;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void init() {
-		int length = processors.length;
-		for(int i=0;i<length;i++){
-			Disruptor<MapEvent> disruptor = new Disruptor<MapEvent>(new MapEventFactory(), ringBufferSize,
-					new MapEventThreadFactory(), ProducerType.MULTI, waitStrategy); 
-			disruptor.handleEventsWithWorkerPool(processors[i]);
-			disruptor.setDefaultExceptionHandler(new MapEventExceptionHandler());
-			disruptors.add(disruptor);
-			ringBuffers.add(disruptor.getRingBuffer());
-			ringBufferIndexThreadId.put(i, Lists.newArrayList());
-		}
+	    disruptor = new Disruptor<MapEvent>(new MapEventFactory(), ringBufferSize,
+				new MapEventThreadFactory(), ProducerType.MULTI, waitStrategy); 
+		disruptor.handleEventsWithWorkerPool(processors);
+		disruptor.setDefaultExceptionHandler(new MapEventExceptionHandler());
+		ringBuffer = disruptor.getRingBuffer();
 	}
 	
 	public void put(Map<String, Object> event) {
 		if (event != null && event.size() > 0){
-			Long threadId = Thread.currentThread().getId();
-			Integer index = threadIds.get(threadId);
-			if(index==null){
-				synchronized(this){
-					index = threadIds.get(threadId);
-					if(index==null){
-						index = electionRingBuffer();
-						threadIds.put(threadId, index);
-						ringBufferIndexThreadId.get(index).add(threadId);
-					}
-					System.out.println(ringBufferIndexThreadId.toString());
-				}
-			}
-			RingBuffer<MapEvent> ringBuffer = ringBuffers.get(index);
 			long sequence = ringBuffer.next();
 			try {
 				MapEvent mapEvent = ringBuffer.get(sequence);
@@ -127,35 +94,18 @@ public class JDisruptor {
 		}
 	}
 	
-	private int electionRingBuffer(){
-		int id = 0;
-		int sz = Integer.MAX_VALUE;
-		Set<Map.Entry<Integer, List<Long>>> entrys =ringBufferIndexThreadId.entrySet();
-		for (Map.Entry<Integer, List<Long>> entry:entrys) {
-			int ssz = entry.getValue().size();
-			if (ssz < sz) {
-				sz = ssz;
-				id = entry.getKey();
-			}
-		}
-		return id;
-	}
 
 	public void release() {
 		// TODO Auto-generated method stub
-		if(disruptors!=null){
-			for(Disruptor<MapEvent> disruptor:disruptors){
-				if(disruptor!=null)disruptor.shutdown();
-			}
+		if(disruptor!=null){
+			if(disruptor!=null)disruptor.shutdown();
 		}
 	
 	}
 	
 	public void start(){
-		if(disruptors!=null){
-			for(Disruptor<MapEvent> disruptor:disruptors){
-				if(disruptor!=null)disruptor.start();
-			}
+		if(disruptor!=null){
+			if(disruptor!=null)disruptor.start();
 		}
 	}
 }

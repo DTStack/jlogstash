@@ -98,7 +98,7 @@ public class CmdLineParams {
 	
 	public static String getWaitStrategy(){
 		String strategy =line.getOptionValue("s");
-        return StringUtils.isNotBlank(strategy)?strategy:"busyspin";
+        return StringUtils.isNotBlank(strategy)?strategy:"yielding";
 	}
 	
 	public static String getConfigFilePath(){
