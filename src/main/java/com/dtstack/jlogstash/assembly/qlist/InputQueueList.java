@@ -40,7 +40,7 @@ public class InputQueueList extends QueueList{
 
 	private static Logger logger = LoggerFactory.getLogger(InputQueueList.class);
     
-	private static ExecutorService executor = Executors.newFixedThreadPool(2);
+	private static ExecutorService executor = Executors.newFixedThreadPool(1);
 
 	private final AtomicInteger pIndex = new AtomicInteger(0);
 	

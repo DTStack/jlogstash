@@ -37,7 +37,7 @@ public class OutPutQueueList extends QueueList{
 
 	private static Logger logger = LoggerFactory.getLogger(OutPutQueueList.class);
     
-	private static ExecutorService executor = Executors.newFixedThreadPool(2);
+	private static ExecutorService executor = Executors.newFixedThreadPool(1);
 
 	private final AtomicInteger pIndex = new AtomicInteger(0);
 	
