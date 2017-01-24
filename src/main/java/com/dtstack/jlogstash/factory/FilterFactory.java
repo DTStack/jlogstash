@@ -36,10 +36,13 @@ import com.google.common.collect.Maps;
  *
  */
 public class FilterFactory extends InstanceFactory{
+	
+	private static Map<String,Class<?>> filtersClassLoader = Maps.newConcurrentMap();
+	
+	private final static String PLUGINTYPE = "filter";
 
 	@SuppressWarnings("rawtypes")
-	public static BaseFilter getInstance(String filterType,Map filterConfig) throws Exception{
-	      Class<?> filterClass = getPluginClass(filterType, "filter");
+	private static BaseFilter getInstance(String filterType,Map filterConfig,Class<?> filterClass) throws Exception{
 	      configInstance(filterClass,filterConfig);//设置static field
           Constructor<?> ctor = filterClass
                   .getConstructor(Map.class);
@@ -54,14 +57,21 @@ public class FilterFactory extends InstanceFactory{
 	public static List<BaseFilter> getBatchInstance(List<Map> filters) throws Exception{
 		if(filters==null||filters.size()==0)return null;
 		List<BaseFilter> baseFilters = Lists.newArrayList();
-		for(Map filter:filters){
-			Iterator<Entry<String, Map>> filterIT = filter.entrySet().iterator();
+		for(int i=0;i< filters.size();i++){
+			Iterator<Entry<String, Map>> filterIT = filters.get(i).entrySet().iterator();
 			while (filterIT.hasNext()) {
 				Map.Entry<String, Map> filterEntry = filterIT.next();
 				String filterType = filterEntry.getKey();
 				Map filterConfig = filterEntry.getValue();
+				String className = getClassName(filterType,PLUGINTYPE);
+				String key = String.format("%s%d",className, i);
+				Class<?> filterClass = filtersClassLoader.get(key);
+				if(filterClass==null){
+				   filterClass = getPluginClass(filterType,PLUGINTYPE,className);
+				   filtersClassLoader.put(key, filterClass);
+				}
 				if(filterConfig==null)filterConfig=Maps.newLinkedHashMap();
-				baseFilters.add(getInstance(filterType,filterConfig));
+				baseFilters.add(getInstance(filterType,filterConfig,filterClass));
 			}
 		}
 		return baseFilters;

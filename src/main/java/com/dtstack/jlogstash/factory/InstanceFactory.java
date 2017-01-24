@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dtstack.jlogstash.annotation.plugin.AnnotationInterface;
+import com.dtstack.jlogstash.classloader.JarClassLoader;
 import com.dtstack.jlogstash.property.SystemProperty;
 
 
@@ -39,8 +40,8 @@ import com.dtstack.jlogstash.property.SystemProperty;
 public abstract class InstanceFactory {
 	
 	private static Logger logger = LoggerFactory.getLogger(InstanceFactory.class);
-	
-	protected static Map<String,ClassLoader> classCloaders = null;
+		
+	private static JarClassLoader JarClassLoader = new JarClassLoader();
 	
 	@SuppressWarnings("rawtypes")
 	protected static void configInstance(Class<?> clasz,Map config) throws Exception{
@@ -107,16 +108,15 @@ public abstract class InstanceFactory {
 		}
 	}
 	
-	protected static Class<?> getPluginClass(String type,String pluginType) throws ClassNotFoundException{
-		String className = com.dtstack.jlogstash.utils.Package.getRealClassName(type, pluginType);
+	protected static Class<?> getPluginClass(String type,String pluginType,String className) throws ClassNotFoundException{
 		String[] names = type.split("\\.");
 		String key = String.format("%s:%s",pluginType, names[names.length-1].toLowerCase());
-		if(classCloaders!=null&&classCloaders.size()>0){
-			ClassLoader cc = classCloaders.get(key);
-			if(cc!=null)return cc.loadClass(className);
-		}
-		logger.warn("{}:plugin classLoadder is AppClassLoader",key);
-		return Thread.currentThread().getContextClassLoader().loadClass(className);
+		return JarClassLoader.getClassLoaderByPluginName(key).loadClass(className);
+	}
+	
+	protected static String getClassName(String type,String pluginType){
+		String className = com.dtstack.jlogstash.utils.Package.getRealClassName(type, pluginType);
+        return className;
 	}
 	
 	private static void checkAnnotation(Field field,Annotation an,Object obj) throws Exception {
@@ -130,13 +130,5 @@ public abstract class InstanceFactory {
 		}
 		AnnotationInterface annotationInterface = (AnnotationInterface) cla.newInstance();	
 		annotationInterface.required(field, obj);
-	}
-
-	public static void setClassCloaders(Map<String, ClassLoader> classCloaders) {
-//		important
-		if(classCloaders!=null&&classCloaders.size()>0){
-			Thread.currentThread().setContextClassLoader(null);
-		}
-		if (InstanceFactory.classCloaders ==null)InstanceFactory.classCloaders = classCloaders;
 	}
 }

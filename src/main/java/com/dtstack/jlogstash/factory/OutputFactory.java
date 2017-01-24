@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import com.dtstack.jlogstash.outputs.BaseOutput;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -36,10 +35,14 @@ import com.google.common.collect.Maps;
  *
  */
 public class OutputFactory extends InstanceFactory{
+	
+	private static Map<String,Class<?>> outputsClassLoader = Maps.newConcurrentMap();
+
+	private final static String PLUGINTYPE = "output";
+
 
 	@SuppressWarnings("rawtypes")
-	public static BaseOutput getInstance(String outputType,Map outputConfig) throws Exception{
-	     Class<?> outputClass = getPluginClass(outputType, "output");
+	private static BaseOutput getInstance(String outputType,Map outputConfig,Class<?> outputClass) throws Exception{
 		 configInstance(outputClass,outputConfig);//设置static field
          Constructor<?> ctor = outputClass.getConstructor(Map.class);
          BaseOutput baseOutput = (BaseOutput) ctor.newInstance(outputConfig);
@@ -52,14 +55,21 @@ public class OutputFactory extends InstanceFactory{
 	public static List<BaseOutput> getBatchInstance(List<Map> outputs) throws Exception{
 		if(outputs==null||outputs.size()==0)return null;
 		List<BaseOutput> baseoutputs = Lists.newArrayList();
-		for(Map output:outputs){
-			Iterator<Entry<String, Map>> outputIT = output.entrySet().iterator();
+		for(int i=0;i<outputs.size();i++){
+			Iterator<Entry<String, Map>> outputIT = outputs.get(i).entrySet().iterator();
 			while (outputIT.hasNext()) {
 				Map.Entry<String, Map> outputEntry = outputIT.next();
 				String outputType = outputEntry.getKey();
 				Map outputConfig = outputEntry.getValue();
+				String className = getClassName(outputType,PLUGINTYPE);
+				String key = String.format("%s%d",className, i);
+				Class<?> outputClass = outputsClassLoader.get(key);
+				if(outputClass==null){
+				    outputClass = getPluginClass(outputType,PLUGINTYPE,className);
+				    outputsClassLoader.put(key, outputClass);
+				}
 				if(outputConfig==null)outputConfig=Maps.newLinkedHashMap();
-				baseoutputs.add(getInstance(outputType,outputConfig));
+				baseoutputs.add(getInstance(outputType,outputConfig,outputClass));
 			}
 		}
 		return baseoutputs;

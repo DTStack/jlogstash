@@ -23,11 +23,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dtstack.jlogstash.exception.ExceptionUtil;
 import com.dtstack.jlogstash.exception.LogstashException;
 import com.google.common.collect.Maps;
 
@@ -44,55 +44,84 @@ public class JarClassLoader {
 	private static Logger logger = LoggerFactory.getLogger(JarClassLoader.class);
 
 	private static String userDir = System.getProperty("user.dir");
-		
-	/**
-	 * 每一个plugin一个classloader
-	 * @return
-	 * @throws LogstashException
-	 * @throws MalformedURLException
-	 * @throws IOException
-	 */
-	public Map<String,ClassLoader> loadJar() throws LogstashException, MalformedURLException, IOException{
-		Map<String,ClassLoader> classLoads = Maps.newConcurrentMap();
-		Set<Map.Entry<String,URL[]>> urls = getClassLoadJarUrls().entrySet();
-		ClassLoader classLoader = this.getClass().getClassLoader();
-		for(Map.Entry<String,URL[]> url:urls){
-			String key = url.getKey();
-			URLClassLoader  loader = new URLClassLoader(url.getValue(),classLoader);  
-			classLoads.put(key, loader);
+	
+	private Map<String,URL[]> jarUrls = null;
+	
+	public JarClassLoader(){
+		if(jarUrls==null){
+			jarUrls = getClassLoadJarUrls();
+			if(jarUrls!=null&&jarUrls.size()==0){
+				Thread.currentThread().setContextClassLoader(null);
+			}
 		}
-		return classLoads;
+	}
+		
+//	/**
+//	 * 每一个plugin一个classloader
+//	 * @return
+//	 * @throws LogstashException
+//	 * @throws MalformedURLException
+//	 * @throws IOException
+//	 */
+//	public Map<String,ClassLoader> loadJar() throws LogstashException, MalformedURLException, IOException{
+//		Map<String,ClassLoader> classLoads = Maps.newConcurrentMap();
+//		Set<Map.Entry<String,URL[]>> urls = getClassLoadJarUrls().entrySet();
+//		ClassLoader classLoader = this.getClass().getClassLoader();
+//		for(Map.Entry<String,URL[]> url:urls){
+//			String key = url.getKey();
+//			URLClassLoader  loader = new URLClassLoader(url.getValue(),classLoader);  
+//			classLoads.put(key, loader);
+//		}
+//		return classLoads;
+//	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public ClassLoader getClassLoaderByPluginName(String name){
+		URL[] urls =  jarUrls.get(name);
+		ClassLoader classLoader = this.getClass().getClassLoader();
+		if(urls==null|urls.length==0){
+			 logger.warn("{}:load by AppclassLoader",name);
+			 return this.getClass().getClassLoader();
+		}
+		return new URLClassLoader(urls,classLoader);
 	}
 	
-	private Map<String,URL[]> getClassLoadJarUrls() throws LogstashException, MalformedURLException, IOException{
-		logger.warn("userDir:{}",userDir);
-		String input = String.format("%s/plugin/input", userDir);
-		File finput = new File(input);
-		if(!finput.exists()){
-			throw new LogstashException(String.format("%s direcotry not found", input));
+	private Map<String,URL[]> getClassLoadJarUrls(){
+		Map<String,URL[]>  result  = Maps.newConcurrentMap();
+		try{
+			logger.warn("userDir:{}",userDir);
+			String input = String.format("%s/plugin/input", userDir);
+			File finput = new File(input);
+			if(!finput.exists()){
+				throw new LogstashException(String.format("%s direcotry not found", input));
+			}
+			
+			String filter = String.format("%s/plugin/filter", userDir);
+			File ffilter = new File(filter);
+		    if(!ffilter.exists()){
+				throw new LogstashException(String.format("%s direcotry not found", filter));
+			}
+			
+			String output = String.format("%s/plugin/output", userDir);
+			File foutput = new File(output);
+			if(!foutput.exists()){
+					throw new LogstashException(String.format("%s direcotry not found", output));
+			}
+			Map<String,URL[]>  inputs = getClassLoadJarUrls(finput);
+			result.putAll(inputs);
+			Map<String,URL[]>  filters = getClassLoadJarUrls(ffilter);
+			result.putAll(filters);
+			Map<String,URL[]>  outputs = getClassLoadJarUrls(foutput);
+			result.putAll(outputs);
+			logger.warn("getClassLoadJarUrls:{}",result);
+		}catch(Exception e){
+			logger.error(ExceptionUtil.getErrorMessage(e));
 		}
-		
-		String filter = String.format("%s/plugin/filter", userDir);
-		File ffilter = new File(filter);
-	    if(!ffilter.exists()){
-			throw new LogstashException(String.format("%s direcotry not found", filter));
-		}
-		
-		String output = String.format("%s/plugin/output", userDir);
-		File foutput = new File(output);
-		if(!foutput.exists()){
-				throw new LogstashException(String.format("%s direcotry not found", output));
-		}
-		logger.warn("load input plugin class...");
-		Map<String,URL[]>  inputs = getClassLoadJarUrls(finput);
-		logger.warn("load filter plugin class...");
-		Map<String,URL[]>  filters = getClassLoadJarUrls(ffilter);
-		logger.warn("load output plugin class...");
-		Map<String,URL[]>  outputs = getClassLoadJarUrls(foutput);
-		inputs.putAll(filters);
-		inputs.putAll(outputs);
-		logger.warn("getClassLoadJarUrls:{}",inputs);
-		return inputs;
+		return result;
 	}
 	
 	private Map<String,URL[]> getClassLoadJarUrls(File dir) throws MalformedURLException, IOException{
