@@ -93,7 +93,7 @@ public class MultilineDecoder implements IDecode {
 		
 		if(!"previous".equals(what) && !"next".equals(what)){
 			logger.error("parameter what must in [previous, next]");
-			System.out.println(-1);
+			System.exit(-1);
 		}
 		
 		this.inputQueueList = queuelist;
