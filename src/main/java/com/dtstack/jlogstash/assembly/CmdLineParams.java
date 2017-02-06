@@ -141,15 +141,23 @@ public class CmdLineParams {
 		return line.getOptionValue("l");
 	}
 	
-	public static boolean hasOptionVVVV(){
+	public static boolean hasOptionTrace(){
+		return line.hasOption("vvvvv");
+	}
+	
+	public static boolean hasOptionDebug(){
 		return line.hasOption("vvvv");
 	}
 	
-	public static boolean hasOptionVV(){
+	public static boolean hasOptionInfo(){
+		return line.hasOption("vvv");
+	}
+	
+	public static boolean hasOptionWarn(){
 		return line.hasOption("vv");
 	}
 	
-	public static boolean hasOptionV(){
+	public static boolean hasOptionError(){
 		return line.hasOption("v");
 	}
 }

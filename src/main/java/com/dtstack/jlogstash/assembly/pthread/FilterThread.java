@@ -67,9 +67,9 @@ public class FilterThread implements Runnable {
 	public static void initFilterThread(List<Map> filters,InputQueueList inPutQueueList,OutPutQueueList outPutQueueList) throws Exception{
 		if(filterExecutor==null)filterExecutor= Executors.newFixedThreadPool(inPutQueueList.getQueueList().size());
 		FilterThread.outPutQueueList = outPutQueueList;
-		for(int i=0;i<inPutQueueList.getQueueList().size();i++){
+		for(BlockingQueue<Map<String, Object>> queueList:inPutQueueList.getQueueList()){
 			List<BaseFilter> baseFilters = FilterFactory.getBatchInstance(filters);	
-			filterExecutor.submit(new FilterThread(baseFilters,inPutQueueList.getQueueList().get(i)));
+			filterExecutor.submit(new FilterThread(baseFilters,queueList));
 		}
 	}
 

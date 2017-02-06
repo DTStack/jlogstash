@@ -27,7 +27,6 @@ import com.dtstack.jlogstash.assembly.pthread.InputThread;
 import com.dtstack.jlogstash.assembly.pthread.OutputThread;
 import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
 import com.dtstack.jlogstash.assembly.qlist.OutPutQueueList;
-import com.dtstack.jlogstash.classloader.JarClassLoader;
 import com.dtstack.jlogstash.configs.YamlConfig;
 import com.dtstack.jlogstash.exception.LogstashException;
 import com.dtstack.jlogstash.factory.InputFactory;

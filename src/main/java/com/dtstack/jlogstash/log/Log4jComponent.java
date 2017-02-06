@@ -17,7 +17,6 @@
  */
 package com.dtstack.jlogstash.log;
 
-import org.apache.commons.cli.CommandLine;
 import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -52,14 +51,18 @@ public class Log4jComponent extends LogComponent{
 	}
 	
 	public void setLevel(DailyRollingFileAppender fa){
-		if (CmdLineParams.hasOptionVVVV()) {
+		if (CmdLineParams.hasOptionTrace()) {
 			fa.setThreshold(Level.TRACE);
 			Logger.getRootLogger().setLevel(Level.TRACE);
-		} else if (CmdLineParams.hasOptionVV()) {
+		} else if (CmdLineParams.hasOptionDebug()) {
 			fa.setThreshold(Level.DEBUG);
-		} else if (CmdLineParams.hasOptionV()) {
+		} else if (CmdLineParams.hasOptionInfo()) {
 			fa.setThreshold(Level.INFO);
-		} else {
+		} else if(CmdLineParams.hasOptionWarn()){
+			fa.setThreshold(Level.WARN);
+		}else if(CmdLineParams.hasOptionError()){
+			fa.setThreshold(Level.ERROR);
+		}else {
 			fa.setThreshold(Level.WARN);
 		}
 	}

@@ -74,13 +74,7 @@ public class OutPutQueueList extends QueueList{
 	public void startElectionIdleQueue(){
 		executor.submit(new ElectionIdleQueue());
 	}
-	
-//	@Override
-//	public void startLogQueueSize(){
-//		executor.submit(new LogQueueSize());
-//	}
-//	
-	
+		
 	@Override
 	public void queueRelease(){
 			try{
@@ -94,26 +88,6 @@ public class OutPutQueueList extends QueueList{
 			    logger.error("outputQueueRelease error:{}",e.getCause());
 			}
 	}
-	
-//	class LogQueueSize implements Runnable{
-//
-//		@Override
-//		public void run() {
-//			// TODO Auto-generated method stub
-//			try{
-//				while(true){
-//					Thread.sleep(1000);
-//					int size = queueList.size();
-//					for(int i = 0; i < size; i++){
-//						logger.debug("outputqueue:"+i+"--->"+queueList.get(i).size());
-//					}
-//				}
-//			}catch(Exception e){
-//				logger.error(e.getMessage());
-//			}
-//		}
-//		
-//	}
 	
 	class ElectionIdleQueue implements Runnable {
 		@Override

@@ -50,7 +50,7 @@ public class JarClassLoader {
 	public JarClassLoader(){
 		if(jarUrls==null){
 			jarUrls = getClassLoadJarUrls();
-			if(jarUrls!=null&&jarUrls.size()==0){
+			if(jarUrls != null&&jarUrls.size() > 0){
 				Thread.currentThread().setContextClassLoader(null);
 			}
 		}
@@ -85,7 +85,7 @@ public class JarClassLoader {
 		ClassLoader classLoader = this.getClass().getClassLoader();
 		if(urls==null|urls.length==0){
 			 logger.warn("{}:load by AppclassLoader",name);
-			 return this.getClass().getClassLoader();
+			 return classLoader;
 		}
 		return new URLClassLoader(urls,classLoader);
 	}
@@ -119,7 +119,7 @@ public class JarClassLoader {
 			result.putAll(outputs);
 			logger.warn("getClassLoadJarUrls:{}",result);
 		}catch(Exception e){
-			logger.error(ExceptionUtil.getErrorMessage(e));
+			logger.error("getClassLoadJarUrls error:{}",ExceptionUtil.getErrorMessage(e));
 		}
 		return result;
 	}

@@ -90,13 +90,17 @@ public class LogbackComponent extends LogComponent{
      * @param cmdLine
      */
      public void setLevel(Logger logger){
-    		if (CmdLineParams.hasOptionVVVV()) {
+    		if (CmdLineParams.hasOptionTrace()) {
     			logger.setLevel(Level.TRACE);
-    		} else if (CmdLineParams.hasOptionVV()) {
+    		} else if (CmdLineParams.hasOptionDebug()) {
     			logger.setLevel(Level.DEBUG);
-    		} else if (CmdLineParams.hasOptionV()) {
+    		} else if (CmdLineParams.hasOptionInfo()) {
     			logger.setLevel(Level.INFO);
-    		} else {
+    		} else if(CmdLineParams.hasOptionWarn()){
+    			logger.setLevel(Level.WARN);
+    		}else if (CmdLineParams.hasOptionError()){
+    			logger.setLevel(Level.ERROR);
+    		}else {
     			logger.setLevel(Level.WARN);
     		}
      }
