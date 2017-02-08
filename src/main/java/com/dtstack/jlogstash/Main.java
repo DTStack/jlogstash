@@ -17,14 +17,9 @@
  */
 package com.dtstack.jlogstash;
 
-import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.jlogstash.assembly.AssemblyPipeline;
 import com.dtstack.jlogstash.assembly.CmdLineParams;
 import com.dtstack.jlogstash.exception.ExceptionUtil;
@@ -46,66 +41,9 @@ public class Main {
 	
 	private static LogComponent logbackComponent = new LogbackComponent();
 	
-	public class Option {
-		String flag, opt;
-
-		public Option(String flag, String opt) {
-			this.flag = flag;
-			
-			this.opt = opt;
-		}
-	}
-
-	private static CommandLine parseArg(String[] args) throws ParseException {
-        Options options = new Options();
-		options.addOption("h", false, "usage help");
-		options.addOption("help", false, "usage help");
-		options.addOption("f", true, "configuration file");
-		options.addOption("l", true, "log file");
-		options.addOption("w", true, "filter worker number");
-		options.addOption("o", true, "output worker number");
-		options.addOption("c", true, "output queue size coefficient");
-		options.addOption("i", true, "input queue size coefficient");
-		options.addOption("v", false, "print info log");
-		options.addOption("vv", false, "print debug log");
-		options.addOption("vvvv", false, "print trace log");
-		CommandLineParser paraer = new BasicParser();
-		CommandLine cmdLine = paraer.parse(options, args);
-		if (cmdLine.hasOption("help") || cmdLine.hasOption("h")) {
-			usage();
-			System.exit(-1);
-		}
-
-		if (!cmdLine.hasOption("f")) {
-			throw new ParseException("Required -f argument to specify config file");
-		}
-		return cmdLine;
-	}
-
-	/**
-	 * print help information
-	 */
-	private static void usage() {
-		StringBuilder helpInfo = new StringBuilder();
-		helpInfo.append("-h").append("\t\t\thelp command").append("\n")
-				.append("-help").append("\t\t\thelp command").append("\n")
-				.append("-f").append("\t\t\trequired config, indicate config file").append("\n")
-				.append("-l").append("\t\t\tlog file that store the output").append("\n")
-				.append("-w").append("\t\t\tfilter worker numbers").append("\n")
-				.append("-o").append("\t\t\toutput worker numbers").append("\n")
-				.append("-c").append("\t\t\t output queue size coefficient").append("\n")
-				.append("-i").append("\t\t\t input queue size coefficient").append("\n")
-				.append("-v").append("\t\t\tprint info log").append("\n")
-				.append("-vv").append("\t\t\tprint debug log").append("\n")
-				.append("-vvvv").append("\t\t\tprint trace log").append("\n");
-		System.out.println(helpInfo.toString());
-	}
-
-
 	public static void main(String[] args) {
-		CommandLine cmdLine = null;
 		try {
-			cmdLine = parseArg(args);
+			CommandLine cmdLine = OptionsProcessor.parseArg(args);
 			CmdLineParams.setLine(cmdLine);
 			//logger config
             logbackComponent.setupLogger();
