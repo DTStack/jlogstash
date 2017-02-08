@@ -85,11 +85,11 @@ public class OptionsProcessor {
 				.append("-o").append("\t\t\toutput worker numbers").append("\n")
 				.append("-c").append("\t\t\t output queue size coefficient").append("\n")
 				.append("-i").append("\t\t\t input queue size coefficient").append("\n")
-				.append("-v").append("\t\t\tprint error log").append("\n")
-				.append("-vv").append("\t\t\tprint warn log").append("\n")
-				.append("-vvv").append("\t\t\tprint info log").append("\n")
-				.append("-vvvv").append("\t\t\tprint debug log").append("\n")
-				.append("-vvvvv").append("\t\t\tprint trace log").append("\n");
+				.append("v").append("\t\t\tprint error log").append("\n")
+				.append("vv").append("\t\t\tprint warn log").append("\n")
+				.append("vvv").append("\t\t\tprint info log").append("\n")
+				.append("vvvv").append("\t\t\tprint debug log").append("\n")
+				.append("vvvvv").append("\t\t\tprint trace log").append("\n");
 		System.out.println(helpInfo.toString());
 	}
 }
