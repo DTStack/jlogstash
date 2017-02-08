@@ -5,9 +5,8 @@
 	<artifactId>jlogstash</artifactId>
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
-
 	<name>jlogstash</name>
-	<url>http://maven.apache.org</url>
+	<url>https://github.com/DTStack/jlogstash</url>
 	<build>
 		<resources>
 			<resource>
@@ -58,12 +57,6 @@
 		<snakeyaml-version>1.16</snakeyaml-version>
 		<log4j-version>1.2.17</log4j-version>
 	</properties>
-<!-- 	<repositories>
-		<repository>
-			<id>clojars.org</id>
-			<url>http://clojars.org/repo</url>
-		</repository>
-	</repositories> -->
 	<dependencies>
 		<dependency>
 			<groupId>log4j</groupId>
