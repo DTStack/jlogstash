@@ -54,9 +54,11 @@ public class OptionsProcessor {
 		options.addOption("o", true, "output worker number");
 		options.addOption("c", true, "output queue size coefficient");
 		options.addOption("i", true, "input queue size coefficient");
-		options.addOption("v", false, "print info log");
-		options.addOption("vv", false, "print debug log");
-		options.addOption("vvvv", false, "print trace log");
+		options.addOption("v", false, "print error log");
+		options.addOption("vv", false, "print warn log");
+		options.addOption("vvv", false, "print info log");
+		options.addOption("vvvv", false, "print debug log");
+		options.addOption("vvvvv", false, "print trace log");
 		CommandLineParser paraer = new BasicParser();
 		CommandLine cmdLine = paraer.parse(options, args);
 		if (cmdLine.hasOption("help") || cmdLine.hasOption("h")) {
@@ -83,9 +85,11 @@ public class OptionsProcessor {
 				.append("-o").append("\t\t\toutput worker numbers").append("\n")
 				.append("-c").append("\t\t\t output queue size coefficient").append("\n")
 				.append("-i").append("\t\t\t input queue size coefficient").append("\n")
-				.append("-v").append("\t\t\tprint info log").append("\n")
-				.append("-vv").append("\t\t\tprint debug log").append("\n")
-				.append("-vvvv").append("\t\t\tprint trace log").append("\n");
+				.append("-v").append("\t\t\tprint error log").append("\n")
+				.append("-vv").append("\t\t\tprint warn log").append("\n")
+				.append("-vvv").append("\t\t\tprint info log").append("\n")
+				.append("-vvvv").append("\t\t\tprint debug log").append("\n")
+				.append("-vvvvv").append("\t\t\tprint trace log").append("\n");
 		System.out.println(helpInfo.toString());
 	}
 }
