@@ -57,12 +57,6 @@ public class FilterThread implements Runnable {
 		this.inputQueue = inputQueue;
 	}
 	
-	/**
-	 * 
-	 * @param filters
-	 * @param works
-	 * @throws Exception
-	 */
 	@SuppressWarnings("rawtypes")
 	public static void initFilterThread(List<Map> filters,InputQueueList inPutQueueList,OutPutQueueList outPutQueueList) throws Exception{
 		if(filterExecutor==null)filterExecutor= Executors.newFixedThreadPool(inPutQueueList.getQueueList().size());

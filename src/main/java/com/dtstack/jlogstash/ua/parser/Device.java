@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Device parsed data class
  *
- * @author Steve Jiang (@sjiang) <gh at iamsteve com>
+ * @author Steve Jiang (@sjiang)
  */
 public class Device {
   public final String family;

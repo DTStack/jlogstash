@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Operating System parser using ua-parser. Extracts OS information from user agent strings.
  *
- * @author Steve Jiang (@sjiang) <gh at iamsteve com>
+ * @author Steve Jiang (@sjiang)
  */
 public class OSParser {
   private final List<OSPattern> patterns;

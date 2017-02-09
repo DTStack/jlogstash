@@ -16,12 +16,11 @@
 
 package com.dtstack.jlogstash.ua.parser;
 
-import java.util.Map;
 
 /**
  * Collection of parsed data for a given user agent string consisting of UserAgent, OS, Device
  *
- * @author Steve Jiang (@sjiang) <gh at iamsteve com>
+ * @author Steve Jiang (@sjiang)
  */
 public class Client {
   public final UserAgent userAgent;

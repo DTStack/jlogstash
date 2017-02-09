@@ -17,7 +17,6 @@
  */
 package com.dtstack.jlogstash.assembly;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -54,13 +53,6 @@ public class AssemblyPipeline {
 	
 	private List<BaseOutput> allBaseOutputs = Lists.newCopyOnWriteArrayList();
 	
-
-	/**
-	 * 组装管道
-	 * @param cmdLine
-	 * @return 
-	 * @throws IOException
-	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void assemblyPipeline() throws Exception{
 			logger.debug("load config start ...");

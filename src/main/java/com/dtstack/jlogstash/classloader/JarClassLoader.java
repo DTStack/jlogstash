@@ -56,30 +56,6 @@ public class JarClassLoader {
 		}
 	}
 		
-//	/**
-//	 * 每一个plugin一个classloader
-//	 * @return
-//	 * @throws LogstashException
-//	 * @throws MalformedURLException
-//	 * @throws IOException
-//	 */
-//	public Map<String,ClassLoader> loadJar() throws LogstashException, MalformedURLException, IOException{
-//		Map<String,ClassLoader> classLoads = Maps.newConcurrentMap();
-//		Set<Map.Entry<String,URL[]>> urls = getClassLoadJarUrls().entrySet();
-//		ClassLoader classLoader = this.getClass().getClassLoader();
-//		for(Map.Entry<String,URL[]> url:urls){
-//			String key = url.getKey();
-//			URLClassLoader  loader = new URLClassLoader(url.getValue(),classLoader);  
-//			classLoads.put(key, loader);
-//		}
-//		return classLoads;
-//	}
-	
-	/**
-	 * 
-	 * @param name
-	 * @return
-	 */
 	public ClassLoader getClassLoaderByPluginName(String name){
 		URL[] urls =  jarUrls.get(name);
 		ClassLoader classLoader = this.getClass().getClassLoader();

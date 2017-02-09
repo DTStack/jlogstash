@@ -84,11 +84,6 @@ public class LogbackComponent extends LogComponent{
 		return file;
 	}
 
-    /**
-     * Set logger level in runtime
-     * @param logger
-     * @param cmdLine
-     */
      public void setLevel(Logger logger){
     		if (CmdLineParams.hasOptionTrace()) {
     			logger.setLevel(Level.TRACE);

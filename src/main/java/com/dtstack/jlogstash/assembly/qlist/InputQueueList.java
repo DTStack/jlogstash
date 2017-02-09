@@ -65,10 +65,6 @@ public class InputQueueList extends QueueList{
 	}
 	
 
-	/**
-	 * 
-	 * @param message
-	 */
 	@Override
 	public void put(Map<String, Object> message) {
 		try {

@@ -55,11 +55,6 @@ public class OutPutQueueList extends QueueList{
 		return outPutQueueList;
 	}
 
-	
-	/**
-	 * 
-	 * @param message
-	 */
 	@Override
 	public void put(Map<String, Object> message) {
 		try {

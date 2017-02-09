@@ -56,12 +56,6 @@ public class OutputThread implements Runnable{
     	this.outputQueue = outputQueue;
     }
     
-	/**
-	 * 
-	 * @param outputs
-	 * @param works
-	 * @throws Exception
-	 */
 	@SuppressWarnings("rawtypes")
 	public static  void initOutPutThread(List<Map> outputs,OutPutQueueList outPutQueueList,List<BaseOutput> allBaseOutputs) throws Exception{
 		if(outputExecutor==null)outputExecutor= Executors.newFixedThreadPool(outPutQueueList.getQueueList().size());

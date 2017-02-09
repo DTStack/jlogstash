@@ -48,11 +48,7 @@ public class CmdLineParams {
 		CmdLineParams.line = line;
 	}
 	
-    /**
-     * 获取input queue size 系数
-     * @param line
-     * @return
-     */
+
 	public static double getInputQueueCoefficient(){
 		String number =line.getOptionValue("c");
 		double coefficient =StringUtils.isNotBlank(number)?Double.parseDouble(number):SystemProperty.getInputProportion();	
@@ -60,11 +56,7 @@ public class CmdLineParams {
 		return coefficient;
 	}
 	
-    /**
-     * 获取output queue size 系数
-     * @param line
-     * @return
-     */
+
 	public static double getOutputQueueCoefficient(){
 		String number =line.getOptionValue("i");
 		double coefficient =StringUtils.isNotBlank(number)?Double.parseDouble(number):SystemProperty.getOutputProportion();	
@@ -72,11 +64,7 @@ public class CmdLineParams {
 		return coefficient;
 	}
 	
-	/**
-	 * 获取filter线程数
-	 * @param line
-	 * @return
-	 */
+
 	public static int getFilterWork(){
 		String number =line.getOptionValue("w");
         int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):getInputBase();	
@@ -85,11 +73,6 @@ public class CmdLineParams {
 	}
 	
 	
-	/**
-	 * 获取output线程数
-	 * @param line
-	 * @return
-	 */
 	public static int getOutputWork(){
 		String number =line.getOptionValue("o");
         int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):getOutputBase();	
@@ -97,11 +80,7 @@ public class CmdLineParams {
         return works;
 	}
 	
-	/**
-	 *获取input queue size的大小
-	 * @param line
-	 * @return
-	 */
+
 	public static int getInputQueueSize(){
 		float number = getFilterWork();
         int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getInputQueueCoefficient()*((float)getInputBase()/number));
@@ -120,11 +99,7 @@ public class CmdLineParams {
 		return process;
 	}
 		
-	/**
-	 *获取output queue size的大小
-	 * @param line
-	 * @return
-	 */
+
 	public static int getOutputQueueSize(){
 		float number =getOutputWork();
 		int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getOutputQueueCoefficient()*((float)getOutputBase()/number));
@@ -137,6 +112,7 @@ public class CmdLineParams {
 		return line.getOptionValue("f");
 	}
 	
+
 	public static String getLogFilePath(){
 		return line.getOptionValue("l");
 	}
@@ -153,6 +129,7 @@ public class CmdLineParams {
 		return line.hasOption("vvv");
 	}
 	
+
 	public static boolean hasOptionWarn(){
 		return line.hasOption("vv");
 	}

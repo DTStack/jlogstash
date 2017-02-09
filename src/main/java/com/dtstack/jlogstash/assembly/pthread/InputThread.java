@@ -56,11 +56,6 @@ public class InputThread implements Runnable{
 		baseInput.emit();
 	}
 	
-    /**
-     * 
-     * @param baseInputs
-     * @return 
-     */
 	public static void initInputThread(List<BaseInput> baseInputs) {
 		// TODO Auto-generated method stub
 		if(inputExecutor==null)inputExecutor= Executors.newFixedThreadPool(baseInputs.size());
