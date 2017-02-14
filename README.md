@@ -112,3 +112,4 @@
   3.各个插件的代码不能相互引用，如果有公共代码需要打入到各自的jar包中
   
   4.所需依赖到maven中心库 搜索 jlogstash(http://search.maven.org/ 或https://oss.sonatype.org)
+     
