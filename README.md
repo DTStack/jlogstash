@@ -112,3 +112,58 @@
   3.各个插件的代码不能相互引用，如果有公共代码需要打入到各自的jar包中
   
   4.所需依赖到maven中心库 搜索 jlogstash(http://search.maven.org/ 或https://oss.sonatype.org)
+  
+  ##input插进样列：
+    package com.dtstack.jlogstash.outputs;
+
+import java.util.Map;
+
+
+/**
+ * output plugin 样列
+ * @author sishu.yss
+ *
+ */
+public class TestOutputPlugin extends BaseOutput{
+
+	public TestOutputPlugin(Map config) {
+		super(config);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 插件初始化准备工作
+	 */
+	@Override
+	public void prepare() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * 事件逻辑处理
+	 */
+	@Override
+	protected void emit(Map event) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * jvm 退出时插件所有释放的资源
+	 */
+	@Override
+	public void release(){}
+	
+	/**
+	 * 数据失败时候处理的逻辑
+	 */
+	@Override
+	public void sendFailedMsg(Object msg){}
+
+}
