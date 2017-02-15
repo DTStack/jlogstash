@@ -108,7 +108,6 @@
 
   1.现在各自的plugin 的包 都会有各自的classloder去加载，parent classloder是AppClassLoder，所以各自的plugin的代码即使引用了相同的第三的jar版   本不一样也不会导致版本冲突
   
-  2.每一个plugin打的包名的前缀必须跟插件的类名一致，不区分大小写，不然会报类找不到
   
   3.各个插件的代码不能相互引用，如果有公共代码需要打入到各自的jar包中
   
