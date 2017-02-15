@@ -108,7 +108,9 @@ public class JarClassLoader {
 			for(File f:files){
 				String jarName = f.getName();
 				if(f.isFile()&&jarName.endsWith(".jar")){
-					jurls.put(String.format("%s:%s",dirName,jarName.split("-")[0].toLowerCase()), new URL[]{f.toURI().toURL()});
+					jarName = jarName.split("-")[0].toLowerCase();
+					String[] jns = jarName.split("\\.");
+					jurls.put(String.format("%s:%s",dirName,jns.length==0?jarName:jns[jns.length-1]), new URL[]{f.toURI().toURL()});
 				}
 			}
 	    }
