@@ -1,3 +1,6 @@
+#注释:
+   jlogstash 前期的有部分代码是引用了hangout项目里的代码，里面的有些代码确实引用了也没有加上原作者，这个是本人失误后面会加上，但是看过hangout原代    码的人知道，hangout所适用的范围只是从kafka到elasticsearch这么一种场景，也没法扩展，因为工作的线程都是取决于kafka的comsumer数量，filter和      output都是在一个线程里面的。而jlogstash的线程模型是input，filter，output都是独立的，这跟ruby版本的logstash是一致的。
+   
 #说明：
    用java版本重写logstash目的是提升性能,跟ruby logstash 对比 请看 https://github.com/DTStack/jlogstash-performance-testing
 
