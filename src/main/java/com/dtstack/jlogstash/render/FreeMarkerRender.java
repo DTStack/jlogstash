@@ -28,10 +28,7 @@ import freemarker.template.Template;
 
 /**
  * 
- * Reason: TODO ADD REASON(可选)
- * Date: 2016年8月31日 下午1:27:56
- * Company: www.dtstack.com
- * @author sishu.yss
+ *copy from hangout(https://github.com/childe/hangout)
  *
  */
 public class FreeMarkerRender extends TemplateRender {

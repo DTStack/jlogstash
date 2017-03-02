@@ -22,10 +22,7 @@ import java.util.Map;
 
 /**
  * 
- * Reason: TODO ADD REASON(可选)
- * Date: 2016年8月31日 下午1:28:03
- * Company: www.dtstack.com
- * @author sishu.yss
+ *copy from hangout(https://github.com/childe/hangout)
  *
  */
 public abstract class TemplateRender {
