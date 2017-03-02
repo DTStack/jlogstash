@@ -17,17 +17,11 @@
  */
 package com.dtstack.jlogstash.filters;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.jlogstash.render.FreeMarkerRender;
-import com.dtstack.jlogstash.render.TemplateRender;
 
 
 /**
@@ -41,32 +35,13 @@ import com.dtstack.jlogstash.render.TemplateRender;
 public abstract class BaseFilter implements Cloneable, java.io.Serializable{
 
 	private static final long serialVersionUID = -6525215605315577598L;
-
 	private static final Logger logger = LoggerFactory.getLogger(BaseFilter.class);
-
 	protected Map config;
-	protected List<TemplateRender> IF;
-	protected TemplateRender render;
 	protected String tagOnFailure;
 	protected ArrayList<String> removeFields;
 
 	public BaseFilter(Map config) {
 		this.config = config;
-
-		if (this.config.containsKey("if")) {
-			IF = new ArrayList<TemplateRender>();
-			for (String c : (List<String>) this.config.get("if")) {
-				try {
-					IF.add(new FreeMarkerRender(c, c));
-				} catch (IOException e) {
-					logger.error(e.getMessage());
-					System.exit(1);
-				}
-			}
-		} else {
-			IF = null;
-		}
-
 		if (config.containsKey("tagOnFailure")) {
 			this.tagOnFailure = (String) config.get("tagOnFailure");
 		} else {
@@ -78,22 +53,11 @@ public abstract class BaseFilter implements Cloneable, java.io.Serializable{
 
 	public Map process(Map event) {
 		if(event != null && event.size() > 0){
-			boolean succuess = true;
-			if (this.IF != null) {
-				for (TemplateRender render : this.IF) {
-					if (!render.render(event).equals("true")) {
-						succuess = false;
-						break;
-					}
-				}
-			}
-			if (succuess == true) {
-				try{
-					event = this.filter(event);
-					this.postProcess(event,true);
-				}catch(Exception e){
-					this.postProcess(event,false);
-				}
+			try{
+				event = this.filter(event);
+				this.postProcess(event,true);
+			}catch(Exception e){
+				this.postProcess(event,false);
 			}
 		}
 		return event;
@@ -101,6 +65,7 @@ public abstract class BaseFilter implements Cloneable, java.io.Serializable{
 
 	protected abstract Map filter(Map event) ;
 
+	@SuppressWarnings("unchecked")
 	public void postProcess(Map event, boolean ifsuccess) {
 		if (ifsuccess == false) {
 			if (this.tagOnFailure == null) {
