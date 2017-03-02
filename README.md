@@ -1,3 +1,6 @@
+#注释:
+   jlogstash 前期的有部分代码是引用了hangout项目里的代码，里面的有些代码确实引用了也没有加上原作者，这个是本人失误后面会加上，但是看过hangout原代    码的人知道，hangout所适用的范围只是从kafka到elasticsearch这么一种场景，也没法扩展，因为工作的线程都是取决于kafka的comsumer数量，filter和      output都是在一个线程里面的。而jlogstash的线程模型是input，filter，output都是独立的，这跟ruby版本的logstash是一致的。
+   
 #说明：
    用java版本重写logstash目的是提升性能,跟ruby logstash 对比 请看 https://github.com/DTStack/jlogstash-performance-testing
 
@@ -107,12 +110,13 @@
 #插件开发：
 
   1.现在各自的plugin 的包 都会有各自的classloder去加载，parent classloder是AppClassLoder，所以各自的plugin的代码即使引用了相同的第三的jar版   本不一样也不会导致版本冲突
-  
-  2.每一个plugin打的包名的前缀必须跟插件的类名一致，不区分大小写，不然会报类找不到
+   
   
-  3.各个插件的代码不能相互引用，如果有公共代码需要打入到各自的jar包中
+  2.各个插件的代码不能相互引用，如果有公共代码需要打入到各自的jar包中
   
-  4.所需依赖到maven中心库 搜索 jlogstash(http://search.maven.org/ 或https://oss.sonatype.org)
+  3.所需依赖到maven中心库 搜索 jlogstash(http://search.maven.org/ 或https://oss.sonatype.org)
   
-  5.插件开发样列 https://github.com/DTStack/jlogstash/tree/master/src/test/java/com/dtstack/jlogstash
-     
+  4.插件开发样列 https://github.com/DTStack/jlogstash/tree/master/src/test/java/com/dtstack/jlogstash
+  
+  5.每一个plugin打的包名的前缀要跟插件的类名一致，不区分大小写，不然会报类找不到，列如：input.kafka-1.0.0-with-dependencies.jar 或
+    kafka-1.0.0-with-dependencies.jar 
