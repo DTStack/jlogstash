@@ -15,6 +15,7 @@
 #现在已有的公共插件：
 
 ##inputs: 详情:https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
+
     Kafka: 
     
     KafkaDistribute:
@@ -30,6 +31,7 @@
     File:
 
 ##filters: 详情: https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
+
    Add:
 
    DateISO8601:
@@ -62,6 +64,7 @@
 
 
 ##outputs: 详情: https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
+
    Elasticsearch5:
 
    Elasticsearch:
