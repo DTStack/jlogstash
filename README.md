@@ -1,5 +1,6 @@
 #注释:
    jlogstash前期的有部分代码引用了hangout项目里的代码，这里也感谢hangout的作者。
+   
 #说明：
    用java版本重写logstash目的是提升性能,跟ruby logstash 对比 请看 https://github.com/DTStack/jlogstash-performance-testing
 
