@@ -59,7 +59,7 @@ public class JarClassLoader {
 	public ClassLoader getClassLoaderByPluginName(String name){
 		URL[] urls =  jarUrls.get(name);
 		ClassLoader classLoader = this.getClass().getClassLoader();
-		if(urls==null|urls.length==0){
+		if(urls==null || urls.length==0){
 			 logger.warn("{}:load by AppclassLoader",name);
 			 return classLoader;
 		}
