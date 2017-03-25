@@ -1,7 +1,9 @@
-#注释:
+# 注释:
+
    jlogstash前期的有部分代码引用了hangout项目里的代码，这里也感谢hangout的作者。
    
-#说明：
+# 说明:
+
    用java版本重写logstash目的是提升性能,跟ruby logstash 对比 请看 https://github.com/DTStack/jlogstash-performance-testing
 
    不同的业务，性能会有所不同，dtstack 后台日志解析 java 版本是ruby版本的5倍，在单台4g 4cores 虚拟机上。
@@ -11,10 +13,7 @@
    各个插件代码在jlogstash-input-plugin，jlogstash-output-plugin，jlogstash-filter-plugin。
 
 
-
-#现在已有的公共插件：
-
-##inputs: 详情:https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
+# Inputs: 详情:https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
 
     Kafka: 
     
@@ -30,7 +29,7 @@
     
     File:
 
-##filters: 详情: https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
+# Filters: 详情: https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
 
    Add:
 
@@ -63,7 +62,7 @@
    URLDecode:
 
 
-##outputs: 详情: https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
+# Outputs: 详情: https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
 
    Elasticsearch5:
 
@@ -80,13 +79,13 @@
 
    Stdout:
 
-#jar放置目录（编译的jar必须要有版本号 ）:
+# Jar放置目录（编译的jar必须要有版本号 ）:
   
     jlogstash 核心代码放在jlogstash/lib/下
 
     插件的代码分别的放到jlogstash/plugin 下的filter,input,output目录下
 
-#jlogstash 启动参数：
+# Jlogstash 启动参数：
 
   -f:配置文件 yaml格式路径
 
@@ -110,7 +109,7 @@
 
   vvvvv:trace级别
 
-#插件开发：
+# 插件开发：
 
   1.现在各自的plugin 的包 都会有各自的classloder去加载，parent classloder是AppClassLoder，所以各自的plugin的代码即使引用了相同的第三的jar版   本不一样也不会导致版本冲突
    
