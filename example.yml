@@ -1,33 +1,41 @@
 inputs:
-    - Kafka:
-        codec: json
-        encoding: UTF8 # defaut UTF8
-        topic: 
-          dt_all_test_log: 6
-        consumerSettings:
-          group.id: jlogstashvvvvv
-          zookeeper.connect: 127.0.0.1:2181
-          auto.commit.interval.ms: "1000"
-          auto.offset.reset: smallest
+    - File:
+        path: ["/Users/sishuyss/Desktop/new_access_1g.logai"]
+        sinceDbPath: /Users/sishuyss/Desktop/sincedb1.yaml
+        startPosition: beginning
+        addFields: {"logtype":"nginx_access_log","tenant_id":4}
+    - File:
+        path: ["/Users/sishuyss/Desktop/new_access_1g.logag"]
+        sinceDbPath: /Users/sishuyss/Desktop/sincedb2.yaml
+        startPosition: beginning
+        addFields: {"logtype":"nginx_access_log","tenant_id":4}
+    # - File:
+    #     path: ["/Users/sishuyss/Desktop/new_access_1g.logae"]
+    #     sinceDbPath: /Users/sishuyss/Desktop/sincedb3.yaml
+    #     startPosition: beginning
+    #     addFields: {"logtype":"nginx_access_log","tenant_id":4}
+    # - File:
+    #     path: ["/Users/sishuyss/Desktop/new_access_1g.logaf"]
+    #     sinceDbPath: /Users/sishuyss/Desktop/sincedb4.yaml
+    #     startPosition: beginning
+    #     addFields: {"logtype":"nginx_access_log","tenant_id":4}
+    # - File:
+    #     path: ["/Users/sishuyss/Desktop/new_access_1g.logad"]
+    #     sinceDbPath: /Users/sishuyss/Desktop/sincedb5.yaml
+    #     startPosition: beginning
+    #     addFields: {"logtype":"nginx_access_log","tenant_id":4}                                
 
 filters:
-    - dtstack.jdtlogparser.DtLogParser:
-        redisHost: 127.0.0.1
-        redisPort: 6379
-        debug: false
-    - dtstack.jdtlogipip.DtLogIpIp:
-    - dtstack.jdtlogsecurity.DtLogSecurity:
-    - DateISO8601:
-        match: {"timestamp":{"srcFormat":"dd/MMM/yyyy:HH:mm:ss Z","target":"timestamp","locale":"en"}}
-    - Remove:
-        fields: ["user_token","IPORHOST=~/\\./"]     
-
+    # - dtstack.jdtlogparser.DtLogParser:
+    #     apiServer: logapi.dtstack.com
+    #     useSsl: true
+    #     isRedis: false
 outputs:
-    - File:
-        path: /Users/sishuyss/ysq_%{tenant_id}_%{+YYYY.MM.dd}.txt
-        timezone: Asia/Shanghai
     - Performance:
-        path: /Users/sishuyss/performance.txt
+        path: /Users/sishuyss/Desktop/performance.txt
+    - File:
+        path: /Users/sishuyss/Desktop/disruprot.txt
+
 #    - Elasticsearch:
 #        hosts: ["172.16.1.185:9300","172.16.1.188:9300"]
 #        hosts: ["127.0.0.1:9300"]

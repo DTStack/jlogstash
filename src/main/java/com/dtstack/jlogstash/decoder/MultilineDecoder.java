@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
+import com.dtstack.jlogstash.assembly.qlist.QueueList;
 import com.dtstack.jlogstash.decoder.IDecode;
 import com.google.common.collect.Lists;
 /**
@@ -72,21 +73,21 @@ public class MultilineDecoder implements IDecode {
 	
 	private int expiredInterval = 60 * 60 * 1000;//FIXME 失效时间不要设置超过INTEGER_MAX
 	
-	private InputQueueList inputQueueList;
+	private QueueList inputQueueList;
 	
 	private ScheduledExecutorService scheduleExecutor;
 		
-	public MultilineDecoder(String pattern, String what, InputQueueList queuelist){
+	public MultilineDecoder(String pattern, String what, QueueList queuelist){
 		init(pattern, what, queuelist);
 	}
 	
-	public MultilineDecoder(String pattern, String what, boolean negate, InputQueueList queuelist){
+	public MultilineDecoder(String pattern, String what, boolean negate, QueueList queuelist){
 		
 		this.negate = negate;
 		this.init(pattern, what, queuelist);
 	}
 		
-	public void init(String pattern, String what, InputQueueList queuelist){
+	public void init(String pattern, String what, QueueList queuelist){
 		
 		if(pattern == null || what == null){
 			logger.error("pattern and what must not be null.");

@@ -22,11 +22,9 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.jlogstash.assembly.qlist.OutPutQueueList;
+import com.dtstack.jlogstash.assembly.qlist.QueueList;
 import com.dtstack.jlogstash.exception.ExceptionUtil;
 import com.dtstack.jlogstash.factory.OutputFactory;
 import com.dtstack.jlogstash.outputs.BaseOutput;
@@ -57,7 +55,7 @@ public class OutputThread implements Runnable{
     }
     
 	@SuppressWarnings("rawtypes")
-	public static  void initOutPutThread(List<Map> outputs,OutPutQueueList outPutQueueList,List<BaseOutput> allBaseOutputs) throws Exception{
+	public static  void initOutPutThread(List<Map> outputs,QueueList outPutQueueList,List<BaseOutput> allBaseOutputs) throws Exception{
 		if(outputExecutor==null)outputExecutor= Executors.newFixedThreadPool(outPutQueueList.getQueueList().size());
 		for(BlockingQueue<Map<String, Object>> queueList:outPutQueueList.getQueueList()){
 			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);

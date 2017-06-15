@@ -59,12 +59,11 @@ public class AssemblyPipeline {
 			Map configs = new YamlConfig().parse(CmdLineParams.getConfigFilePath());
 			logger.debug(configs.toString());
 			logger.debug("initInputQueueList start ...");
-			initInputQueueList=InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getInputQueueSize());
+			initInputQueueList = InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getInputQueueSize());
 			List<Map> inputs = (List<Map>) configs.get("inputs");
 			if(inputs==null||inputs.size()==0){
 				throw new LogstashException("input plugin is not empty");
 			}
-			initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
 			List<Map> outputs = (List<Map>) configs.get("outputs");
 			if(outputs==null||outputs.size()==0){
 				throw new LogstashException("output plugin is not empty");
@@ -72,8 +71,13 @@ public class AssemblyPipeline {
 		    List<Map> filters = (List<Map>) configs.get("filters");
 			baseInputs =InputFactory.getBatchInstance(inputs,initInputQueueList);
 			InputThread.initInputThread(baseInputs);
-			FilterThread.initFilterThread(filters,initInputQueueList,initOutputQueueList);
-			OutputThread.initOutPutThread(outputs,initOutputQueueList,allBaseOutputs);
+		    if(filters!=null&&filters.size()>0){
+				initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
+				FilterThread.initFilterThread(filters,initInputQueueList,initOutputQueueList);
+				OutputThread.initOutPutThread(outputs,initOutputQueueList,allBaseOutputs);
+		    }else{
+				OutputThread.initOutPutThread(outputs,initInputQueueList,allBaseOutputs);
+		    }
 			addShutDownHook();
 	}
 	
