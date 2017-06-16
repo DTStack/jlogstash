@@ -15,69 +15,9 @@
 
 # Inputs: 详情:https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
 
-    Kafka: 
-    
-    KafkaDistribute:
- 
-    Stdin: 
-
-    Tcp(mina实现): 
-
-    Netty(netty 实现): 
-
-    Beats:
-    
-    File:
-
 # Filters: 详情: https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
 
-   Add:
-
-   DateISO8601:
- 
-   IpIp: 
-
-   Grok: 
-
-   Gsub:
- 
-   Json: 
-
-   KV: 
-
-   Lowercase:
- 
-   Remove:
- 
-   Rename:
- 
-   Replace: 
-
-   Trim:
- 
-   UA:
- 
-   Uppercase:
- 
-   URLDecode:
-
-
 # Outputs: 详情: https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
-
-   Elasticsearch5:
-
-   Elasticsearch:
- 
-   File: 
-
-   Kafka: 
-
-   Netty:
-
-   Performance: 
-     记录一段时间内处理的记录数
-
-   Stdout:
 
 # Jar放置目录（编译的jar必须要有版本号 ）:
   
