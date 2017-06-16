@@ -13,11 +13,14 @@
    各个插件代码在jlogstash-input-plugin，jlogstash-output-plugin，jlogstash-filter-plugin。
 
 
-# Inputs: 详情:https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
+# Inputs详情:
+    https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
 
-# Filters: 详情: https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
+# Filters详情: 
+    https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
 
-# Outputs: 详情: https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
+# Outputs详情: 
+    https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
 
 # Jar放置目录（编译的jar必须要有版本号 ）:
   
