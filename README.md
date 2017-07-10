@@ -44,6 +44,8 @@
   -o:output work number 默认是根据的机器cpu核数
 
   -c:output queue size coefficient 默认 500f/1024
+  
+  -dev: 开发模式，直接在pom.xml引用包即可。
 
   v: error级别
   
