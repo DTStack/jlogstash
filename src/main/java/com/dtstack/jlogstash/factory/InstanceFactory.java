@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dtstack.jlogstash.annotation.plugin.AnnotationInterface;
+import com.dtstack.jlogstash.assembly.CmdLineParams;
 import com.dtstack.jlogstash.classloader.JarClassLoader;
 import com.dtstack.jlogstash.property.SystemProperty;
 
@@ -109,6 +110,11 @@ public abstract class InstanceFactory {
 	}
 	
 	protected static Class<?> getPluginClass(String type,String pluginType,String className) throws ClassNotFoundException{
+		
+		if(CmdLineParams.isDev()) {
+			return Class.forName(className);
+		}
+		
 		String[] names = type.split("\\.");
 		String key = String.format("%s:%s",pluginType, names[names.length-1].toLowerCase());
 		return JarClassLoader.getClassLoaderByPluginName(key).loadClass(className);
