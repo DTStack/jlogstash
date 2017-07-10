@@ -13,71 +13,17 @@
    各个插件代码在jlogstash-input-plugin，jlogstash-output-plugin，jlogstash-filter-plugin。
 
 
-# Inputs: 详情:https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
+# Inputs详情:
 
-    Kafka: 
-    
-    KafkaDistribute:
- 
-    Stdin: 
+    https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
 
-    Tcp(mina实现): 
+# Filters详情: 
 
-    Netty(netty 实现): 
+    https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
 
-    Beats:
-    
-    File:
+# Outputs详情: 
 
-# Filters: 详情: https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
-
-   Add:
-
-   DateISO8601:
- 
-   IpIp: 
-
-   Grok: 
-
-   Gsub:
- 
-   Json: 
-
-   KV: 
-
-   Lowercase:
- 
-   Remove:
- 
-   Rename:
- 
-   Replace: 
-
-   Trim:
- 
-   UA:
- 
-   Uppercase:
- 
-   URLDecode:
-
-
-# Outputs: 详情: https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
-
-   Elasticsearch5:
-
-   Elasticsearch:
- 
-   File: 
-
-   Kafka: 
-
-   Netty:
-
-   Performance: 
-     记录一段时间内处理的记录数
-
-   Stdout:
+    https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
 
 # Jar放置目录（编译的jar必须要有版本号 ）:
   
