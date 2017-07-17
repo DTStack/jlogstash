@@ -68,5 +68,5 @@
   5.每一个plugin打的包名的前缀要跟插件的类名一致，不区分大小写，不然会报类找不到，列如：input.kafka-1.0.0-with-dependencies.jar 或
     kafka-1.0.0-with-dependencies.jar 
     
- # 招聘：
+# 招聘：
    https://www.dtstack.com/#/joinus?_k=6io2qn
