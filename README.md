@@ -1,8 +1,8 @@
-# 注释:
+# 注释：
 
    jlogstash前期的有部分代码引用了hangout项目里的代码，这里也感谢hangout的作者。
    
-# 说明:
+# 说明：
 
    用java版本重写logstash目的是提升性能,跟ruby logstash 对比 请看 https://github.com/DTStack/jlogstash-performance-testing
 
@@ -13,16 +13,16 @@
    各个插件代码在jlogstash-input-plugin，jlogstash-output-plugin，jlogstash-filter-plugin。
 
 
-# Inputs详情:
+# Inputs详情：
     https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
 
-# Filters详情: 
+# Filters详情：
     https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
 
-# Outputs详情: 
+# Outputs详情：
     https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
 
-# Jar放置目录（编译的jar必须要有版本号 ）:
+# Jar放置目录（编译的jar必须要有版本号 ）：
   
     jlogstash 核心代码放在jlogstash/lib/下
 
