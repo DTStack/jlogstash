@@ -1,10 +1,43 @@
 inputs:
-    - File:
-        path:
-            - /var/log/system.log
+    - Kafka:
+        codec: json
         encoding: UTF8 # defaut UTF8
+        topic:
+          dt_all_test_log: 6
+        consumerSettings:
+          group.id: jlogstashvvvvv
+          zookeeper.connect: 127.0.0.1:2181
+          auto.commit.interval.ms: "1000"
+          auto.offset.reset: smallest
+
+filters:
+    - dtstack.jdtlogparser.DtLogParser:
+        redisHost: 127.0.0.1
+        redisPort: 6379
+        debug: false
+    - dtstack.jdtlogipip.DtLogIpIp:
+    - dtstack.jdtlogsecurity.DtLogSecurity:
+    - DateISO8601:
+        match: {"timestamp":{"srcFormat":"dd/MMM/yyyy:HH:mm:ss Z","target":"timestamp","locale":"en"}}
+    - Remove:
+        fields: ["user_token","IPORHOST=~/\\./"]
 
 outputs:
-    - Netty:
-        host: 127.0.0.1
-        port: 6665
+    - File:
+        path: /Users/sishuyss/ysq_%{tenant_id}_%{+YYYY.MM.dd}.txt
+        timezone: Asia/Shanghai
+    - Performance:
+        path: /Users/sishuyss/performance.txt
+#    - Elasticsearch:
+#        hosts: ["172.16.1.185:9300","172.16.1.188:9300"]
+#        hosts: ["127.0.0.1:9300"]
+#        indexTimezone: Asia/Shanghai
+#        cluster: tes_dtstack
+#        concurrentRequests: 2
+#        index: 'dtlog-%{tenant_id}-%{+YYYY.MM.dd}'
+#        documentType: logs # default logs
+#        bulkActions: 40000 #default 20000
+#        bulkSize: 30 # default 15 MB
+#        flushInterval: 3 # default 10 seconds
+#        timezone: "Asia/Shanghai" # defaut UTC 时区. 只用于生成索引名字的字符串格式化
+#        sniff: false #default true
