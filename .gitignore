@@ -6,3 +6,4 @@ target/*
 .metadata/
 .idea/
 plugin/
+*.iml
