@@ -46,6 +46,7 @@ public class OptionsProcessor {
 
 	static CommandLine parseArg(String[] args) throws ParseException {
         Options options = new Options();
+        options.addOption("dev", false, "dev mode");
 		options.addOption("h", false, "usage help");
 		options.addOption("help", false, "usage help");
 		options.addOption("f", true, "configuration file");
@@ -89,7 +90,8 @@ public class OptionsProcessor {
 				.append("vv").append("\t\t\tprint warn log").append("\n")
 				.append("vvv").append("\t\t\tprint info log").append("\n")
 				.append("vvvv").append("\t\t\tprint debug log").append("\n")
-				.append("vvvvv").append("\t\t\tprint trace log").append("\n");
+				.append("vvvvv").append("\t\t\tprint trace log").append("\n")
+				.append("dev").append("\t\t\tdev").append("\n");
 		System.out.println(helpInfo.toString());
 	}
 }

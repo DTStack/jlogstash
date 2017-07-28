@@ -112,6 +112,10 @@ public class CmdLineParams {
 		return line.getOptionValue("f");
 	}
 	
+	public static boolean isDev() {
+		return line.hasOption("dev");
+	}
+	
 
 	public static String getLogFilePath(){
 		return line.getOptionValue("l");

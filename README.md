@@ -1,8 +1,8 @@
-# 注释:
+# 注释：
 
    jlogstash前期的有部分代码引用了hangout项目里的代码，这里也感谢hangout的作者。
    
-# 说明:
+# 说明：
 
    用java版本重写logstash目的是提升性能,跟ruby logstash 对比 请看 https://github.com/DTStack/jlogstash-performance-testing
 
@@ -13,77 +13,20 @@
    各个插件代码在jlogstash-input-plugin，jlogstash-output-plugin，jlogstash-filter-plugin。
 
 
-# Inputs: 详情:https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
+# Inputs详情：
+   https://github.com/DTStack/jlogstash-input-plugin/blob/master/README.md
 
-    Kafka: 
-    
-    KafkaDistribute:
- 
-    Stdin: 
+# Filters详情：
+   https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
 
-    Tcp(mina实现): 
+# Outputs详情：
+   https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
 
-    Netty(netty 实现): 
-
-    Beats:
-    
-    File:
-
-# Filters: 详情: https://github.com/DTStack/jlogstash-filter-plugin/blob/master/README.md
-
-   Add:
-
-   DateISO8601:
- 
-   IpIp: 
-
-   Grok: 
-
-   Gsub:
- 
-   Json: 
-
-   KV: 
-
-   Lowercase:
- 
-   Remove:
- 
-   Rename:
- 
-   Replace: 
-
-   Trim:
- 
-   UA:
- 
-   Uppercase:
- 
-   URLDecode:
-
-
-# Outputs: 详情: https://github.com/DTStack/jlogstash-output-plugin/blob/master/README.md
-
-   Elasticsearch5:
-
-   Elasticsearch:
- 
-   File: 
-
-   Kafka: 
-
-   Netty:
-
-   Performance: 
-     记录一段时间内处理的记录数
-
-   Stdout:
-
-# Jar放置目录（编译的jar必须要有版本号 ）:
+# Jar放置目录（编译的jar必须要有版本号 ）：
   
-    jlogstash 核心代码放在jlogstash/lib/下
+   jlogstash 核心代码放在jlogstash/lib/下
 
-    插件的代码分别的放到jlogstash/plugin 下的filter,input,output目录下
+   插件的代码分别的放到jlogstash/plugin 下的filter,input,output目录下
 
 # Jlogstash 启动参数：
 
@@ -98,6 +41,8 @@
   -o:output work number 默认是根据的机器cpu核数
 
   -c:output queue size coefficient 默认 500f/1024
+  
+  -dev: 开发模式，直接在pom.xml引用包即可。
 
   v: error级别
   
@@ -122,3 +67,6 @@
   
   5.每一个plugin打的包名的前缀要跟插件的类名一致，不区分大小写，不然会报类找不到，列如：input.kafka-1.0.0-with-dependencies.jar 或
     kafka-1.0.0-with-dependencies.jar 
+    
+# 招聘：
+   https://www.dtstack.com/#/joinus?_k=6io2qn

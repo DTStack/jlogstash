@@ -2,7 +2,7 @@ inputs:
     - Kafka:
         codec: json
         encoding: UTF8 # defaut UTF8
-        topic: 
+        topic:
           dt_all_test_log: 6
         consumerSettings:
           group.id: jlogstashvvvvv
@@ -20,7 +20,7 @@ filters:
     - DateISO8601:
         match: {"timestamp":{"srcFormat":"dd/MMM/yyyy:HH:mm:ss Z","target":"timestamp","locale":"en"}}
     - Remove:
-        fields: ["user_token","IPORHOST=~/\\./"]     
+        fields: ["user_token","IPORHOST=~/\\./"]
 
 outputs:
     - File:
@@ -40,4 +40,4 @@ outputs:
 #        bulkSize: 30 # default 15 MB
 #        flushInterval: 3 # default 10 seconds
 #        timezone: "Asia/Shanghai" # defaut UTC 时区. 只用于生成索引名字的字符串格式化
-#        sniff: false #default true    
+#        sniff: false #default true
