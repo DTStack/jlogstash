@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
 
 
 /**
- * 
+ *
  * Reason: TODO ADD REASON(可选)
  * Date: 2016年8月31日 下午1:24:50
  * Company: www.dtstack.com
@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
  *
  */
 public interface AnnotationInterface {
-	
-	 public void required(Field field,Object obj) throws Exception;
+
+    void required(Field field, Object obj) throws Exception;
 
 }
