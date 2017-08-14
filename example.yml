@@ -1,43 +1,170 @@
 inputs:
+    # - PlainFile: 
+    #     path:
+    #       - /tmp/file/^file.*\.txt$
+    #     heartbeatHost: 172.16.1.52:8854
+    #     userToken: kRhisbdoTQMCZU5KqQqGkQ7sDA7BM9kpldnQ5Nf2al8ER9yp
+    #     offsetDbSyncIntervalMs: 60000
+    #     heartbeatIntevalMs: 60000
+
     - Kafka:
         codec: json
         encoding: UTF8 # defaut UTF8
-        topic: 
-          dt_all_test_log: 6
+        topic:
+          {"dt_all_log": 1}
         consumerSettings:
-          group.id: jlogstashvvvvv
-          zookeeper.connect: 127.0.0.1:2181
+          group.id: dt_all_log_group_hao
+          zookeeper.connect: 172.16.1.181:2181,172.16.1.186:2181,172.16.1.226:2181/kafka2
           auto.commit.interval.ms: "1000"
-          auto.offset.reset: smallest
-
+    # - KafkaReset:
+    #     codec: json
+    #     encoding: UTF8 # defaut UTF8
+    #     minTime: "2017-08-11 20:33:33"
+    #     maxTime: "2017-08-11 20:34:33"
+    #     topic:
+    #       {"dt_all_log": 3}
+    #     consumerSettings:
+    #       group.id: dt_all_log_group_hao
+    #       zookeeper.connect: 172.16.1.181:2181,172.16.1.186:2181,172.16.1.226:2181/kafka2
+    #       auto.commit.interval.ms: "1000"
+   # - Netty:
+   #      port: 8635
+   #      whiteListPath:
+   #      codec: json
+   #      isExtract: false
 filters:
-    - dtstack.jdtlogparser.DtLogParser:
-        redisHost: 127.0.0.1
+   - Performance:
+        interval: 1
+        path: /tmp/filter-performance-%{+YYYY.MM.dd}.txt
+        timeZone: Asia/Shanghai
+        monitorPath: {"/tmp/filter-performance-%{+YYYY.MM.dd}.txt":"8"}
+   - dtstack.jdtloguserauth.DtLogUserAuth:
+        apiServer: 172.16.1.52:8668
+        useSsl: false
+        redisHost: 172.16.1.52
         redisPort: 6379
-        debug: false
-    - dtstack.jdtlogipip.DtLogIpIp:
-    - dtstack.jdtlogsecurity.DtLogSecurity:
-    - DateISO8601:
-        match: {"timestamp":{"srcFormat":"dd/MMM/yyyy:HH:mm:ss Z","target":"timestamp","locale":"en"}}
-    - Remove:
-        fields: ["user_token","IPORHOST=~/\\./"]     
+        isRedis: true
+        redisDB: 0
+        redisPassword: taukwnlwrd9
+   - dtstack.jdtlogparser.DtLogParser:
+        apiServer: 172.16.1.52:82
+        useSsl: false
+        redisHost: 172.16.1.52
+        redisPort: 6379
+        isRedis: true
+        redisDB: 0
+        redisPassword: taukwnlwrd9
+        timeWasteConfig: {"/tmp/timewaste-%{+yyyy.MM.dd}.log":"7"}  #记录解析日志耗时的配置，格式和Performance的一致，key为独立保存文件的路径，val为保留的最近日志数
+        timeWasteLogMaxFreq: 100 #设置解析日志耗时的写io的频率的上限，避免把磁盘打爆
+        parsedTimeThreshold: 2
+        parseFailedConfig : {"/tmp/parsefailed-%{+yyyy.MM.dd}.log":"7"} #记录解析失败的配置，格式和Performance的一致，key为独立保存文件的路径，val为保留的最近日志数
+        parseFailedLogMaxFreq: 100 #设置解析失败时的写io的频率的上限，避免把磁盘打爆
 
 outputs:
-    - File:
-        path: /Users/sishuyss/ysq_%{tenant_id}_%{+YYYY.MM.dd}.txt
-        timezone: Asia/Shanghai
-    - Performance:
-        path: /Users/sishuyss/performance.txt
-#    - Elasticsearch:
-#        hosts: ["172.16.1.185:9300","172.16.1.188:9300"]
-#        hosts: ["127.0.0.1:9300"]
-#        indexTimezone: Asia/Shanghai
-#        cluster: tes_dtstack
-#        concurrentRequests: 2
-#        index: 'dtlog-%{tenant_id}-%{+YYYY.MM.dd}'
-#        documentType: logs # default logs
-#        bulkActions: 40000 #default 20000
-#        bulkSize: 30 # default 15 MB
-#        flushInterval: 3 # default 10 seconds
-#        timezone: "Asia/Shanghai" # defaut UTC 时区. 只用于生成索引名字的字符串格式化
-#        sniff: false #default true    
+   - Performance:
+        interval: 1
+        path: /tmp/beat-performance-%{+YYYY.MM.dd}.txt
+        timeZone: Asia/Shanghai
+        monitorPath: {"/tmp/beat-performance-%{+YYYY.MM.dd}.txt":"8"}
+   - Odps:
+        configs:
+          redis.address: redis://:taukwnlwrd9@172.16.1.52:6379/1
+          redis.max.idle: 100
+          redis.max.total: 1024
+          redis.max.wait.mills: 3000
+          redis.timeout: 2000
+          redis.map.info.key: od-ps-cfg
+          redis.queue.info.key: od-ps-cfg-msg
+          http.map.info.api: http://172.16.1.52:81/api/v1/odps/provide_task_list/
+          task.thread.pool.size: 5000
+          #task.thread.cycle.commit.time: 30000
+          task.thread.commit.interval: 30000
+          task.tunnel.timezone: Asia/Shanghai
+          task.tunnel.retry.limit: 720  #commit日志失败的重试次数
+          task.tunnel.retry.interval: 5  #commit日志的间隔时间，秒级别
+          task.partitions.lru.size: 30000
+          task.report.status.address: 172.16.1.52:81
+          task.report.status.interval: 300000
+          scala.kafka.producer.brokerlist: 172.16.1.145:9092
+          scala.kafka.zookeeper: 172.16.1.181:2181,172.16.1.186:2181,172.16.1.226:2181/kafka
+          task.retry,kafka.groupid: odps_retry_event_group_test
+          task.retry.kafka.topic: odps_retry_event_topic_test
+
+     # - Elasticsearch5:
+   #      hosts: ["172.16.1.145:9300"]
+   #      indexTimezone: "UTC"
+   #      cluster: poc_dtstack
+   #      concurrentRequests: 1
+   #      index: 'dtlog-%{tenant_id}-%{appname}-%{keeptype}-%{+YYYY.MM.dd}'
+   #      errorEventLogConfig: {"/tmp/error-event-%{+YYYY.MM.dd}.txt":"3"}
+   #      ERROR_PROTECT_KEYS: "@timestamp,appname,keeptype,logtype,tag,message,timestamp,local_ip,tenant_id,hostname,path,agent_type,offset,uuid,bajie_test"
+   #      documentType: logs # default logs
+   #      consistency: true # defalut false
+  
+
+
+# inputs:
+# #     - Beats:
+# #         codec: json
+# #         port: 8635
+#      - Kafka:
+#         codec: json
+#         encoding: UTF8 # defaut UTF8
+#         topic:
+#           dt_all_log: 5
+#         consumerSettings:
+#           group.id: dt_all_log_group
+#           zookeeper.connect: 172.16.1.181:2181,172.16.1.186:2181,172.16.1.226:2181/kafka
+#           auto.commit.interval.ms: "1000"
+# filters:
+#     # - Performance:
+#     #     path: /home/admin/jlogserver/logs/beat-filters-performance-%{+YYYY.MM.dd}.txt
+#     #     timeZone: Asia/Shanghai
+#     #     monitorPath: {"/home/admin/jlogserver/logs/beat-filters-performance-%{+YYYY.MM.dd}.txt":"8"}
+#     - dtstack.jdtloguserauth.DtLogUserAuth:
+#         apiServer: 172.16.1.52
+#         useSsl: false
+#         redisHost: 172.16.1.52
+#         redisPort: 6379
+#         isRedis: true
+#         redisDB: 1
+#         redisPassword: taukwnlwrd9
+#     - Add:
+#         fields: {"agent_type":"@metadata.beat","hostname":"beat.hostname","host":"beat.name"}
+#     - Remove:
+#         fields: ["@metadata","count","offset","beat"]
+#     - Rename:
+#         fields: {"source":"path"}
+#     - dtstack.jdtlogparser.DtLogParser:
+#         apiServer: 172.16.1.52:81
+#         useSsl: false
+#         redisHost: 172.16.1.52
+#         redisPort: 6379
+#         isRedis: true
+#         redisDB: 0
+#         redisPassword: taukwnlwrd9
+#     - dtstack.jdtlogcreatemessage.DtLogCreateMessage:
+#         repeatFields: ["path"]
+#     - Flow:
+#         configs:
+#           flow.control.counttype: unset
+#           flow.control.threshold: 10KB
+#           flow.stat.counttype: unset
+#           flow.stat.report.commit.delay.second: 3
+#           flow.stat.report.interval: 1000
+#           flow.stat.report.addr.template: "http://172.16.10.123:8854/api/logagent/test?uuid=%s&time=%s&bandwidth=%s"
+# outputs:
+#     # - Performance:
+#     #     path: /home/admin/jlogserver/logs/beat-performance-%{+YYYY.MM.dd}.txt
+#     #     timeZone: Asia/Shanghai
+#     #     monitorPath: {"/tmp/output-performance-%{+YYYY.MM.dd}.txt":"8"}
+#     - Netty:
+#         host: 172.16.1.58
+#         port: 8635
+#         openCompression: true
+#         compressionLevel: 6
+#         openCollectIp: true
+# #        format: ${HOSTNAME} ${appname} [${user_token} type=${logtype} tag=${logtag}] ${path} jlogstash/$${timestamp}/$${message}
+
+
+
