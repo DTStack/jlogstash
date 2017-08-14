@@ -12,6 +12,7 @@ inputs:
         encoding: UTF8 # defaut UTF8
         topic:
           {"dt_all_log": 1}
+
         consumerSettings:
           group.id: dt_all_log_group_hao
           zookeeper.connect: 172.16.1.181:2181,172.16.1.186:2181,172.16.1.226:2181/kafka2
@@ -165,6 +166,5 @@ outputs:
 #         compressionLevel: 6
 #         openCollectIp: true
 # #        format: ${HOSTNAME} ${appname} [${user_token} type=${logtype} tag=${logtag}] ${path} jlogstash/$${timestamp}/$${message}
-
 
 
