@@ -69,4 +69,4 @@
     kafka-1.0.0-with-dependencies.jar 
     
 # 招聘：
-   https://www.dtstack.com/joinus#/joinus?_k=c4drhw
+   https://m.zhipin.com/weijd/v2/job/de2292afc38d32fe1XV73t25EFU~?date8=20180609&sid=self_jd&from=singlemessage&isappinstalled=0
