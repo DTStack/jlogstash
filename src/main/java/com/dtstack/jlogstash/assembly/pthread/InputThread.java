@@ -19,8 +19,10 @@ package com.dtstack.jlogstash.assembly.pthread;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadPoolExecutor;
+import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +60,12 @@ public class InputThread implements Runnable{
 	
 	public static void initInputThread(List<BaseInput> baseInputs) {
 		// TODO Auto-generated method stub
-		if(inputExecutor==null)inputExecutor= Executors.newFixedThreadPool(baseInputs.size());
+		if(inputExecutor==null){
+			int size = baseInputs.size();
+			inputExecutor = new ThreadPoolExecutor(size,size,
+					0L, TimeUnit.MILLISECONDS,
+					new LinkedBlockingQueue<Runnable>(),new LogstashThreadFactory(InputThread.class.getName()));
+		}
 		for(BaseInput input:baseInputs){
 			inputExecutor.submit(new InputThread(input));
 		}

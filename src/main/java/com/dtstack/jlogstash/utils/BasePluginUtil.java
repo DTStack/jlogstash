@@ -49,9 +49,9 @@ public class BasePluginUtil {
 							Object oo = event;
 							for(int i=0;i<vs.length;i++){
 								oo = loopObject(vs[i],oo);
-								if(oo==null)break;	
+								if(oo==null){break;}
 							}
-							if(oo!=null)event.put(key, oo);	
+							if(oo!=null){event.put(key, oo);}
 						}else if ("%{hostname}%".equals(vv)){
 		        			event.put(key, Public.getHostName());
 		        		}else if("%{timestamp}%".equals(vv)){

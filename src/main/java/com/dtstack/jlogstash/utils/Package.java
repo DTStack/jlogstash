@@ -34,8 +34,12 @@ public class Package {
 	private static String point =".";
 	
 	public static String getRealClassName(String name,String key){
-		if(StringUtils.isBlank(name))return null;
-		if(name.indexOf(point)>=0)return name;
+		if(StringUtils.isBlank(name)){
+			return null;
+		}
+		if(name.indexOf(point)>=0){
+			return name;
+		}
 		return SystemProperty.getSystemProperty(key)+point+name;
 	}
 }

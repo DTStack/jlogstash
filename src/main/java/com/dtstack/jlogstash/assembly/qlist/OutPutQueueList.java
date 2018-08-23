@@ -18,10 +18,10 @@
 package com.dtstack.jlogstash.assembly.qlist;
 
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,9 @@ public class OutPutQueueList extends QueueList{
 
 	private static Logger logger = LoggerFactory.getLogger(OutPutQueueList.class);
     
-	private static ExecutorService executor = Executors.newFixedThreadPool(1);
+	private static ExecutorService executor = new ThreadPoolExecutor(1, 1,
+			0L, TimeUnit.MILLISECONDS,
+			new LinkedBlockingQueue<Runnable>(),new LogstashThreadFactory(OutPutQueueList.class.getName()));
 
 	private final AtomicInteger pIndex = new AtomicInteger(0);
 	
