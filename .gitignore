@@ -8,3 +8,4 @@ target/*
 plugin/
 *.iml
 RemoteSystemsTempFiles/
+logs/
