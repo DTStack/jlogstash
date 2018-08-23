@@ -108,7 +108,7 @@ public class CmdLineParams {
 		return size;	
 	}
 	
-	public static String getConfigFilePath(){
+	public static String getConfigFile(){
 		return line.getOptionValue("f");
 	}
 	

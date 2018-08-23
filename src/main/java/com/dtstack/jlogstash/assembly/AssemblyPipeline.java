@@ -30,7 +30,7 @@ import com.dtstack.jlogstash.outputs.BaseOutput;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.dtstack.jlogstash.configs.ConfigObject;
 import java.util.List;
 import java.util.Map;
 
@@ -57,20 +57,20 @@ public class AssemblyPipeline {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void assemblyPipeline() throws Exception {
         logger.debug("load config start ...");
-        Map configs = new YamlConfig().parse(CmdLineParams.getConfigFilePath());
+        ConfigObject configs = new YamlConfig().parse(CmdLineParams.getConfigFile());
         logger.debug(configs.toString());
         logger.debug("initInputQueueList start ...");
         initInputQueueList = InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getInputQueueSize());
-        List<Map> inputs = (List<Map>) configs.get("inputs");
+        List<Map> inputs = configs.getInputs();
         if (inputs == null || inputs.size() == 0) {
             throw new LogstashException("input plugin is empty");
         }
         initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
-        List<Map> outputs = (List<Map>) configs.get("outputs");
+        List<Map> outputs = configs.getOutputs();
         if (outputs == null || outputs.size() == 0) {
             throw new LogstashException("output plugin is empty");
         }
-        List<Map> filters = (List<Map>) configs.get("filters");
+        List<Map> filters = configs.getFilters();
         baseInputs = InputFactory.getBatchInstance(inputs, initInputQueueList);
         InputThread.initInputThread(baseInputs);
         FilterThread.initFilterThread(filters, initInputQueueList, initOutputQueueList);
