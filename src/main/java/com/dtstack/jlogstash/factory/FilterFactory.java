@@ -55,7 +55,7 @@ public class FilterFactory extends InstanceFactory{
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<BaseFilter> getBatchInstance(List<Map> filters) throws Exception{
-		if(filters==null||filters.size()==0)return null;
+		if(filters==null||filters.size()==0){return null;}
 		List<BaseFilter> baseFilters = Lists.newArrayList();
 		for(int i=0;i< filters.size();i++){
 			Iterator<Entry<String, Map>> filterIT = filters.get(i).entrySet().iterator();
@@ -70,7 +70,7 @@ public class FilterFactory extends InstanceFactory{
 				   filterClass = getPluginClass(filterType,PLUGINTYPE,className);
 				   filtersClassLoader.put(key, filterClass);
 				}
-				if(filterConfig==null)filterConfig=Maps.newLinkedHashMap();
+				if(filterConfig==null){filterConfig=Maps.newLinkedHashMap();}
 				baseFilters.add(getInstance(filterType,filterConfig,filterClass));
 			}
 		}

@@ -57,7 +57,7 @@ public class InputQueueList extends QueueList{
 	protected ReentrantLock lock = new ReentrantLock();
 	
 	public static InputQueueList getInputQueueListInstance(int queueNumber,int queueSize){
-		if(inputQueueList!=null)return inputQueueList;
+		if(inputQueueList!=null){return inputQueueList;}
 		inputQueueList = new InputQueueList();
         for(int i=0;i<queueNumber;i++){
         	inputQueueList.queueList.add(new ArrayBlockingQueue<Map<String,Object>>(queueSize));

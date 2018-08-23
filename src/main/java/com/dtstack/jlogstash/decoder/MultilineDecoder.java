@@ -22,13 +22,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +104,7 @@ public class MultilineDecoder implements IDecode {
 		this.what = what;
 		
 		patternReg = Pattern.compile(this.pattern);
-		scheduleExecutor = Executors.newScheduledThreadPool(1);
+		scheduleExecutor = new ScheduledThreadPoolExecutor(1,new LogstashThreadFactory(MultilineDecoder.class.getName()));
 		scheduleExecutor.scheduleWithFixedDelay(new FlushMonitor(), flushInterval, flushInterval, TimeUnit.MILLISECONDS);
 	}
 

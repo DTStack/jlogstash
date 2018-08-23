@@ -60,7 +60,7 @@ public class InputFactory extends InstanceFactory{
 				Map.Entry<String, Map> inputEntry = inputIT.next();
 				String inputType = inputEntry.getKey();
 				Map inputConfig = inputEntry.getValue();
-				if(inputConfig==null)inputConfig=Maps.newLinkedHashMap();
+				if(inputConfig==null){inputConfig=Maps.newLinkedHashMap();}
 			    Class<?> inputClass = getPluginClass(inputType, PLUGINTYPE,getClassName(inputType,PLUGINTYPE));
 				BaseInput baseInput =getInstance(inputType, inputConfig,inputClass);
 				baseinputs.add(baseInput);

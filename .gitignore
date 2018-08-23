@@ -9,3 +9,4 @@ plugin/
 *.iml
 RemoteSystemsTempFiles/
 logs/
+dependency-reduced-pom.xml
