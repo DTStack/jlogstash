@@ -19,17 +19,18 @@ package com.dtstack.jlogstash.assembly.pthread;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
-
 import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.jlogstash.assembly.qlist.QueueList;
-import com.dtstack.jlogstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.jlogstash.exception.ExceptionUtil;
 import com.dtstack.jlogstash.factory.FilterFactory;
 import com.dtstack.jlogstash.filters.BaseFilter;
-
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.LinkedBlockingQueue;
 /**
  * 
  * Reason: TODO ADD REASON(可选) 
@@ -42,7 +43,7 @@ public class FilterThread implements Runnable {
 
 	private static Logger logger = LoggerFactory.getLogger(FilterThread.class);
 	
-	private BlockingQueue<Map<String, Object>> inputQueue;
+	private BlockingQueue<Map<String, Object>> filterQueue;
 
 	private static QueueList outPutQueueList;
 
@@ -50,9 +51,9 @@ public class FilterThread implements Runnable {
 	
 	private static ExecutorService filterExecutor;
 	
-	public FilterThread(List<BaseFilter> filterProcessors,BlockingQueue<Map<String, Object>> inputQueue){
+	public FilterThread(List<BaseFilter> filterProcessors,BlockingQueue<Map<String, Object>> filterQueue){
 		this.filterProcessors = filterProcessors;
-		this.inputQueue = inputQueue;
+		this.filterQueue = filterQueue;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -76,7 +77,7 @@ public class FilterThread implements Runnable {
 		A: while (true) {
 			Map<String, Object> event = null;
 			try {
-				event = this.inputQueue.take();
+				event = this.filterQueue.take();
 				if (filterProcessors != null) {
 					for (BaseFilter bf : filterProcessors) {
 						if (event == null || event.size() == 0){
