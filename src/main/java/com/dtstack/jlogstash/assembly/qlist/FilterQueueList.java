@@ -56,7 +56,7 @@ public class FilterQueueList extends QueueList{
 
 	protected ReentrantLock lock = new ReentrantLock();
 	
-	public static FilterQueueList getInputQueueListInstance(int queueNumber, int queueSize){
+	public static FilterQueueList getFilterQueueListInstance(int queueNumber, int queueSize){
 		if(filterQueueList!=null){return filterQueueList;}
 		filterQueueList = new FilterQueueList();
         for(int i=0;i<queueNumber;i++){
