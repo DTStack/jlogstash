@@ -10,3 +10,4 @@ plugin/
 RemoteSystemsTempFiles/
 logs/
 dependency-reduced-pom.xml
+jlogstash.iml
