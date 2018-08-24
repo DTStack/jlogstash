@@ -49,9 +49,9 @@ public class CmdLineParams {
 	}
 	
 
-	public static double getInputQueueCoefficient(){
+	public static double getFilterQueueCoefficient(){
 		String number =line.getOptionValue("c");
-		double coefficient =StringUtils.isNotBlank(number)?Double.parseDouble(number):SystemProperty.getInputProportion();	
+		double coefficient =StringUtils.isNotBlank(number)?Double.parseDouble(number):SystemProperty.getFilterProportion();
 		logger.warn("input queue coefficient:{}",String.valueOf(coefficient));
 		return coefficient;
 	}
@@ -67,7 +67,7 @@ public class CmdLineParams {
 
 	public static int getFilterWork(){
 		String number =line.getOptionValue("w");
-        int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):getInputBase();	
+        int works =StringUtils.isNotBlank(number)?Integer.parseInt(number):getFilterBase();
 		logger.warn("filter works:{}",String.valueOf(works));
         return works;
 	}
@@ -81,15 +81,15 @@ public class CmdLineParams {
 	}
 	
 
-	public static int getInputQueueSize(){
+	public static int getFilterQueueSize(){
 		float number = getFilterWork();
-        int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getInputQueueCoefficient()*((float)getInputBase()/number));
+        int size = Public.getIntValue(monitorInfo.getJvmMaxMemory()*getFilterQueueCoefficient()*((float)getFilterBase()/number));
 		size = size<=0?10:size;
         logger.warn("input queue size:{}",String.valueOf(size));
         return size;
 	}
 	
-	private static int getInputBase(){
+	private static int getFilterBase(){
 		int process = monitorInfo.getProcessors();
 		return process + process/2;
 	}

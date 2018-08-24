@@ -20,7 +20,7 @@ package com.dtstack.jlogstash.assembly;
 import com.dtstack.jlogstash.assembly.pthread.FilterThread;
 import com.dtstack.jlogstash.assembly.pthread.InputThread;
 import com.dtstack.jlogstash.assembly.pthread.OutputThread;
-import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
+import com.dtstack.jlogstash.assembly.qlist.FilterQueueList;
 import com.dtstack.jlogstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.jlogstash.configs.YamlConfig;
 import com.dtstack.jlogstash.exception.LogstashException;
@@ -46,7 +46,7 @@ public class AssemblyPipeline {
 
     private static Logger logger = LoggerFactory.getLogger(AssemblyPipeline.class);
 
-    private InputQueueList initInputQueueList;
+    private FilterQueueList initFilterQueueList;
 
     private OutPutQueueList initOutputQueueList;
 
@@ -69,23 +69,23 @@ public class AssemblyPipeline {
         logger.info("assemblyPipeline start ...");
         List<Map> filters = configs.getFilters();
         if(filters != null && filters.size() > 0){
-            initInputQueueList = InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getInputQueueSize());
-            baseInputs = InputFactory.getBatchInstance(inputs, initInputQueueList);
+            initFilterQueueList = FilterQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getFilterQueueSize());
+            baseInputs = InputFactory.getBatchInstance(inputs, initFilterQueueList);
             InputThread.initInputThread(baseInputs);
             initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
-            FilterThread.initFilterThread(filters, initInputQueueList, initOutputQueueList);
+            FilterThread.initFilterThread(filters, initFilterQueueList, initOutputQueueList);
             OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
         }else{
-            initInputQueueList = InputQueueList.getInputQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getInputQueueSize());
-            baseInputs = InputFactory.getBatchInstance(inputs, initInputQueueList);
+            initFilterQueueList = FilterQueueList.getInputQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getFilterQueueSize());
+            baseInputs = InputFactory.getBatchInstance(inputs, initFilterQueueList);
             InputThread.initInputThread(baseInputs);
-            OutputThread.initOutPutThread(outputs, initInputQueueList, allBaseOutputs);
+            OutputThread.initOutPutThread(outputs, initFilterQueueList, allBaseOutputs);
         }
         addShutDownHook();
     }
 
     private void addShutDownHook() {
-        ShutDownHook shutDownHook = new ShutDownHook(initInputQueueList, initOutputQueueList, baseInputs, allBaseOutputs);
+        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs);
         shutDownHook.addShutDownHook();
     }
 }

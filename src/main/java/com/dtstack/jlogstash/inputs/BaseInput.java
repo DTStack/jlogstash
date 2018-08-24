@@ -31,7 +31,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
+import com.dtstack.jlogstash.assembly.qlist.FilterQueueList;
 import com.dtstack.jlogstash.decoder.IDecode;
 import com.dtstack.jlogstash.decoder.JsonDecoder;
 import com.dtstack.jlogstash.decoder.MultilineDecoder;
@@ -47,7 +47,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     
     private IDecode decoder;
     
-    private static InputQueueList inputQueueList;
+    private static FilterQueueList inputQueueList;
     
     protected Map<String, Object> addFields=null;
     
@@ -125,11 +125,11 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         return super.clone();
     }
    
-	public static void setInputQueueList(InputQueueList inputQueueList) {
+	public static void setInputQueueList(FilterQueueList inputQueueList) {
 		BaseInput.inputQueueList = inputQueueList;
 	}
 
-	public static InputQueueList getInputQueueList() {
+	public static FilterQueueList getInputQueueList() {
 		return inputQueueList;
 	}
 }

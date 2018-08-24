@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
+import com.dtstack.jlogstash.assembly.qlist.FilterQueueList;
 import com.dtstack.jlogstash.inputs.BaseInput;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -51,7 +51,7 @@ public class InputFactory extends InstanceFactory{
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static List<BaseInput> getBatchInstance(List<Map> inputs,InputQueueList inputQueueList) throws Exception{
+	public static List<BaseInput> getBatchInstance(List<Map> inputs,FilterQueueList inputQueueList) throws Exception{
 		BaseInput.setInputQueueList(inputQueueList);
 		List<BaseInput> baseinputs =Lists.newArrayList();
 		for (Map input:inputs) {

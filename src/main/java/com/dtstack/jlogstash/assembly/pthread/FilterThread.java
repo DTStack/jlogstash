@@ -56,15 +56,15 @@ public class FilterThread implements Runnable {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static void initFilterThread(List<Map> filters,QueueList inPutQueueList,QueueList outPutQueueList) throws Exception{
+	public static void initFilterThread(List<Map> filters,QueueList filterQueueList,QueueList outPutQueueList) throws Exception{
 		if(filterExecutor==null){
-			int size = inPutQueueList.getQueueList().size();
+			int size = filterQueueList.getQueueList().size();
 			filterExecutor = new ThreadPoolExecutor(size,size,
 					0L, TimeUnit.MILLISECONDS,
 					new LinkedBlockingQueue<Runnable>(),new LogstashThreadFactory(FilterThread.class.getName()));
 		}
 		FilterThread.outPutQueueList = outPutQueueList;
-		for(BlockingQueue<Map<String, Object>> queueList:inPutQueueList.getQueueList()){
+		for(BlockingQueue<Map<String, Object>> queueList:filterQueueList.getQueueList()){
 			List<BaseFilter> baseFilters = FilterFactory.getBatchInstance(filters);	
 			filterExecutor.submit(new FilterThread(baseFilters,queueList));
 		}

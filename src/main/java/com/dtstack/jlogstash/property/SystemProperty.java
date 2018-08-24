@@ -42,7 +42,7 @@ public class SystemProperty {
 		return System.getProperty(key);
 	}
 	
-	public static Double getInputProportion(){
+	public static Double getFilterProportion(){
 	   BigDecimal bg = new BigDecimal(200f/1024);
        return bg.setScale(5, BigDecimal.ROUND_HALF_UP).doubleValue();
 	}
