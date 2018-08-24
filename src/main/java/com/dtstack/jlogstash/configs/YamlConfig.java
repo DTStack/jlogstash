@@ -47,6 +47,7 @@ public class YamlConfig implements Config{
 
     @Override
     public ConfigObject parse(String conf) throws Exception{
+        logger.info(conf);
         ConfigObject configObject = null;
             if(conf.startsWith("{")&&conf.endsWith("}")){
                 configObject =  objectMapper.readValue(conf,ConfigObject.class);

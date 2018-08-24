@@ -56,10 +56,9 @@ public class AssemblyPipeline {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void assemblyPipeline() throws Exception {
-        logger.debug("load config start ...");
+        logger.info("load config start ...");
         ConfigObject configs = new YamlConfig().parse(CmdLineParams.getConfigFile());
-        logger.debug(configs.toString());
-        logger.debug("initInputQueueList start ...");
+        logger.info("initInputQueueList start ...");
         initInputQueueList = InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getInputQueueSize());
         List<Map> inputs = configs.getInputs();
         if (inputs == null || inputs.size() == 0) {
@@ -70,11 +69,15 @@ public class AssemblyPipeline {
         if (outputs == null || outputs.size() == 0) {
             throw new LogstashException("output plugin is empty");
         }
-        List<Map> filters = configs.getFilters();
         baseInputs = InputFactory.getBatchInstance(inputs, initInputQueueList);
         InputThread.initInputThread(baseInputs);
-        FilterThread.initFilterThread(filters, initInputQueueList, initOutputQueueList);
-        OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
+        List<Map> filters = configs.getFilters();
+        if(filters != null && filters.size() >0){
+            FilterThread.initFilterThread(filters, initInputQueueList, initOutputQueueList);
+            OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
+        }else{
+            OutputThread.initOutPutThread(outputs, initInputQueueList, allBaseOutputs);
+        }
         addShutDownHook();
     }
 

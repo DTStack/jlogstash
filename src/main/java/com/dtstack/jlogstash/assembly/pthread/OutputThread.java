@@ -20,6 +20,8 @@ package com.dtstack.jlogstash.assembly.pthread;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+
+import com.dtstack.jlogstash.assembly.qlist.QueueList;
 import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +56,7 @@ public class OutputThread implements Runnable{
     }
     
 	@SuppressWarnings("rawtypes")
-	public static  void initOutPutThread(List<Map> outputs,OutPutQueueList outPutQueueList,List<BaseOutput> allBaseOutputs) throws Exception{
+	public static  void initOutPutThread(List<Map> outputs, QueueList outPutQueueList, List<BaseOutput> allBaseOutputs) throws Exception{
 		if(outputExecutor==null){
 			int size = outPutQueueList.getQueueList().size();
 			outputExecutor =  new ThreadPoolExecutor(size,size,

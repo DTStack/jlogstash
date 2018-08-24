@@ -24,8 +24,7 @@ import java.util.concurrent.*;
 import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
+import com.dtstack.jlogstash.assembly.qlist.QueueList;
 import com.dtstack.jlogstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.jlogstash.exception.ExceptionUtil;
 import com.dtstack.jlogstash.factory.FilterFactory;
@@ -45,7 +44,7 @@ public class FilterThread implements Runnable {
 	
 	private BlockingQueue<Map<String, Object>> inputQueue;
 
-	private static OutPutQueueList outPutQueueList;
+	private static QueueList outPutQueueList;
 
 	private List<BaseFilter> filterProcessors;
 	
@@ -57,7 +56,7 @@ public class FilterThread implements Runnable {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static void initFilterThread(List<Map> filters,InputQueueList inPutQueueList,OutPutQueueList outPutQueueList) throws Exception{
+	public static void initFilterThread(List<Map> filters,QueueList inPutQueueList,QueueList outPutQueueList) throws Exception{
 		if(filterExecutor==null){
 			int size = inPutQueueList.getQueueList().size();
 			filterExecutor = new ThreadPoolExecutor(size,size,
