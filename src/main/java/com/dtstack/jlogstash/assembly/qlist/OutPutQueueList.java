@@ -48,7 +48,7 @@ public class OutPutQueueList extends QueueList{
 	private static OutPutQueueList outPutQueueList;
 		
 	public static OutPutQueueList getOutPutQueueListInstance(int queueNumber,int queueSize){
-		if(outPutQueueList!=null)return outPutQueueList;
+		if(outPutQueueList!=null){return outPutQueueList;}
 		outPutQueueList = new OutPutQueueList();
         for(int i=0;i<queueNumber;i++){
         	outPutQueueList.queueList.add(new ArrayBlockingQueue<Map<String,Object>>(queueSize));

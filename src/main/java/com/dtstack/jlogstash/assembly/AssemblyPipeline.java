@@ -58,24 +58,27 @@ public class AssemblyPipeline {
     public void assemblyPipeline() throws Exception {
         logger.info("load config start ...");
         ConfigObject configs = new YamlConfig().parse(CmdLineParams.getConfigFile());
-        logger.info("initInputQueueList start ...");
-        initInputQueueList = InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getInputQueueSize());
         List<Map> inputs = configs.getInputs();
         if (inputs == null || inputs.size() == 0) {
             throw new LogstashException("input plugin is empty");
         }
-        initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
         List<Map> outputs = configs.getOutputs();
         if (outputs == null || outputs.size() == 0) {
             throw new LogstashException("output plugin is empty");
         }
-        baseInputs = InputFactory.getBatchInstance(inputs, initInputQueueList);
-        InputThread.initInputThread(baseInputs);
+        logger.info("assemblyPipeline start ...");
         List<Map> filters = configs.getFilters();
-        if(filters != null && filters.size() >0){
+        if(filters != null && filters.size() > 0){
+            initInputQueueList = InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getInputQueueSize());
+            baseInputs = InputFactory.getBatchInstance(inputs, initInputQueueList);
+            InputThread.initInputThread(baseInputs);
+            initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
             FilterThread.initFilterThread(filters, initInputQueueList, initOutputQueueList);
             OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
         }else{
+            initInputQueueList = InputQueueList.getInputQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getInputQueueSize());
+            baseInputs = InputFactory.getBatchInstance(inputs, initInputQueueList);
+            InputThread.initInputThread(baseInputs);
             OutputThread.initOutPutThread(outputs, initInputQueueList, allBaseOutputs);
         }
         addShutDownHook();
