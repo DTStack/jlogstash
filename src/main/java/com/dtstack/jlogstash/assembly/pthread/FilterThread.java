@@ -19,19 +19,18 @@ package com.dtstack.jlogstash.assembly.pthread;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
+import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
-import com.dtstack.jlogstash.assembly.qlist.OutPutQueueList;
+import com.dtstack.jlogstash.assembly.qlist.QueueList;
 import com.dtstack.jlogstash.exception.ExceptionUtil;
 import com.dtstack.jlogstash.factory.FilterFactory;
 import com.dtstack.jlogstash.filters.BaseFilter;
-
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.LinkedBlockingQueue;
 /**
  * 
  * Reason: TODO ADD REASON(可选) 
@@ -44,24 +43,29 @@ public class FilterThread implements Runnable {
 
 	private static Logger logger = LoggerFactory.getLogger(FilterThread.class);
 	
-	private BlockingQueue<Map<String, Object>> inputQueue;
+	private BlockingQueue<Map<String, Object>> filterQueue;
 
-	private static OutPutQueueList outPutQueueList;
+	private static QueueList outPutQueueList;
 
 	private List<BaseFilter> filterProcessors;
 	
 	private static ExecutorService filterExecutor;
 	
-	public FilterThread(List<BaseFilter> filterProcessors,BlockingQueue<Map<String, Object>> inputQueue){
+	public FilterThread(List<BaseFilter> filterProcessors,BlockingQueue<Map<String, Object>> filterQueue){
 		this.filterProcessors = filterProcessors;
-		this.inputQueue = inputQueue;
+		this.filterQueue = filterQueue;
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static void initFilterThread(List<Map> filters,InputQueueList inPutQueueList,OutPutQueueList outPutQueueList) throws Exception{
-		if(filterExecutor==null)filterExecutor= Executors.newFixedThreadPool(inPutQueueList.getQueueList().size());
+	public static void initFilterThread(List<Map> filters,QueueList filterQueueList,QueueList outPutQueueList) throws Exception{
+		if(filterExecutor==null){
+			int size = filterQueueList.getQueueList().size();
+			filterExecutor = new ThreadPoolExecutor(size,size,
+					0L, TimeUnit.MILLISECONDS,
+					new LinkedBlockingQueue<Runnable>(),new LogstashThreadFactory(FilterThread.class.getName()));
+		}
 		FilterThread.outPutQueueList = outPutQueueList;
-		for(BlockingQueue<Map<String, Object>> queueList:inPutQueueList.getQueueList()){
+		for(BlockingQueue<Map<String, Object>> queueList:filterQueueList.getQueueList()){
 			List<BaseFilter> baseFilters = FilterFactory.getBatchInstance(filters);	
 			filterExecutor.submit(new FilterThread(baseFilters,queueList));
 		}
@@ -73,15 +77,16 @@ public class FilterThread implements Runnable {
 		A: while (true) {
 			Map<String, Object> event = null;
 			try {
-				event = this.inputQueue.take();
+				event = this.filterQueue.take();
 				if (filterProcessors != null) {
 					for (BaseFilter bf : filterProcessors) {
-						if (event == null || event.size() == 0)
+						if (event == null || event.size() == 0){
 							continue A;
+						}
 						bf.process(event);
 					}
 				}
-				if(event!=null)outPutQueueList.put(event);
+				if(event!=null){outPutQueueList.put(event);}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				logger.error("{}:filter event failed:{}", event, ExceptionUtil.getErrorMessage(e));

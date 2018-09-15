@@ -22,19 +22,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
-import com.dtstack.jlogstash.decoder.IDecode;
+import com.dtstack.jlogstash.assembly.qlist.QueueList;
+import com.dtstack.jlogstash.assembly.qlist.FilterQueueList;
 import com.google.common.collect.Lists;
 /**
  * 
@@ -72,21 +69,21 @@ public class MultilineDecoder implements IDecode {
 	
 	private int expiredInterval = 60 * 60 * 1000;//FIXME 失效时间不要设置超过INTEGER_MAX
 	
-	private InputQueueList inputQueueList;
+	private QueueList inputQueueList;
 	
 	private ScheduledExecutorService scheduleExecutor;
 		
-	public MultilineDecoder(String pattern, String what, InputQueueList queuelist){
+	public MultilineDecoder(String pattern, String what, QueueList queuelist){
 		init(pattern, what, queuelist);
 	}
 	
-	public MultilineDecoder(String pattern, String what, boolean negate, InputQueueList queuelist){
+	public MultilineDecoder(String pattern, String what, boolean negate, QueueList queuelist){
 		
 		this.negate = negate;
 		this.init(pattern, what, queuelist);
 	}
 		
-	public void init(String pattern, String what, InputQueueList queuelist){
+	public void init(String pattern, String what, QueueList queuelist){
 		
 		if(pattern == null || what == null){
 			logger.error("pattern and what must not be null.");
@@ -106,7 +103,7 @@ public class MultilineDecoder implements IDecode {
 		this.what = what;
 		
 		patternReg = Pattern.compile(this.pattern);
-		scheduleExecutor = Executors.newScheduledThreadPool(1);
+		scheduleExecutor = new ScheduledThreadPoolExecutor(1,new LogstashThreadFactory(MultilineDecoder.class.getName()));
 		scheduleExecutor.scheduleWithFixedDelay(new FlushMonitor(), flushInterval, flushInterval, TimeUnit.MILLISECONDS);
 	}
 

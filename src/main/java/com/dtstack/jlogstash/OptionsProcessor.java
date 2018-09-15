@@ -48,7 +48,7 @@ public class OptionsProcessor {
         Options options = new Options();
         options.addOption("dev", false, "dev mode");
 		options.addOption("h", false, "usage help");
-		options.addOption("help", false, "usage help");
+		options.addOption("p", true, "plugin path");
 		options.addOption("f", true, "configuration file");
 		options.addOption("l", true, "log file");
 		options.addOption("w", true, "filter worker number");
@@ -78,8 +78,9 @@ public class OptionsProcessor {
 	 */
 	private static void usage() {
 		StringBuilder helpInfo = new StringBuilder();
-		helpInfo.append("-h").append("\t\t\thelp command").append("\n")
-				.append("-help").append("\t\t\thelp command").append("\n")
+		helpInfo.append("dev").append("\t\t\tdev").append("\n")
+				.append("-h").append("\t\t\thelp command").append("\n")
+				.append("-p").append("\t\t\tplugin path command").append("\n")
 				.append("-f").append("\t\t\trequired config, indicate config file").append("\n")
 				.append("-l").append("\t\t\tlog file that store the output").append("\n")
 				.append("-w").append("\t\t\tfilter worker numbers").append("\n")
@@ -90,8 +91,7 @@ public class OptionsProcessor {
 				.append("vv").append("\t\t\tprint warn log").append("\n")
 				.append("vvv").append("\t\t\tprint info log").append("\n")
 				.append("vvvv").append("\t\t\tprint debug log").append("\n")
-				.append("vvvvv").append("\t\t\tprint trace log").append("\n")
-				.append("dev").append("\t\t\tdev").append("\n");
-		System.out.println(helpInfo.toString());
+				.append("vvvvv").append("\t\t\tprint trace log").append("\n");
+		         System.out.println(helpInfo.toString());
 	}
 }

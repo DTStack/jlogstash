@@ -24,6 +24,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Map;
 
+import com.dtstack.jlogstash.assembly.CmdLineParams;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,7 @@ public class JarClassLoader {
 	
 	private static Logger logger = LoggerFactory.getLogger(JarClassLoader.class);
 
-	private static String userDir = System.getProperty("user.dir");
+	private static String pluginDir = StringUtils.isNotBlank(CmdLineParams.getPluginPath())?CmdLineParams.getPluginPath():System.getProperty("user.dir");
 	
 	private Map<String,URL[]> jarUrls = null;
 	
@@ -69,20 +71,20 @@ public class JarClassLoader {
 	private Map<String,URL[]> getClassLoadJarUrls(){
 		Map<String,URL[]>  result  = Maps.newConcurrentMap();
 		try{
-			logger.warn("userDir:{}",userDir);
-			String input = String.format("%s/plugin/input", userDir);
+			logger.warn("userDir:{}",pluginDir);
+			String input = String.format("%s/plugin/input", pluginDir);
 			File finput = new File(input);
 			if(!finput.exists()){
 				throw new LogstashException(String.format("%s direcotry not found", input));
 			}
 			
-			String filter = String.format("%s/plugin/filter", userDir);
+			String filter = String.format("%s/plugin/filter", pluginDir);
 			File ffilter = new File(filter);
 		    if(!ffilter.exists()){
 				throw new LogstashException(String.format("%s direcotry not found", filter));
 			}
 			
-			String output = String.format("%s/plugin/output", userDir);
+			String output = String.format("%s/plugin/output", pluginDir);
 			File foutput = new File(output);
 			if(!foutput.exists()){
 					throw new LogstashException(String.format("%s direcotry not found", output));

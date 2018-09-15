@@ -22,6 +22,9 @@ import java.io.FileInputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
+
+import com.dtstack.jlogstash.exception.LogstashException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -40,26 +43,31 @@ public class YamlConfig implements Config{
     private static final String HTTP = "http://";
     private static final String HTTPS = "https://";
     private static Logger logger = LoggerFactory.getLogger(YamlConfig.class);
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Map parse(String filename){
-    	try{
-            Yaml yaml = new Yaml();
-            if (filename.startsWith(YamlConfig.HTTP) || filename.startsWith(YamlConfig.HTTPS)) {
-                URL httpUrl;
-                URLConnection connection;
-                httpUrl = new URL(filename);
-                connection = httpUrl.openConnection();
-                connection.connect();
-                return (Map) yaml.load(connection.getInputStream());
-            } else {
-                FileInputStream input = new FileInputStream(new File(filename));
-                return (Map) yaml.load(input);
+    public ConfigObject parse(String conf) throws Exception{
+        logger.info(conf);
+        ConfigObject configObject = null;
+            if(conf.startsWith("{")&&conf.endsWith("}")){
+                configObject =  objectMapper.readValue(conf,ConfigObject.class);
+            }else{
+                Yaml yaml = new Yaml();
+                if (conf.startsWith(YamlConfig.HTTP) || conf.startsWith(YamlConfig.HTTPS)) {
+                    URL httpUrl;
+                    URLConnection connection;
+                    httpUrl = new URL(conf);
+                    connection = httpUrl.openConnection();
+                    connection.connect();
+                    configObject =  yaml.loadAs(connection.getInputStream(),ConfigObject.class);
+                } else {
+                    FileInputStream input = new FileInputStream(new File(conf));
+                    configObject = yaml.loadAs(input,ConfigObject.class);
+                }
             }
-    	}catch(Exception e){
-    		logger.error("load yaml config error", e);
-    		System.exit(1);
-    	}
-       return null;
+        if(configObject == null){
+            throw new LogstashException("conf is error...");
+        }
+        return configObject;
     }
 }

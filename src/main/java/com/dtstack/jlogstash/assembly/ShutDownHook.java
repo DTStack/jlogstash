@@ -38,7 +38,7 @@ public class ShutDownHook {
 	
 	private Logger logger = LoggerFactory.getLogger(ShutDownHook.class);
 	
-    private QueueList initInputQueueList;
+    private QueueList initFilterQueueList;
     
     private QueueList initOutputQueueList;
 
@@ -46,8 +46,8 @@ public class ShutDownHook {
     
     private List<BaseOutput> baseOutputs;
         
-    public ShutDownHook(QueueList initInputQueueList,QueueList initOutputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
-    	this.initInputQueueList = initInputQueueList;
+    public ShutDownHook(QueueList initFilterQueueList,QueueList initOutputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
+    	this.initFilterQueueList = initFilterQueueList;
     	this.initOutputQueueList = initOutputQueueList;
     	this.baseInputs  = baseInputs;
     	this.baseOutputs = baseOutputs;
@@ -92,8 +92,8 @@ public class ShutDownHook {
 		public void run() {
 			// TODO Auto-generated method stub
 			inputRelease();
-			if(initInputQueueList!=null)initInputQueueList.queueRelease();
-			if(initOutputQueueList!=null)initOutputQueueList.queueRelease();
+			if(initFilterQueueList!=null){initFilterQueueList.queueRelease();}
+			if(initOutputQueueList!=null){initOutputQueueList.queueRelease();}
 			outPutRelease();	
 		}
 	}

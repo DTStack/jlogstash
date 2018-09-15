@@ -18,12 +18,12 @@
 package com.dtstack.jlogstash.assembly.qlist;
 
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+
+import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,17 +36,19 @@ import org.slf4j.LoggerFactory;
  * @author sishu.yss
  *
  */
-public class InputQueueList extends QueueList{
+public class FilterQueueList extends QueueList{
 
-	private static Logger logger = LoggerFactory.getLogger(InputQueueList.class);
+	private static Logger logger = LoggerFactory.getLogger(FilterQueueList.class);
     
-	private static ExecutorService executor = Executors.newFixedThreadPool(1);
+	private static ExecutorService executor =new ThreadPoolExecutor(1, 1,
+			0L, TimeUnit.MILLISECONDS,
+			new LinkedBlockingQueue<Runnable>(),new LogstashThreadFactory(FilterQueueList.class.getName()));
 
 	private final AtomicInteger pIndex = new AtomicInteger(0);
 	
 	private static int SLEEP = 1;//queue选取的间隔时间
 	
-	private static InputQueueList inputQueueList;
+	private static FilterQueueList filterQueueList;
 	
     private static int releaseSleep =1000;
 
@@ -54,14 +56,14 @@ public class InputQueueList extends QueueList{
 
 	protected ReentrantLock lock = new ReentrantLock();
 	
-	public static InputQueueList getInputQueueListInstance(int queueNumber,int queueSize){
-		if(inputQueueList!=null)return inputQueueList;
-		inputQueueList = new InputQueueList();
+	public static FilterQueueList getFilterQueueListInstance(int queueNumber, int queueSize){
+		if(filterQueueList!=null){return filterQueueList;}
+		filterQueueList = new FilterQueueList();
         for(int i=0;i<queueNumber;i++){
-        	inputQueueList.queueList.add(new ArrayBlockingQueue<Map<String,Object>>(queueSize));
+			filterQueueList.queueList.add(new ArrayBlockingQueue<Map<String,Object>>(queueSize));
         }
-        inputQueueList.startElectionIdleQueue();
-		return inputQueueList;
+		filterQueueList.startElectionIdleQueue();
+		return filterQueueList;
 	}
 	
 

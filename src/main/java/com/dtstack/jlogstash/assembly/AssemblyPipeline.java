@@ -20,7 +20,7 @@ package com.dtstack.jlogstash.assembly;
 import com.dtstack.jlogstash.assembly.pthread.FilterThread;
 import com.dtstack.jlogstash.assembly.pthread.InputThread;
 import com.dtstack.jlogstash.assembly.pthread.OutputThread;
-import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
+import com.dtstack.jlogstash.assembly.qlist.FilterQueueList;
 import com.dtstack.jlogstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.jlogstash.configs.YamlConfig;
 import com.dtstack.jlogstash.exception.LogstashException;
@@ -30,7 +30,7 @@ import com.dtstack.jlogstash.outputs.BaseOutput;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.dtstack.jlogstash.configs.ConfigObject;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ public class AssemblyPipeline {
 
     private static Logger logger = LoggerFactory.getLogger(AssemblyPipeline.class);
 
-    private InputQueueList initInputQueueList;
+    private FilterQueueList initFilterQueueList;
 
     private OutPutQueueList initOutputQueueList;
 
@@ -56,30 +56,36 @@ public class AssemblyPipeline {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void assemblyPipeline() throws Exception {
-        logger.debug("load config start ...");
-        Map configs = new YamlConfig().parse(CmdLineParams.getConfigFilePath());
-        logger.debug(configs.toString());
-        logger.debug("initInputQueueList start ...");
-        initInputQueueList = InputQueueList.getInputQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getInputQueueSize());
-        List<Map> inputs = (List<Map>) configs.get("inputs");
+        logger.info("load config start ...");
+        ConfigObject configs = new YamlConfig().parse(CmdLineParams.getConfigFile());
+        List<Map> inputs = configs.getInputs();
         if (inputs == null || inputs.size() == 0) {
             throw new LogstashException("input plugin is empty");
         }
-        initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
-        List<Map> outputs = (List<Map>) configs.get("outputs");
+        List<Map> outputs = configs.getOutputs();
         if (outputs == null || outputs.size() == 0) {
             throw new LogstashException("output plugin is empty");
         }
-        List<Map> filters = (List<Map>) configs.get("filters");
-        baseInputs = InputFactory.getBatchInstance(inputs, initInputQueueList);
-        InputThread.initInputThread(baseInputs);
-        FilterThread.initFilterThread(filters, initInputQueueList, initOutputQueueList);
-        OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
+        logger.info("assemblyPipeline start ...");
+        List<Map> filters = configs.getFilters();
+        if(filters != null && filters.size() > 0){
+            initFilterQueueList = FilterQueueList.getFilterQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getFilterQueueSize());
+            baseInputs = InputFactory.getBatchInstance(inputs, initFilterQueueList);
+            InputThread.initInputThread(baseInputs);
+            initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
+            FilterThread.initFilterThread(filters, initFilterQueueList, initOutputQueueList);
+            OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
+        }else{
+            initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
+            baseInputs = InputFactory.getBatchInstance(inputs, initOutputQueueList);
+            InputThread.initInputThread(baseInputs);
+            OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
+        }
         addShutDownHook();
     }
 
     private void addShutDownHook() {
-        ShutDownHook shutDownHook = new ShutDownHook(initInputQueueList, initOutputQueueList, baseInputs, allBaseOutputs);
+        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs);
         shutDownHook.addShutDownHook();
     }
 }

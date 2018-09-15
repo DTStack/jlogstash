@@ -19,13 +19,12 @@ package com.dtstack.jlogstash.assembly.pthread;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
+import com.dtstack.jlogstash.assembly.qlist.QueueList;
+import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.jlogstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.jlogstash.exception.ExceptionUtil;
 import com.dtstack.jlogstash.factory.OutputFactory;
@@ -57,8 +56,13 @@ public class OutputThread implements Runnable{
     }
     
 	@SuppressWarnings("rawtypes")
-	public static  void initOutPutThread(List<Map> outputs,OutPutQueueList outPutQueueList,List<BaseOutput> allBaseOutputs) throws Exception{
-		if(outputExecutor==null)outputExecutor= Executors.newFixedThreadPool(outPutQueueList.getQueueList().size());
+	public static  void initOutPutThread(List<Map> outputs, QueueList outPutQueueList, List<BaseOutput> allBaseOutputs) throws Exception{
+		if(outputExecutor==null){
+			int size = outPutQueueList.getQueueList().size();
+			outputExecutor =  new ThreadPoolExecutor(size,size,
+					0L, TimeUnit.MILLISECONDS,
+					new LinkedBlockingQueue<Runnable>(),new LogstashThreadFactory(OutputThread.class.getName()));
+		}
 		for(BlockingQueue<Map<String, Object>> queueList:outPutQueueList.getQueueList()){
 			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);
 			allBaseOutputs.addAll(baseOutputs);

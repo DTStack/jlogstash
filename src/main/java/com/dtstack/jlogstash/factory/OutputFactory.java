@@ -68,7 +68,7 @@ public class OutputFactory extends InstanceFactory{
 				    outputClass = getPluginClass(outputType,PLUGINTYPE,className);
 				    outputsClassLoader.put(key, outputClass);
 				}
-				if(outputConfig==null)outputConfig=Maps.newLinkedHashMap();
+				if(outputConfig==null){outputConfig=Maps.newLinkedHashMap();}
 				baseoutputs.add(getInstance(outputType,outputConfig,outputClass));
 			}
 		}

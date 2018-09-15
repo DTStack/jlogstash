@@ -22,8 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import com.dtstack.jlogstash.assembly.qlist.InputQueueList;
+import com.dtstack.jlogstash.assembly.qlist.QueueList;
 import com.dtstack.jlogstash.inputs.BaseInput;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -51,7 +50,7 @@ public class InputFactory extends InstanceFactory{
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static List<BaseInput> getBatchInstance(List<Map> inputs,InputQueueList inputQueueList) throws Exception{
+	public static List<BaseInput> getBatchInstance(List<Map> inputs,QueueList inputQueueList) throws Exception{
 		BaseInput.setInputQueueList(inputQueueList);
 		List<BaseInput> baseinputs =Lists.newArrayList();
 		for (Map input:inputs) {
@@ -60,7 +59,7 @@ public class InputFactory extends InstanceFactory{
 				Map.Entry<String, Map> inputEntry = inputIT.next();
 				String inputType = inputEntry.getKey();
 				Map inputConfig = inputEntry.getValue();
-				if(inputConfig==null)inputConfig=Maps.newLinkedHashMap();
+				if(inputConfig==null){inputConfig=Maps.newLinkedHashMap();}
 			    Class<?> inputClass = getPluginClass(inputType, PLUGINTYPE,getClassName(inputType,PLUGINTYPE));
 				BaseInput baseInput =getInstance(inputType, inputConfig,inputClass);
 				baseinputs.add(baseInput);

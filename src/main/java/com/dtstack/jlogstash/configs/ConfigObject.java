@@ -17,16 +17,40 @@
  */
 package com.dtstack.jlogstash.configs;
 
+import java.util.Map;
+import java.util.List;
 /**
- * 
- * Reason: TODO ADD REASON(可选)
- * Date: 2016年8月31日 下午1:25:40
- * Company: www.dtstack.com
- * @author sishu.yss
- *
+ * Created by sishu.yss on 2018/8/23.
  */
-public interface Config {
+public class ConfigObject {
 
-	 public ConfigObject parse(String conf)throws Exception;
-	
+    private List<Map> inputs;
+
+    private List<Map> filters;
+
+    private List<Map> outputs;
+
+    public List<Map> getInputs() {
+        return inputs;
+    }
+
+    public void setInputs(List<Map> inputs) {
+        this.inputs = inputs;
+    }
+
+    public List<Map> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(List<Map> filters) {
+        this.filters = filters;
+    }
+
+    public List<Map> getOutputs() {
+        return outputs;
+    }
+
+    public void setOutputs(List<Map> outputs) {
+        this.outputs = outputs;
+    }
 }
