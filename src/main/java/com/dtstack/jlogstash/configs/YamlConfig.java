@@ -28,6 +28,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import org.codehaus.jackson.JsonParser.Feature;
 
 
 /**
@@ -44,6 +45,10 @@ public class YamlConfig implements Config{
     private static final String HTTPS = "https://";
     private static Logger logger = LoggerFactory.getLogger(YamlConfig.class);
     private static ObjectMapper objectMapper = new ObjectMapper();
+    static {
+        objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);//设置可用单引号
+        objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);//设置字段可以不
+    }
 
     @Override
     public ConfigObject parse(String conf) throws Exception{
