@@ -9,5 +9,8 @@ plugin/
 *.iml
 RemoteSystemsTempFiles/
 logs/
+conf/
 dependency-reduced-pom.xml
 jlogstash.iml
+lib/
+

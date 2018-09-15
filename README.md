@@ -69,4 +69,5 @@
     kafka-1.0.0-with-dependencies.jar 
     
 # 招聘：
-   https://m.zhipin.com/weijd/v2/job/de2292afc38d32fe1XV73t25EFU~?date8=20180609&sid=self_jd&from=singlemessage&isappinstalled=0
+   1.大数据平台开发工程师，想了解岗位详细信息可以添加本人微信号ysqwhiletrue,注明招聘，如有意者发送简历至sishu@dtstack.com。
+  
