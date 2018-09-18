@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.util.Map;
 
 import com.dtstack.jlogstash.exception.LogstashException;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.codehaus.jackson.JsonParser.Feature;
+import sun.misc.BASE64Decoder;
 
 
 /**
@@ -45,6 +47,7 @@ public class YamlConfig implements Config{
     private static final String HTTPS = "https://";
     private static Logger logger = LoggerFactory.getLogger(YamlConfig.class);
     private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final BASE64Decoder decoder = new BASE64Decoder();
     static {
         objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);//设置可用单引号
         objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);//设置字段可以不
@@ -52,24 +55,27 @@ public class YamlConfig implements Config{
 
     @Override
     public ConfigObject parse(String conf) throws Exception{
+
         logger.info(conf);
+        conf = URLDecoder.decode(conf, "UTF-8");
         ConfigObject configObject = null;
-            if(conf.startsWith("{")&&conf.endsWith("}")){
-                configObject =  objectMapper.readValue(conf,ConfigObject.class);
-            }else{
-                Yaml yaml = new Yaml();
-                if (conf.startsWith(YamlConfig.HTTP) || conf.startsWith(YamlConfig.HTTPS)) {
-                    URL httpUrl;
-                    URLConnection connection;
-                    httpUrl = new URL(conf);
-                    connection = httpUrl.openConnection();
-                    connection.connect();
-                    configObject =  yaml.loadAs(connection.getInputStream(),ConfigObject.class);
-                } else {
-                    FileInputStream input = new FileInputStream(new File(conf));
-                    configObject = yaml.loadAs(input,ConfigObject.class);
-                }
+        if(conf.startsWith("{")&&conf.endsWith("}")){
+            configObject =  objectMapper.readValue(conf,ConfigObject.class);
+        }else{
+            Yaml yaml = new Yaml();
+            if (conf.startsWith(YamlConfig.HTTP) || conf.startsWith(YamlConfig.HTTPS)) {
+                URL httpUrl;
+                URLConnection connection;
+                httpUrl = new URL(conf);
+                connection = httpUrl.openConnection();
+                connection.connect();
+                configObject =  yaml.loadAs(connection.getInputStream(),ConfigObject.class);
+            } else {
+                FileInputStream input = new FileInputStream(new File(conf));
+                configObject = yaml.loadAs(input,ConfigObject.class);
             }
+        }
+
         if(configObject == null){
             throw new LogstashException("conf is error...");
         }

@@ -262,31 +262,5 @@
             <version>0.1.4</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>output.stdout</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>input.stdin</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>filter.splitStr</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>output.kafka10</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>input.file</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 </project>
