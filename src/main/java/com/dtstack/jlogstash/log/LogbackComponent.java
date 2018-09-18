@@ -18,7 +18,6 @@
 package com.dtstack.jlogstash.log;
 
 import ch.qos.logback.classic.Logger;
-import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import org.slf4j.LoggerFactory;
 import com.dtstack.jlogstash.assembly.CmdLineParams;
