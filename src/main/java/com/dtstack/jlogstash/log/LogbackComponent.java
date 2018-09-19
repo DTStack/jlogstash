@@ -18,6 +18,7 @@
 package com.dtstack.jlogstash.log;
 
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import org.slf4j.LoggerFactory;
 import com.dtstack.jlogstash.assembly.CmdLineParams;
@@ -44,44 +45,53 @@ public class LogbackComponent extends LogComponent{
 	
 	@Override
 	public void setupLogger() {
-	    String file = checkFile();
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger newLogger =loggerContext.getLogger("ROOT");
-        //Remove all previously added appenders from this logger instance.
-        newLogger.detachAndStopAllAppenders();
-        //define appender
-        RollingFileAppender<ILoggingEvent> appender = new RollingFileAppender<ILoggingEvent>();
-		//policy
-		TimeBasedRollingPolicy<ILoggingEvent> policy = new TimeBasedRollingPolicy<ILoggingEvent>();
-		policy.setContext(loggerContext);
-		policy.setMaxHistory(day);
-		policy.setFileNamePattern(formateLogFile(file));
-		policy.setParent(appender);
-		policy.start();
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		Logger newLogger =loggerContext.getLogger("ROOT");
+
+		//Remove all previously added appenders from this logger instance.
+		newLogger.detachAndStopAllAppenders();
+
 		//encoder
 		PatternLayoutEncoder encoder = new PatternLayoutEncoder();
 		encoder.setContext(loggerContext);
 		encoder.setPattern(formatePattern);
 		encoder.start();
-		//start appender
-		appender.setRollingPolicy(policy);
-		appender.setContext(loggerContext);
-		appender.setEncoder(encoder);
-		appender.setPrudent(true); //support that multiple JVMs can safely write to the same file.
-		appender.start();
-        newLogger.addAppender(appender);
 
-		ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
-		consoleAppender.setContext(loggerContext);
-		consoleAppender.setEncoder(encoder);
-		consoleAppender.start();
-		newLogger.addAppender(consoleAppender);
+	    String file = checkFile();
+		if(file.equalsIgnoreCase("stdout")) {
+			ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
+			consoleAppender.setContext(loggerContext);
+			consoleAppender.setEncoder(encoder);
+			consoleAppender.start();
+			newLogger.addAppender(consoleAppender);
+		}  else {
+			RollingFileAppender<ILoggingEvent> appender = new RollingFileAppender<ILoggingEvent>();
+			//policy
+			TimeBasedRollingPolicy<ILoggingEvent> policy = new TimeBasedRollingPolicy<ILoggingEvent>();
+			policy.setContext(loggerContext);
+			policy.setMaxHistory(day);
+			policy.setFileNamePattern(formateLogFile(file));
+			policy.setParent(appender);
+			policy.start();
+
+			//start appender
+			appender.setRollingPolicy(policy);
+			appender.setContext(loggerContext);
+			appender.setEncoder(encoder);
+			appender.setPrudent(true); //support that multiple JVMs can safely write to the same file.
+			appender.start();
+			newLogger.addAppender(appender);
+		}
 
         //setup level
         setLevel(newLogger);
         //remove the appenders that inherited 'ROOT'.
         newLogger.setAdditive(false);
 
+	}
+
+	private Appender setupAppender() {
+		return null;
 	}
 	
 	private String formateLogFile(String file){
