@@ -34,8 +34,8 @@ import com.dtstack.jlogstash.log.LogbackComponent;
  * @author sishu.yss
  *
  */
-public class Main {
-	private static final Logger logger = LoggerFactory.getLogger(Main.class);
+public class JlogstashMain {
+	private static final Logger logger = LoggerFactory.getLogger(JlogstashMain.class);
 	
 	private static AssemblyPipeline assemblyPipeline = new AssemblyPipeline();
 	

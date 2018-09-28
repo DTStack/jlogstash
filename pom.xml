@@ -73,7 +73,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.dtstack.jlogstash.Main</mainClass>
+                                    <mainClass>com.dtstack.jlogstash.JlogstashMain</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
