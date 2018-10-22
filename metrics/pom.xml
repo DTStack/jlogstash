@@ -7,6 +7,7 @@
         <groupId>com.dtstack.jlogstash</groupId>
         <artifactId>jlogstash-all</artifactId>
         <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>metrics.plugin</artifactId>
@@ -21,7 +22,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <scope>provided</scope>
+            <version>1.7.25</version>
         </dependency>
     </dependencies>
 

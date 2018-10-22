@@ -18,6 +18,7 @@
 
 package com.dtstack.jlogstash.metrics;
 
+
 import java.util.Map;
 
 /**
@@ -110,4 +111,13 @@ public interface MetricGroup {
 	 * @return the created group
 	 */
 	MetricGroup addGroup(String name);
+
+
+	/**
+	 * Returns a map of all variables and their associated value, for example
+	 * {@code {"<host>"="host-7", "<tm_id>"="taskmanager-2"}}.
+	 *
+	 * @return map of all variables and their associated value
+	 */
+	Map<String, String> getAllVariables();
 }
