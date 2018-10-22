@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.dtstack.jlogstash</groupId>
+        <artifactId>jlogstash-all</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>input.plugin</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>beats</module>
+        <module>elasticsearch</module>
+        <module>file</module>
+        <module>jdbc</module>
+        <module>kafka</module>
+        <module>kafka10</module>
+        <module>kafkadistributed</module>
+        <module>mongodb</module>
+        <module>netty</module>
+        <module>redis</module>
+        <module>stdin</module>
+        <module>tcp</module>
+        <module>binlog</module>
+    </modules>
+</project>

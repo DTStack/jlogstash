@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.dtstack.jlogstash</groupId>
+        <artifactId>jlogstash-all</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>filter.plugin</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>add</module>
+        <module>dateiso8601</module>
+        <module>geoip2</module>
+        <module>grok</module>
+        <module>gsub</module>
+        <module>ipip</module>
+        <module>java</module>
+        <module>json</module>
+        <module>kv</module>
+        <module>lowercase</module>
+        <module>performance</module>
+        <module>remove</module>
+        <module>rename</module>
+        <module>replace</module>
+        <module>trim</module>
+        <module>ua</module>
+        <module>uppercase</module>
+        <module>urldecode</module>
+        <module>splitStr</module>
+        <module>split</module>
+    </modules>
+</project>

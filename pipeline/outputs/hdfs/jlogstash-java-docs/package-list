@@ -1,0 +1,5 @@
+com.dtstack.jlogstash.format
+com.dtstack.jlogstash.format.plugin
+com.dtstack.jlogstash.format.util
+com.dtstack.jlogstash.outputs
+org.apache.hadoop.mapred
