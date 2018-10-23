@@ -20,6 +20,8 @@ package com.dtstack.jlogstash.metrics;
 
 /**
  * A simple low-overhead {@link Counter} that is not thread-safe.
+ *
+ * copy from https://github.com/apache/flink
  */
 public class SimpleCounter implements Counter {
 

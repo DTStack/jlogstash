@@ -21,14 +21,18 @@ package com.dtstack.jlogstash.metrics;
 /**
  * copy from https://github.com/apache/flink
  *
- * A Gauge is a {@link Metric} that calculates a specific value at a point in time.
+ * Interface for a character filter function. The filter function is given a string which the filter
+ * can transform. The returned string is the transformation result.
  */
-public interface Gauge<T> extends Metric {
+public interface CharacterFilter {
 
 	/**
-	 * Calculates and returns the measured value.
+	 * Filter the given string and generate a resulting string from it.
 	 *
-	 * @return calculated value
+	 * <p>For example, one implementation could filter out invalid characters from the input string.
+	 *
+	 * @param input Input string
+	 * @return Filtered result string
 	 */
-	T getValue();
+	String filterCharacters(String input);
 }

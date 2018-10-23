@@ -18,6 +18,9 @@
 
 package com.dtstack.jlogstash.metrics.groups;
 
+/**
+ * copy from https://github.com/apache/flink
+ */
 public class FrontMetricGroup<P extends AbstractMetricGroup<?>> extends ProxyMetricGroup<P> {
 
 	protected int reporterIndex;

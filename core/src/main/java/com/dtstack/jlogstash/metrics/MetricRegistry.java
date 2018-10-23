@@ -21,6 +21,8 @@ package com.dtstack.jlogstash.metrics;
 import com.dtstack.jlogstash.metrics.groups.AbstractMetricGroup;
 
 /**
+ * copy from https://github.com/apache/flink
+ *
  * Interface for a metric registry.
  */
 public interface MetricRegistry {

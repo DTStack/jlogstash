@@ -19,6 +19,9 @@
 package com.dtstack.jlogstash.metrics;
 
 /**
+ *
+ * copy from https://github.com/apache/flink
+ *
  * Common super interface for all metrics.
  */
 public interface Metric {

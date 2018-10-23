@@ -18,12 +18,14 @@
 
 package com.dtstack.jlogstash.metrics.groups;
 
+import com.dtstack.jlogstash.metrics.CharacterFilter;
 import com.dtstack.jlogstash.metrics.Counter;
 import com.dtstack.jlogstash.metrics.Gauge;
 import com.dtstack.jlogstash.metrics.Metric;
 import com.dtstack.jlogstash.metrics.MetricGroup;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
 import com.dtstack.jlogstash.metrics.SimpleCounter;
+import com.dtstack.jlogstash.metrics.scope.ScopeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,8 @@ import java.util.Map;
 import static com.dtstack.jlogstash.metrics.util.Preconditions.checkNotNull;
 
 /**
+ * copy from https://github.com/apache/flink
+ *
  * Abstract {@link MetricGroup} that contains key functionality for adding metrics and groups.
  *
  * <p><b>IMPORTANT IMPLEMENTATION NOTE</b>
@@ -139,9 +143,57 @@ public abstract class AbstractMetricGroup<A extends AbstractMetricGroup<?>> impl
 	 * @return fully qualified metric name
 	 */
 	public String getMetricIdentifier(String metricName) {
-		return metricName;
+		return getMetricIdentifier(metricName, null);
 	}
 
+
+	/**
+	 * Returns the fully qualified metric name, for example
+	 * {@code "host-7.taskmanager-2.window_word_count.my-mapper.metricName"}.
+	 *
+	 * @param metricName metric name
+	 * @param filter character filter which is applied to the scope components if not null.
+	 * @return fully qualified metric name
+	 */
+	public String getMetricIdentifier(String metricName, CharacterFilter filter) {
+		return getMetricIdentifier(metricName, filter, -1);
+	}
+
+	/**
+	 * Returns the fully qualified metric name using the configured delimiter for the reporter with the given index, for example
+	 * {@code "host-7.taskmanager-2.window_word_count.my-mapper.metricName"}.
+	 *
+	 * @param metricName metric name
+	 * @param filter character filter which is applied to the scope components if not null.
+	 * @param reporterIndex index of the reporter whose delimiter should be used
+	 * @return fully qualified metric name
+	 */
+	public String getMetricIdentifier(String metricName, CharacterFilter filter, int reporterIndex) {
+		if (scopeStrings.length == 0 || (reporterIndex < 0 || reporterIndex >= scopeStrings.length)) {
+			char delimiter = registry.getDelimiter();
+			String newScopeString;
+			if (filter != null) {
+				newScopeString = ScopeFormat.concat(filter, delimiter, scopeComponents);
+				metricName = filter.filterCharacters(metricName);
+			} else {
+				newScopeString = ScopeFormat.concat(delimiter, scopeComponents);
+			}
+			return newScopeString + delimiter + metricName;
+		} else {
+			char delimiter = registry.getDelimiter(reporterIndex);
+			if (scopeStrings[reporterIndex] == null) {
+				if (filter != null) {
+					scopeStrings[reporterIndex] = ScopeFormat.concat(filter, delimiter, scopeComponents);
+				} else {
+					scopeStrings[reporterIndex] = ScopeFormat.concat(delimiter, scopeComponents);
+				}
+			}
+			if (filter != null) {
+				metricName = filter.filterCharacters(metricName);
+			}
+			return scopeStrings[reporterIndex] + delimiter + metricName;
+		}
+	}
 
 	// ------------------------------------------------------------------------
 	//  Closing

@@ -22,6 +22,9 @@ package com.dtstack.jlogstash.metrics;
 import java.util.Map;
 
 /**
+ *
+ * copy from https://github.com/apache/flink
+ *
  * A MetricGroup is a named container for {@link Metric Metrics} and further metric subgroups.
  *
  * <p>Instances of this class can be used to register new metrics with jLogstash and to create a nested
@@ -111,6 +114,14 @@ public interface MetricGroup {
 	 * @return the created group
 	 */
 	MetricGroup addGroup(String name);
+
+	/**
+	 * Gets the scope as an array of the scope components, for example
+	 * {@code ["host-7", "taskmanager-2", "window_word_count", "my-mapper"]}.
+	 *
+	 * @see #getMetricIdentifier(String)
+	 */
+	String[] getScopeComponents();
 
 
 	/**

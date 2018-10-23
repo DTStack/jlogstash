@@ -19,6 +19,8 @@
 package com.dtstack.jlogstash.metrics;
 
 /**
+ * copy from https://github.com/apache/flink
+ *
  * A Counter is a {@link Metric} that measures a count.
  */
 public interface Counter extends Metric {

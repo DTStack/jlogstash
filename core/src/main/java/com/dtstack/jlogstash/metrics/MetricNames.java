@@ -19,6 +19,8 @@
 package com.dtstack.jlogstash.metrics;
 
 /**
+ * copy from https://github.com/apache/flink
+ *
  * Collection of metric names.
  */
 public class MetricNames {

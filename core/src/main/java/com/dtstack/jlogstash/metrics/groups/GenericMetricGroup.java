@@ -20,6 +20,9 @@ package com.dtstack.jlogstash.metrics.groups;
 
 import com.dtstack.jlogstash.metrics.MetricRegistry;
 
+/**
+ * copy from https://github.com/apache/flink
+ */
 public class GenericMetricGroup extends AbstractMetricGroup<AbstractMetricGroup<?>> {
 
 	/** The name of this group. */

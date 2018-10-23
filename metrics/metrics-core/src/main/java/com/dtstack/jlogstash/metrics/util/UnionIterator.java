@@ -23,6 +23,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * copy from https://github.com/apache/flink
+ */
 public class UnionIterator<T> implements Iterator<T>, Iterable<T> {
 	
 	private Iterator<T> currentIterator;

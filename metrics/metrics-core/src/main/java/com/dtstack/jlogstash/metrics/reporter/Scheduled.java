@@ -19,6 +19,8 @@
 package com.dtstack.jlogstash.metrics.reporter;
 
 /**
+ * copy from https://github.com/apache/flink
+ *
  * Interface for reporters that actively send out data periodically.
  */
 public interface Scheduled {

@@ -27,6 +27,9 @@ import java.util.Map;
 import static com.dtstack.jlogstash.metrics.util.Preconditions.checkNotNull;
 
 /**
+ *
+ * copy from https://github.com/apache/flink
+ *
  * Metric group which forwards all registration calls to its parent metric group.
  *
  * @param <P> Type of the parent metric group
@@ -77,6 +80,11 @@ public class ProxyMetricGroup<P extends MetricGroup> implements MetricGroup {
     @Override
     public final MetricGroup addGroup(String name) {
         return parentMetricGroup.addGroup(name);
+    }
+
+    @Override
+    public String[] getScopeComponents() {
+        return parentMetricGroup.getScopeComponents();
     }
 
     @Override

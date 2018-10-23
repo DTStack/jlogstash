@@ -5,6 +5,8 @@ import com.dtstack.jlogstash.metrics.MetricConfig;
 import com.dtstack.jlogstash.metrics.MetricGroup;
 
 /**
+ * copy from https://github.com/apache/flink
+ *
  * Reporters are used to export {@link Metric Metrics} to an external backend.
  *
  * <p>Reporters are instantiated via reflection and must be public, non-abstract, and have a

@@ -21,6 +21,9 @@ package com.dtstack.jlogstash.metrics;
 import java.util.Properties;
 
 /**
+ *
+ * copy from https://github.com/apache/flink
+ *
  * A properties class with added utility method to extract primitives.
  */
 public class MetricConfig extends Properties {
