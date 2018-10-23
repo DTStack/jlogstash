@@ -65,6 +65,14 @@
 
     <dependencies>
 
+
+        <dependency>
+            <groupId>com.dtstack.jlogstash</groupId>
+            <artifactId>jlogstash</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.dtstack.jlogstash</groupId>
             <artifactId>metrics-core</artifactId>

@@ -18,6 +18,7 @@
 
 package com.dtstack.jlogstash.metrics.groups;
 
+import com.dtstack.jlogstash.metrics.CharacterFilter;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
 
 /**
@@ -49,7 +50,7 @@ public class GenericMetricGroup extends AbstractMetricGroup<AbstractMetricGroup<
 	}
 
 	@Override
-	protected String getGroupName() {
-		return name;
+	protected String getGroupName(CharacterFilter filter) {
+		return filter.filterCharacters(name);
 	}
 }

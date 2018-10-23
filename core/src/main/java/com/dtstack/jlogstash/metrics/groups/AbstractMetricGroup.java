@@ -117,13 +117,41 @@ public abstract class AbstractMetricGroup<A extends AbstractMetricGroup<?>> impl
 		return variables;
 	}
 
+	/**
+	 * Returns the logical scope of this group, for example
+	 * {@code "taskmanager.job.task"}.
+	 *
+	 * @param filter character filter which is applied to the scope components
+	 * @return logical scope
+	 */
+	public String getLogicalScope(CharacterFilter filter) {
+		return getLogicalScope(filter, registry.getDelimiter());
+	}
+
+	/**
+	 * Returns the logical scope of this group, for example
+	 * {@code "taskmanager.job.task"}.
+	 *
+	 * @param filter character filter which is applied to the scope components
+	 * @return logical scope
+	 */
+	public String getLogicalScope(CharacterFilter filter, char delimiter) {
+		if (logicalScopeString == null) {
+			if (parent == null) {
+				logicalScopeString = getGroupName(filter);
+			} else {
+				logicalScopeString = parent.getLogicalScope(filter, delimiter) + delimiter + getGroupName(filter);
+			}
+		}
+		return logicalScopeString;
+	}
 
 	/**
 	 * Returns the name for this group, meaning what kind of entity it represents, for example "inputs".
 	 *
 	 * @return logical name for this group
 	 */
-	protected abstract String getGroupName();
+	protected abstract String getGroupName(CharacterFilter filter);
 
 	/**
 	 * Gets the scope as an array of the scope components, for example

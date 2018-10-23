@@ -18,11 +18,14 @@
 
 package com.dtstack.jlogstash.metrics.prometheus;
 
+import com.dtstack.jlogstash.metrics.CharacterFilter;
 import com.dtstack.jlogstash.metrics.Counter;
 import com.dtstack.jlogstash.metrics.Gauge;
 import com.dtstack.jlogstash.metrics.Metric;
 import com.dtstack.jlogstash.metrics.MetricConfig;
 import com.dtstack.jlogstash.metrics.MetricGroup;
+import com.dtstack.jlogstash.metrics.groups.AbstractMetricGroup;
+import com.dtstack.jlogstash.metrics.groups.FrontMetricGroup;
 import com.dtstack.jlogstash.metrics.reporter.MetricReporter;
 import com.dtstack.jlogstash.metrics.util.NetUtils;
 import io.prometheus.client.Collector;
@@ -53,6 +56,12 @@ public class PrometheusReporter implements MetricReporter {
     private static final String DEFAULT_PORT = "9249";
 
     private static final Pattern UNALLOWED_CHAR_PATTERN = Pattern.compile("[^a-zA-Z0-9:_]");
+    private static final CharacterFilter CHARACTER_FILTER = new CharacterFilter() {
+        @Override
+        public String filterCharacters(String input) {
+            return replaceInvalidChars(input);
+        }
+    };
 
     private static final char SCOPE_SEPARATOR = '_';
     private static final String SCOPE_PREFIX = "jlogstash" + SCOPE_SEPARATOR;
@@ -111,8 +120,8 @@ public class PrometheusReporter implements MetricReporter {
         List<String> dimensionValues = new LinkedList<>();
         for (final Map.Entry<String, String> dimension : group.getAllVariables().entrySet()) {
             final String key = dimension.getKey();
-            dimensionKeys.add(replaceInvalidChars(key.substring(1, key.length() - 1)));
-            dimensionValues.add(replaceInvalidChars(dimension.getValue()));
+            dimensionKeys.add(CHARACTER_FILTER.filterCharacters(key.substring(1, key.length() - 1)));
+            dimensionValues.add(CHARACTER_FILTER.filterCharacters(dimension.getValue()));
         }
 
         final String scopedMetricName = getScopedName(metricName, group);
@@ -140,7 +149,7 @@ public class PrometheusReporter implements MetricReporter {
     }
 
     private static String getScopedName(String metricName, MetricGroup group) {
-        return SCOPE_PREFIX + getLogicalScope(group) + SCOPE_SEPARATOR + replaceInvalidChars(metricName);
+        return SCOPE_PREFIX + getLogicalScope(group) + SCOPE_SEPARATOR + CHARACTER_FILTER.filterCharacters(metricName);
     }
 
     private static Collector createCollector(Metric metric, List<String> dimensionKeys, List<String> dimensionValues, String scopedMetricName, String helpString) {
@@ -187,7 +196,7 @@ public class PrometheusReporter implements MetricReporter {
 
         List<String> dimensionValues = new LinkedList<>();
         for (final Map.Entry<String, String> dimension : group.getAllVariables().entrySet()) {
-            dimensionValues.add(replaceInvalidChars(dimension.getValue()));
+            dimensionValues.add(CHARACTER_FILTER.filterCharacters(dimension.getValue()));
         }
 
         final String scopedMetricName = getScopedName(metricName, group);
@@ -213,8 +222,7 @@ public class PrometheusReporter implements MetricReporter {
 
     @SuppressWarnings("unchecked")
     private static String getLogicalScope(MetricGroup group) {
-        return "";
-//        return ((FrontMetricGroup<AbstractMetricGroup<?>>) group).getLogicalScope(CHARACTER_FILTER, SCOPE_SEPARATOR);
+        return ((FrontMetricGroup<AbstractMetricGroup<?>>) group).getLogicalScope(CHARACTER_FILTER, SCOPE_SEPARATOR);
     }
 
     static io.prometheus.client.Gauge.Child gaugeFrom(Gauge gauge) {

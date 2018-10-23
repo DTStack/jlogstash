@@ -18,6 +18,8 @@
 
 package com.dtstack.jlogstash.metrics.groups;
 
+import com.dtstack.jlogstash.metrics.CharacterFilter;
+
 /**
  * copy from https://github.com/apache/flink
  */
@@ -33,5 +35,13 @@ public class FrontMetricGroup<P extends AbstractMetricGroup<?>> extends ProxyMet
 	@Override
 	public String getMetricIdentifier(String metricName) {
 		return parentMetricGroup.getMetricIdentifier(metricName);
+	}
+
+	public String getLogicalScope(CharacterFilter filter) {
+		return parentMetricGroup.getLogicalScope(filter);
+	}
+
+	public String getLogicalScope(CharacterFilter filter, char delimiter) {
+		return parentMetricGroup.getLogicalScope(filter, delimiter);
 	}
 }
