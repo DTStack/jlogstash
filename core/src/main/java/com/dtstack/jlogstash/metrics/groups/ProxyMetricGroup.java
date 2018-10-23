@@ -20,6 +20,7 @@ package com.dtstack.jlogstash.metrics.groups;
 
 import com.dtstack.jlogstash.metrics.Counter;
 import com.dtstack.jlogstash.metrics.Gauge;
+import com.dtstack.jlogstash.metrics.Meter;
 import com.dtstack.jlogstash.metrics.MetricGroup;
 
 import java.util.Map;
@@ -70,6 +71,16 @@ public class ProxyMetricGroup<P extends MetricGroup> implements MetricGroup {
     @Override
     public final <T, G extends Gauge<T>> G gauge(String name, G gauge) {
         return parentMetricGroup.gauge(name, gauge);
+    }
+
+    @Override
+    public <M extends Meter> M meter(String name, M meter) {
+        return parentMetricGroup.meter(name, meter);
+    }
+
+    @Override
+    public <M extends Meter> M meter(int name, M meter) {
+        return parentMetricGroup.meter(name, meter);
     }
 
     @Override

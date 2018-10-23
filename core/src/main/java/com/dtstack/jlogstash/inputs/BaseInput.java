@@ -28,6 +28,7 @@ package com.dtstack.jlogstash.inputs;
  */
 import java.util.Map;
 
+import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.jlogstash.assembly.qlist.QueueList;
@@ -51,7 +52,8 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     protected Map<String, Object> addFields=null;
     
     protected static BasePluginUtil basePluginUtil = new BasePluginUtil();
-    
+
+    private static MetricRegistryImpl metricRegistry;
 
     public IDecode createDecoder() {
         String codec = (String) this.config.get("codec");
@@ -130,5 +132,9 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 
 	public static QueueList getInputQueueList() {
 		return inputQueueList;
+	}
+
+	public static void setMetricRegistry(MetricRegistryImpl metricRegistry) {
+		BaseInput.metricRegistry = metricRegistry;
 	}
 }

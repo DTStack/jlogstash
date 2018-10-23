@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,8 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 	protected boolean consistency =false;
 	
 	public BlockingQueue<Object> failedMsgQueue = Queues.newLinkedBlockingDeque();
+
+	private static MetricRegistryImpl metricRegistry;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public BaseOutput(Map config) {
@@ -148,5 +151,9 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 	@Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
-    }   
+    }
+
+    public static void setMetricRegistry(MetricRegistryImpl metricRegistry) {
+		BaseOutput.metricRegistry = metricRegistry;
+    }
 }

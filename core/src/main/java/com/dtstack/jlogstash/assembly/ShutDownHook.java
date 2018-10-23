@@ -19,6 +19,7 @@ package com.dtstack.jlogstash.assembly;
 
 import java.util.List;
 
+import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +46,19 @@ public class ShutDownHook {
     private List<BaseInput> baseInputs; 
     
     private List<BaseOutput> baseOutputs;
+
+    private MetricRegistryImpl metricRegistry;
         
-    public ShutDownHook(QueueList initFilterQueueList,QueueList initOutputQueueList,List<BaseInput> baseInputs,List<BaseOutput> baseOutputs){
+    public ShutDownHook(QueueList initFilterQueueList,
+						QueueList initOutputQueueList,
+						List<BaseInput> baseInputs,
+						List<BaseOutput> baseOutputs,
+						MetricRegistryImpl metricRegistry){
     	this.initFilterQueueList = initFilterQueueList;
     	this.initOutputQueueList = initOutputQueueList;
     	this.baseInputs  = baseInputs;
     	this.baseOutputs = baseOutputs;
+    	this.metricRegistry = metricRegistry;
     }
 	
 	public void addShutDownHook(){
@@ -86,7 +94,14 @@ public class ShutDownHook {
 				logger.error("outPutRelease error:{}",e.getMessage());
 			}
 		}
-		
+
+		private void metricsRelease(){
+			// metrics shutdown
+			if (metricRegistry != null) {
+				metricRegistry.shutdown();
+				metricRegistry = null;
+			}
+		}
 
 		@Override
 		public void run() {
@@ -94,7 +109,8 @@ public class ShutDownHook {
 			inputRelease();
 			if(initFilterQueueList!=null){initFilterQueueList.queueRelease();}
 			if(initOutputQueueList!=null){initOutputQueueList.queueRelease();}
-			outPutRelease();	
+			outPutRelease();
+			metricsRelease();
 		}
 	}
 }

@@ -21,6 +21,7 @@ package com.dtstack.jlogstash.metrics.groups;
 import com.dtstack.jlogstash.metrics.CharacterFilter;
 import com.dtstack.jlogstash.metrics.Counter;
 import com.dtstack.jlogstash.metrics.Gauge;
+import com.dtstack.jlogstash.metrics.Meter;
 import com.dtstack.jlogstash.metrics.Metric;
 import com.dtstack.jlogstash.metrics.MetricGroup;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
@@ -285,6 +286,17 @@ public abstract class AbstractMetricGroup<A extends AbstractMetricGroup<?>> impl
 	public <T, G extends Gauge<T>> G gauge(String name, G gauge) {
 		addMetric(name, gauge);
 		return gauge;
+	}
+
+	@Override
+	public <M extends Meter> M meter(int name, M meter) {
+		return meter(String.valueOf(name), meter);
+	}
+
+	@Override
+	public <M extends Meter> M meter(String name, M meter) {
+		addMetric(name, meter);
+		return meter;
 	}
 
 	/**
