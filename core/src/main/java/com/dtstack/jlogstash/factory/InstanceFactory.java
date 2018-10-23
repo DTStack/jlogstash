@@ -24,7 +24,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.jlogstash.annotation.plugin.AnnotationInterface;
+import com.dtstack.jlogstash.annotation.AnnotationInterface;
 import com.dtstack.jlogstash.assembly.CmdLineParams;
 import com.dtstack.jlogstash.classloader.JarClassLoader;
 import com.dtstack.jlogstash.property.SystemProperty;
@@ -134,7 +134,7 @@ public abstract class InstanceFactory {
 			logger.error("className:{} not found: {}",className,ex.getCause());
 			return;
 		}
-		AnnotationInterface annotationInterface = (AnnotationInterface) cla.newInstance();	
+		AnnotationInterface annotationInterface = (AnnotationInterface) cla.newInstance();
 		annotationInterface.required(field, obj);
 	}
 }

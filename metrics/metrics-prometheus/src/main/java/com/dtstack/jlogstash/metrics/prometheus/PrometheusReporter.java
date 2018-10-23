@@ -55,7 +55,7 @@ public class PrometheusReporter implements MetricReporter {
     private static final Pattern UNALLOWED_CHAR_PATTERN = Pattern.compile("[^a-zA-Z0-9:_]");
 
     private static final char SCOPE_SEPARATOR = '_';
-    private static final String SCOPE_PREFIX = "flink" + SCOPE_SEPARATOR;
+    private static final String SCOPE_PREFIX = "jlogstash" + SCOPE_SEPARATOR;
 
     private HTTPServer httpServer;
     private int port;

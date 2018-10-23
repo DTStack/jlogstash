@@ -21,7 +21,7 @@
 //  which is part of the "Guava" library.
 //
 //  Because of frequent issues with dependency conflicts, this class was
-//  added to the Flink code base to reduce dependency on Guava.
+//  added to the jlogstash code base to reduce dependency on Guava.
 // ----------------------------------------------------------------------------
 
 package com.dtstack.jlogstash.metrics.util;
@@ -30,7 +30,7 @@ package com.dtstack.jlogstash.metrics.util;
  * A collection of static utility methods to validate input.
  * 
  * <p>This class is modelled after Google Guava's Preconditions class, and partly takes code
- * from that class. We add this code to the Flink code base in order to reduce external
+ * from that class. We add this code to the jlogstash code base in order to reduce external
  * dependencies.
  */
 public final class Preconditions {

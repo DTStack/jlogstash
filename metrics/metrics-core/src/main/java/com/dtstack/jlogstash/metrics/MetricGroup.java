@@ -120,4 +120,13 @@ public interface MetricGroup {
 	 * @return map of all variables and their associated value
 	 */
 	Map<String, String> getAllVariables();
+
+	/**
+	 * Returns the fully qualified metric name, for example
+	 * {@code "host-7.taskmanager-2.window_word_count.my-mapper.metricName"}.
+	 *
+	 * @param metricName metric name
+	 * @return fully qualified metric name
+	 */
+	String getMetricIdentifier(String metricName);
 }
