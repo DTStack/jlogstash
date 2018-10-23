@@ -19,7 +19,7 @@
 package com.dtstack.jlogstash.metrics;
 
 import com.dtstack.jlogstash.metrics.groups.AbstractMetricGroup;
-import com.dtstack.jlogstash.metrics.scope.ScopeFormat;
+import com.dtstack.jlogstash.metrics.scope.PipelineScopeFormat;
 
 /**
  * copy from https://github.com/apache/flink
@@ -67,6 +67,6 @@ public interface MetricRegistry {
 	void unregister(Metric metric, String metricName, AbstractMetricGroup group);
 
 
-	ScopeFormat getScopeFormat();
+	PipelineScopeFormat getScopeFormat();
 }
 

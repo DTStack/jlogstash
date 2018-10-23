@@ -27,6 +27,8 @@ import com.dtstack.jlogstash.exception.LogstashException;
 import com.dtstack.jlogstash.factory.InputFactory;
 import com.dtstack.jlogstash.inputs.BaseInput;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
+import com.dtstack.jlogstash.metrics.groups.JobMetricGroup;
+import com.dtstack.jlogstash.metrics.util.MetricUtils;
 import com.dtstack.jlogstash.outputs.BaseOutput;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -58,6 +60,8 @@ public class AssemblyPipeline {
 
     private MetricRegistryImpl metricRegistry;
 
+    private JobMetricGroup jobMetricGroup;
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void assemblyPipeline() throws Exception {
         logger.info("load config start ...");
@@ -76,8 +80,9 @@ public class AssemblyPipeline {
         List<Map> metrics = configs.getMetrics();
         if (CollectionUtils.isNotEmpty(metrics)) {
             metricRegistry = new MetricRegistryImpl(metrics);
-            BaseInput.setMetricRegistry(metricRegistry);
-            BaseOutput.setMetricRegistry(metricRegistry);
+            jobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry,CmdLineParams.getName());
+            BaseInput.setMetricRegistry(metricRegistry, CmdLineParams.getName());
+            BaseOutput.setMetricRegistry(metricRegistry, CmdLineParams.getName());
         }
         if (CollectionUtils.isNotEmpty(filters)) {
             initFilterQueueList = FilterQueueList.getFilterQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getFilterQueueSize());
@@ -96,7 +101,7 @@ public class AssemblyPipeline {
     }
 
     private void addShutDownHook() {
-        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs, metricRegistry);
+        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs, metricRegistry, jobMetricGroup);
         shutDownHook.addShutDownHook();
     }
 }

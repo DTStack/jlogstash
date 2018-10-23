@@ -21,6 +21,9 @@ package com.dtstack.jlogstash.metrics.util;
 import com.dtstack.jlogstash.metrics.Gauge;
 import com.dtstack.jlogstash.metrics.MetricGroup;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
+import com.dtstack.jlogstash.metrics.groups.JobMetricGroup;
+import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;
+import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,21 +51,16 @@ public class MetricUtils {
 	private MetricUtils() {
 	}
 
-//	public static TaskManagerMetricGroup instantiateTaskManagerMetricGroup(
-//			MetricRegistry metricRegistry,
-//			TaskManagerLocation taskManagerLocation) {
-//		final TaskManagerMetricGroup taskManagerMetricGroup = new TaskManagerMetricGroup(
-//			metricRegistry,
-//			taskManagerLocation.getHostname(),
-//			taskManagerLocation.getResourceID().toString());
-//
-//		MetricGroup statusGroup = taskManagerMetricGroup.addGroup(METRIC_GROUP_STATUS_NAME);
-//
-//		// Initialize the TM metrics
-//		instantiateStatusMetrics(statusGroup);
-//
-//		return taskManagerMetricGroup;
-//	}
+	public static JobMetricGroup instantiateTaskManagerMetricGroup(MetricRegistry metricRegistry, String jobName) {
+		final JobMetricGroup jobMetricGroup = new JobMetricGroup(metricRegistry, LocalIpAddressUtil.getLocalAddress(), jobName);
+
+		MetricGroup statusGroup = jobMetricGroup.addGroup(METRIC_GROUP_STATUS_NAME);
+
+		// Initialize the TM metrics
+		instantiateStatusMetrics(statusGroup);
+
+		return jobMetricGroup;
+	}
 
 	public static void instantiateStatusMetrics(
 			MetricGroup metricGroup) {

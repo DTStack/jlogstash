@@ -24,7 +24,10 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dtstack.jlogstash.inputs.BaseInput;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
+import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;
+import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +62,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 	
 	public BlockingQueue<Object> failedMsgQueue = Queues.newLinkedBlockingDeque();
 
-	private static MetricRegistryImpl metricRegistry;
+	private static PipelineIOMetricGroup pipelineIOMetricGroup;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public BaseOutput(Map config) {
@@ -106,6 +109,8 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 			}
 			if (succuess == true) {
 				this.emit(event);
+				pipelineIOMetricGroup.getNumRecordsInCounter().inc(1);
+				pipelineIOMetricGroup.getNumBytesInLocalRateMeter().markEvent();
 			}
 		}
 	}
@@ -153,7 +158,9 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
         return super.clone();
     }
 
-    public static void setMetricRegistry(MetricRegistryImpl metricRegistry) {
-		BaseOutput.metricRegistry = metricRegistry;
+    public static void setMetricRegistry(MetricRegistryImpl metricRegistry, String name) {
+		String hostname = LocalIpAddressUtil.getLocalAddress();
+		String pluginName = BaseInput.class.getSimpleName();
+		BaseOutput.pipelineIOMetricGroup = new PipelineIOMetricGroup(metricRegistry, hostname, "output", pluginName, name);
     }
 }

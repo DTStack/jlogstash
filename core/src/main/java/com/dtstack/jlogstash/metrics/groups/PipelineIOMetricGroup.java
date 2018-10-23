@@ -50,9 +50,11 @@ public class PipelineIOMetricGroup<C extends ComponentMetricGroup<C>> extends Co
     private final Meter numRecordsOutRate;
 
     public PipelineIOMetricGroup(MetricRegistry registry,
-                                 C parent,
-                                 String[] scope) {
-        super(registry, scope, parent);
+                                 String hostname,
+                                 String pluginType,
+                                 String pluginName,
+                                 String jobName) {
+        super(registry, registry.getScopeFormat().formatScope(hostname, pluginType, pluginName, jobName), null);
 
         this.numBytesOut = counter(MetricNames.IO_NUM_BYTES_OUT);
         this.numBytesInLocal = counter(MetricNames.IO_NUM_BYTES_IN_LOCAL);

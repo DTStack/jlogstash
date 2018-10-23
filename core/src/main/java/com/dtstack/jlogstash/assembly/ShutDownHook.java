@@ -20,6 +20,7 @@ package com.dtstack.jlogstash.assembly;
 import java.util.List;
 
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
+import com.dtstack.jlogstash.metrics.groups.JobMetricGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,17 +49,21 @@ public class ShutDownHook {
     private List<BaseOutput> baseOutputs;
 
     private MetricRegistryImpl metricRegistry;
-        
+
+    private JobMetricGroup jobMetricGroup;
+
     public ShutDownHook(QueueList initFilterQueueList,
 						QueueList initOutputQueueList,
 						List<BaseInput> baseInputs,
 						List<BaseOutput> baseOutputs,
-						MetricRegistryImpl metricRegistry){
+						MetricRegistryImpl metricRegistry,
+						JobMetricGroup jobMetricGroup){
     	this.initFilterQueueList = initFilterQueueList;
     	this.initOutputQueueList = initOutputQueueList;
     	this.baseInputs  = baseInputs;
     	this.baseOutputs = baseOutputs;
     	this.metricRegistry = metricRegistry;
+    	this.jobMetricGroup = jobMetricGroup;
     }
 	
 	public void addShutDownHook(){
@@ -96,6 +101,9 @@ public class ShutDownHook {
 		}
 
 		private void metricsRelease(){
+			if (jobMetricGroup != null) {
+				jobMetricGroup.close();
+			}
 			// metrics shutdown
 			if (metricRegistry != null) {
 				metricRegistry.shutdown();

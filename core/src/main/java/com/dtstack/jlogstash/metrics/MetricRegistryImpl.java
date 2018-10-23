@@ -53,7 +53,7 @@ public class MetricRegistryImpl implements MetricRegistry {
 	private List<MetricReporter> reporters;
 	private ScheduledExecutorService executor;
 
-	private final ScopeFormat scopeFormat;
+	private final PipelineScopeFormat scopeFormat;
 	private final char globalDelimiter = '.';
 	private final List<Character> delimiters = new ArrayList<>();
 
@@ -261,7 +261,7 @@ public class MetricRegistryImpl implements MetricRegistry {
 	}
 
 	@Override
-	public ScopeFormat getScopeFormat() {
+	public PipelineScopeFormat getScopeFormat() {
 		return scopeFormat;
 	}
 
