@@ -10,9 +10,6 @@
 
    jlogstash 的参数配置和使用看wiki介绍，现在的插件跟ruby版本相比还太少，希望更多的人参与开发。
 
-   各个插件代码在jlogstash-input-plugin，jlogstash-output-plugin，jlogstash-filter-plugin。
-
-
 # Inputs详情：
   https://github.com/DTStack/jlogstash/tree/master/pipeline/inputs/README.md
 
