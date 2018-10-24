@@ -25,14 +25,13 @@ public class PipelineScopeFormat extends ScopeFormat {
         super(format, null, new String[]{
                 SCOPE_HOST,
                 SCOPE_PLUGINE_TYPE,
-                SCOPE_PLUGINE_NAME,
-                SCOPE_JOB_NAME,
+                SCOPE_PLUGINE_NAME
         });
     }
 
-    public String[] formatScope(String hostname, String pluginType, String pluginName, String jobName) {
+    public String[] formatScope(String hostname, String pluginType, String pluginName) {
         final String[] template = copyTemplate();
-        final String[] values = {hostname, pluginType, pluginName, jobName};
+        final String[] values = {hostname, pluginType, pluginName};
         return bindVariables(template, values);
     }
 }

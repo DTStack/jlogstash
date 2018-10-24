@@ -65,8 +65,6 @@ public abstract class ScopeFormat {
 
 	public static final String SCOPE_PLUGINE_NAME = asVariable("pluginName");
 
-	public static final String SCOPE_JOB_NAME = asVariable("jobName");
-
 
 	// ------------------------------------------------------------------------
 	//  Scope Format Base

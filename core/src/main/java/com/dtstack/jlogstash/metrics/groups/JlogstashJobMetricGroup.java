@@ -37,12 +37,10 @@ import java.util.Map;
 public class JlogstashJobMetricGroup extends ComponentMetricGroup<JlogstashJobMetricGroup> {
 
     private final String hostname;
-    private final String jobName;
 
-    public JlogstashJobMetricGroup(MetricRegistry registry, String hostname, String jobName) {
-        super(registry, registry.getScopeFormats().getJlogstashJobScopeFormat().formatScope(hostname, jobName), null);
+    public JlogstashJobMetricGroup(MetricRegistry registry, String hostname) {
+        super(registry, registry.getScopeFormats().getJlogstashJobScopeFormat().formatScope(hostname), null);
         this.hostname = hostname;
-        this.jobName = jobName;
     }
 
     // ------------------------------------------------------------------------
@@ -52,7 +50,6 @@ public class JlogstashJobMetricGroup extends ComponentMetricGroup<JlogstashJobMe
     @Override
     protected void putVariables(Map<String, String> variables) {
         variables.put(ScopeFormat.SCOPE_HOST, hostname);
-        variables.put(ScopeFormat.SCOPE_JOB_NAME, jobName);
     }
 
     @Override

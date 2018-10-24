@@ -51,7 +51,7 @@ public class CmdLineParams {
 
 	public static String getName(){
 		String name =line.getOptionValue("name");
-		name = StringUtils.isBlank(name) ? "" : name;
+		name = StringUtils.isBlank(name) ? "jlogstashJob" : name;
 		logger.warn("job of name:{}",name);
 		return name;
 	}

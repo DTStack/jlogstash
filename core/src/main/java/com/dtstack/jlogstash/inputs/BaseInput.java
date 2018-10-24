@@ -28,6 +28,7 @@ package com.dtstack.jlogstash.inputs;
  */
 import java.util.Map;
 
+import com.dtstack.jlogstash.assembly.CmdLineParams;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import com.dtstack.jlogstash.metrics.groups.PipelineInputMetricGroup;
 import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
@@ -57,8 +58,6 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     protected static BasePluginUtil basePluginUtil = new BasePluginUtil();
 
     private static MetricRegistryImpl metricRegistry;
-
-    private static String jobName;
 
     private PipelineInputMetricGroup pipelineInputMetricGroup;
 
@@ -114,7 +113,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         if (metricRegistry!=null){
 			String hostname = LocalIpAddressUtil.getLocalAddress();
 			String pluginName = this.getClass().getSimpleName();
-			pipelineInputMetricGroup = new PipelineInputMetricGroup(metricRegistry, hostname, "input", pluginName, jobName);
+			pipelineInputMetricGroup = new PipelineInputMetricGroup(metricRegistry, hostname, "input", pluginName);
 		}
     }
 
@@ -148,8 +147,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 		return inputQueueList;
 	}
 
-	public static void setMetricRegistry(MetricRegistryImpl metricRegistry, String jobName) {
+	public static void setMetricRegistry(MetricRegistryImpl metricRegistry) {
 		BaseInput.metricRegistry = metricRegistry;
-		BaseInput.jobName = jobName;
 	}
 }

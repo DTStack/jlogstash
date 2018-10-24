@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dtstack.jlogstash.assembly.CmdLineParams;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import com.dtstack.jlogstash.metrics.groups.PipelineOutputMetricGroup;
 import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
@@ -64,8 +65,6 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 
 	private static MetricRegistryImpl metricRegistry;
 
-	private static String jobName;
-
 	private PipelineOutputMetricGroup pipelineOutputMetricGroup;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -93,7 +92,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 		if (metricRegistry!=null){
 			String hostname = LocalIpAddressUtil.getLocalAddress();
 			String pluginName = this.getClass().getSimpleName();
-			pipelineOutputMetricGroup = new PipelineOutputMetricGroup(metricRegistry, hostname, "output", pluginName, jobName);
+			pipelineOutputMetricGroup = new PipelineOutputMetricGroup(metricRegistry, hostname, "output", pluginName);
 		}
 	}
 
@@ -170,8 +169,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
         return super.clone();
     }
 
-    public static void setMetricRegistry(MetricRegistryImpl metricRegistry, String jobName) {
+    public static void setMetricRegistry(MetricRegistryImpl metricRegistry) {
 		BaseOutput.metricRegistry = metricRegistry;
-		BaseOutput.jobName = jobName;
     }
 }

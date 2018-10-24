@@ -79,11 +79,10 @@ public class AssemblyPipeline {
 
         List<Map> metrics = configs.getMetrics();
         if (CollectionUtils.isNotEmpty(metrics)) {
-            String jobName = CmdLineParams.getName();
             metricRegistry = new MetricRegistryImpl(metrics);
-            jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry,jobName);
-            BaseInput.setMetricRegistry(metricRegistry, jobName);
-            BaseOutput.setMetricRegistry(metricRegistry, jobName);
+            jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry);
+            BaseInput.setMetricRegistry(metricRegistry);
+            BaseOutput.setMetricRegistry(metricRegistry);
         }
         if (CollectionUtils.isNotEmpty(filters)) {
             initFilterQueueList = FilterQueueList.getFilterQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getFilterQueueSize());

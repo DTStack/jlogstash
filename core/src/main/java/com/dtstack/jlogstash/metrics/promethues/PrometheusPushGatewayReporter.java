@@ -18,6 +18,7 @@
 
 package com.dtstack.jlogstash.metrics.promethues;
 
+import com.dtstack.jlogstash.assembly.CmdLineParams;
 import com.dtstack.jlogstash.metrics.base.MetricConfig;
 import com.dtstack.jlogstash.metrics.base.reporter.Scheduled;
 import io.prometheus.client.CollectorRegistry;
@@ -39,7 +40,7 @@ public class PrometheusPushGatewayReporter extends AbstractPrometheusReporter im
 	public void open(MetricConfig config) {
 		String host = config.getString("host", null);
 		int port = config.getInteger("port", -1);
-		String configuredJobName = config.getString("jobName", "");
+		String configuredJobName = config.getString("jobName", CmdLineParams.getName());
 		deleteOnShutdown = config.getBoolean("deleteOnShutdown", true);
 
 		if (host == null || host.isEmpty() || port < 1) {
