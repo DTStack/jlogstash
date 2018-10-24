@@ -54,7 +54,7 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../../../plugin/metrics/${project.name}-${project.version}.jar" />
+                                      tofile="${basedir}/../../plugin/metrics/${project.name}-${project.version}.jar" />
                             </tasks>
                         </configuration>
                     </execution>
