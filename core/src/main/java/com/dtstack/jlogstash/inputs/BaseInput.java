@@ -126,8 +126,10 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         	if(addFields!=null){
         		basePluginUtil.addFields(event,addFields);
         	}
-			pipelineInputMetricGroup.getNumRecordsInCounter().inc();
-			pipelineInputMetricGroup.getNumBytesInLocalCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+        	if (pipelineInputMetricGroup!=null){
+				pipelineInputMetricGroup.getNumRecordsInCounter().inc();
+				pipelineInputMetricGroup.getNumBytesInLocalCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+			}
         	inputQueueList.put(event);
     	}
     }
