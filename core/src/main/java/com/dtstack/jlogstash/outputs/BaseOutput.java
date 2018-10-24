@@ -28,6 +28,7 @@ import com.dtstack.jlogstash.inputs.BaseInput;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;
 import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
+import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,8 +110,8 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 			}
 			if (succuess == true) {
 				this.emit(event);
-				pipelineIOMetricGroup.getNumRecordsInCounter().inc(1);
-				pipelineIOMetricGroup.getNumBytesInLocalRateMeter().markEvent();
+				pipelineIOMetricGroup.getNumRecordsOutCounter().inc();
+				pipelineIOMetricGroup.getNumBytesOutRateMeter().markEvent(ObjectSizeCalculator.getObjectSize(event));
 			}
 		}
 	}

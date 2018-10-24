@@ -40,12 +40,10 @@ public class PipelineIOMetricGroup<C extends ComponentMetricGroup<C>> extends Co
 
     private final Counter numBytesOut;
     private final Counter numBytesInLocal;
-    private final Counter numBytesInRemote;
     private final SumCounter numRecordsIn;
     private final SumCounter numRecordsOut;
 
     private final Meter numBytesInRateLocal;
-    private final Meter numBytesInRateRemote;
     private final Meter numBytesOutRate;
     private final Meter numRecordsInRate;
     private final Meter numRecordsOutRate;
@@ -69,10 +67,8 @@ public class PipelineIOMetricGroup<C extends ComponentMetricGroup<C>> extends Co
 
         this.numBytesOut = counter(MetricNames.IO_NUM_BYTES_OUT);
         this.numBytesInLocal = counter(MetricNames.IO_NUM_BYTES_IN_LOCAL);
-        this.numBytesInRemote = counter(MetricNames.IO_NUM_BYTES_IN_REMOTE);
         this.numBytesOutRate = meter(MetricNames.IO_NUM_BYTES_OUT_RATE, new MeterView(numBytesOut, 60));
         this.numBytesInRateLocal = meter(MetricNames.IO_NUM_BYTES_IN_LOCAL_RATE, new MeterView(numBytesInLocal, 60));
-        this.numBytesInRateRemote = meter(MetricNames.IO_NUM_BYTES_IN_REMOTE_RATE, new MeterView(numBytesInRemote, 60));
         this.numRecordsIn = (SumCounter) counter(MetricNames.IO_NUM_RECORDS_IN, new SumCounter());
         this.numRecordsOut = (SumCounter) counter(MetricNames.IO_NUM_RECORDS_OUT, new SumCounter());
         this.numRecordsInRate = meter(MetricNames.IO_NUM_RECORDS_IN_RATE, new MeterView(numRecordsIn, 60));
@@ -90,10 +86,6 @@ public class PipelineIOMetricGroup<C extends ComponentMetricGroup<C>> extends Co
         return numBytesInLocal;
     }
 
-    public Counter getNumBytesInRemoteCounter() {
-        return numBytesInRemote;
-    }
-
     public Counter getNumRecordsInCounter() {
         return numRecordsIn;
     }
@@ -104,10 +96,6 @@ public class PipelineIOMetricGroup<C extends ComponentMetricGroup<C>> extends Co
 
     public Meter getNumBytesInLocalRateMeter() {
         return numBytesInRateLocal;
-    }
-
-    public Meter getNumBytesInRemoteRateMeter() {
-        return numBytesInRateRemote;
     }
 
     public Meter getNumBytesOutRateMeter() {
