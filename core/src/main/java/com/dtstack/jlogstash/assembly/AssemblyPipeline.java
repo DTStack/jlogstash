@@ -27,7 +27,7 @@ import com.dtstack.jlogstash.exception.LogstashException;
 import com.dtstack.jlogstash.factory.InputFactory;
 import com.dtstack.jlogstash.inputs.BaseInput;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
-import com.dtstack.jlogstash.metrics.groups.JobMetricGroup;
+import com.dtstack.jlogstash.metrics.groups.JlogstashJobMetricGroup;
 import com.dtstack.jlogstash.metrics.util.MetricUtils;
 import com.dtstack.jlogstash.outputs.BaseOutput;
 import com.google.common.collect.Lists;
@@ -60,7 +60,7 @@ public class AssemblyPipeline {
 
     private MetricRegistryImpl metricRegistry;
 
-    private JobMetricGroup jobMetricGroup;
+    private JlogstashJobMetricGroup jlogstashJobMetricGroup;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void assemblyPipeline() throws Exception {
@@ -81,7 +81,7 @@ public class AssemblyPipeline {
         if (CollectionUtils.isNotEmpty(metrics)) {
             String jobName = CmdLineParams.getName();
             metricRegistry = new MetricRegistryImpl(metrics);
-//            jobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry,CmdLineParams.getName());
+            jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry,CmdLineParams.getName());
             BaseInput.setMetricRegistry(metricRegistry, jobName);
             BaseOutput.setMetricRegistry(metricRegistry, jobName);
         }
@@ -102,7 +102,7 @@ public class AssemblyPipeline {
     }
 
     private void addShutDownHook() {
-        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs, metricRegistry, jobMetricGroup);
+        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs, metricRegistry, jlogstashJobMetricGroup);
         shutDownHook.addShutDownHook();
     }
 }

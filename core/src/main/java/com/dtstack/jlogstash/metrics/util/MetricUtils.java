@@ -21,7 +21,7 @@ package com.dtstack.jlogstash.metrics.util;
 import com.dtstack.jlogstash.metrics.base.Gauge;
 import com.dtstack.jlogstash.metrics.base.MetricGroup;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
-import com.dtstack.jlogstash.metrics.groups.JobMetricGroup;
+import com.dtstack.jlogstash.metrics.groups.JlogstashJobMetricGroup;
 import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;
 import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
 import org.slf4j.Logger;
@@ -51,8 +51,8 @@ public class MetricUtils {
 	private MetricUtils() {
 	}
 
-	public static JobMetricGroup instantiateTaskManagerMetricGroup(MetricRegistry metricRegistry, String jobName) {
-		final JobMetricGroup jobMetricGroup = new JobMetricGroup(metricRegistry, LocalIpAddressUtil.getLocalAddress(), jobName);
+	public static JlogstashJobMetricGroup instantiateTaskManagerMetricGroup(MetricRegistry metricRegistry, String jobName) {
+		final JlogstashJobMetricGroup jobMetricGroup = new JlogstashJobMetricGroup(metricRegistry, LocalIpAddressUtil.getLocalAddress(), jobName);
 
 		MetricGroup statusGroup = jobMetricGroup.addGroup(METRIC_GROUP_STATUS_NAME);
 

@@ -113,7 +113,7 @@ public abstract class AbstractPrometheusReporter implements MetricReporter {
 
 	private Collector createCollector(Metric metric, List<String> dimensionKeys, List<String> dimensionValues, String scopedMetricName, String helpString) {
 		Collector collector;
-		if (metric instanceof Gauge || metric instanceof Counter) {
+		if (metric instanceof Gauge || metric instanceof Counter || metric instanceof Meter) {
 			collector = io.prometheus.client.Gauge
 					.build()
 					.name(scopedMetricName)
@@ -133,6 +133,8 @@ public abstract class AbstractPrometheusReporter implements MetricReporter {
 			((io.prometheus.client.Gauge) collector).setChild(gaugeFrom((Gauge) metric), toArray(dimensionValues));
 		} else if (metric instanceof Counter) {
 			((io.prometheus.client.Gauge) collector).setChild(gaugeFrom((Counter) metric), toArray(dimensionValues));
+		} else if (metric instanceof Meter) {
+			((io.prometheus.client.Gauge) collector).setChild(gaugeFrom((Meter) metric), toArray(dimensionValues));
 		} else {
 			log.warn("Cannot add unknown metric type: {}. This indicates that the metric type is not supported by this reporter.",
 					metric.getClass().getName());
@@ -143,6 +145,8 @@ public abstract class AbstractPrometheusReporter implements MetricReporter {
 		if (metric instanceof Gauge) {
 			((io.prometheus.client.Gauge) collector).remove(toArray(dimensionValues));
 		} else if (metric instanceof Counter) {
+			((io.prometheus.client.Gauge) collector).remove(toArray(dimensionValues));
+		} else if (metric instanceof Meter) {
 			((io.prometheus.client.Gauge) collector).remove(toArray(dimensionValues));
 		} else {
 			log.warn("Cannot remove unknown metric type: {}. This indicates that the metric type is not supported by this reporter.",

@@ -34,17 +34,15 @@ import java.util.Map;
  * <p>Contains extra logic for adding jobs with tasks, and removing jobs when they do
  * not contain tasks any more
  */
-public class JobMetricGroup extends ComponentMetricGroup<JobMetricGroup> {
+public class JlogstashJobMetricGroup extends ComponentMetricGroup<JlogstashJobMetricGroup> {
 
     private final String hostname;
+    private final String jobName;
 
-    public JobMetricGroup(MetricRegistry registry, String hostname, String jobName) {
-        super(registry, registry.getScopeFormat().formatScope(hostname, null, null, jobName), null);
+    public JlogstashJobMetricGroup(MetricRegistry registry, String hostname, String jobName) {
+        super(registry, registry.getScopeFormats().getJlogstashJobScopeFormat().formatScope(hostname, jobName), null);
         this.hostname = hostname;
-    }
-
-    public String hostname() {
-        return hostname;
+        this.jobName = jobName;
     }
 
     // ------------------------------------------------------------------------
@@ -54,6 +52,7 @@ public class JobMetricGroup extends ComponentMetricGroup<JobMetricGroup> {
     @Override
     protected void putVariables(Map<String, String> variables) {
         variables.put(ScopeFormat.SCOPE_HOST, hostname);
+        variables.put(ScopeFormat.SCOPE_JOB_NAME, jobName);
     }
 
     @Override
@@ -63,7 +62,7 @@ public class JobMetricGroup extends ComponentMetricGroup<JobMetricGroup> {
 
     @Override
     protected String getGroupName(CharacterFilter filter) {
-        return "jlogstash";
+        return "JlogstashJob";
     }
 }
 

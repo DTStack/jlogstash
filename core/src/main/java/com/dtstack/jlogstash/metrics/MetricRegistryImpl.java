@@ -27,6 +27,7 @@ import com.dtstack.jlogstash.metrics.base.reporter.MetricReporter;
 import com.dtstack.jlogstash.metrics.base.reporter.Scheduled;
 import com.dtstack.jlogstash.metrics.scope.PipelineScopeFormat;
 import com.dtstack.jlogstash.metrics.scope.ScopeFormat;
+import com.dtstack.jlogstash.metrics.scope.ScopeFormats;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class MetricRegistryImpl implements MetricRegistry {
 	private List<MetricReporter> reporters;
 	private ScheduledExecutorService executor;
 
-	private final PipelineScopeFormat scopeFormat;
+	private final ScopeFormats scopeFormats = ScopeFormats.fromDefault();
 	private final char globalDelimiter = '.';
 	private final List<Character> delimiters = new ArrayList<>();
 
@@ -66,7 +67,6 @@ public class MetricRegistryImpl implements MetricRegistry {
 
 		// instantiate any custom configured reporters
 		this.reporters = new ArrayList<>();
-		this.scopeFormat = new PipelineScopeFormat("<host>.jlogstash");
 		this.executor = Executors.newSingleThreadScheduledExecutor(new LogstashThreadFactory("jLogstash-MetricRegistry"));
 
 
@@ -263,8 +263,8 @@ public class MetricRegistryImpl implements MetricRegistry {
 	}
 
 	@Override
-	public PipelineScopeFormat getScopeFormat() {
-		return scopeFormat;
+	public ScopeFormats getScopeFormats() {
+		return scopeFormats;
 	}
 
 

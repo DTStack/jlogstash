@@ -26,6 +26,7 @@ import com.dtstack.jlogstash.metrics.base.MeterView;
 import com.dtstack.jlogstash.metrics.MetricNames;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
 import com.dtstack.jlogstash.metrics.base.SimpleCounter;
+import com.dtstack.jlogstash.metrics.scope.ScopeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,12 +50,22 @@ public class PipelineIOMetricGroup<C extends ComponentMetricGroup<C>> extends Co
     private final Meter numRecordsInRate;
     private final Meter numRecordsOutRate;
 
+    private final String hostname;
+    private final String pluginType;
+    private final String pluginName;
+    private final String jobName;
+
     public PipelineIOMetricGroup(MetricRegistry registry,
                                  String hostname,
                                  String pluginType,
                                  String pluginName,
                                  String jobName) {
-        super(registry, registry.getScopeFormat().formatScope(hostname, pluginType, pluginName, jobName), null);
+        super(registry, registry.getScopeFormats().getPipelineScopeFormat().formatScope(hostname, pluginType, pluginName, jobName), null);
+
+        this.hostname = hostname;
+        this.pluginType = pluginType;
+        this.pluginName = pluginName;
+        this.jobName = jobName;
 
         this.numBytesOut = counter(MetricNames.IO_NUM_BYTES_OUT);
         this.numBytesInLocal = counter(MetricNames.IO_NUM_BYTES_IN_LOCAL);
@@ -67,10 +78,6 @@ public class PipelineIOMetricGroup<C extends ComponentMetricGroup<C>> extends Co
         this.numRecordsInRate = meter(MetricNames.IO_NUM_RECORDS_IN_RATE, new MeterView(numRecordsIn, 60));
         this.numRecordsOutRate = meter(MetricNames.IO_NUM_RECORDS_OUT_RATE, new MeterView(numRecordsOut, 60));
     }
-
-//	public IOMetrics createSnapshot() {
-//		return new IOMetrics(numRecordsInRate, numRecordsOutRate, numBytesInRateLocal, numBytesInRateRemote, numBytesOutRate);
-//	}
 
     // ============================================================================================
     // Getters
@@ -107,23 +114,12 @@ public class PipelineIOMetricGroup<C extends ComponentMetricGroup<C>> extends Co
         return numBytesOutRate;
     }
 
-    // ============================================================================================
-    // Buffer metrics
-    // ============================================================================================
-
-    /**
-     * Initialize Buffer Metrics for a task.
-     */
-//	public void initializeBufferMetrics(Task task) {
-//		final MetricGroup buffers = addGroup("buffers");
-//		buffers.gauge("inputQueueLength", new InputBuffersGauge(task));
-//		buffers.gauge("outputQueueLength", new OutputBuffersGauge(task));
-//		buffers.gauge("inPoolUsage", new InputBufferPoolUsageGauge(task));
-//		buffers.gauge("outPoolUsage", new OutputBufferPoolUsageGauge(task));
-//	}
     @Override
     protected void putVariables(Map variables) {
-
+        variables.put(ScopeFormat.SCOPE_HOST, hostname);
+        variables.put(ScopeFormat.SCOPE_PLUGINE_TYPE, pluginType);
+        variables.put(ScopeFormat.SCOPE_PLUGINE_NAME, pluginName);
+        variables.put(ScopeFormat.SCOPE_JOB_NAME, jobName);
     }
 
     @Override
@@ -133,112 +129,8 @@ public class PipelineIOMetricGroup<C extends ComponentMetricGroup<C>> extends Co
 
     @Override
     protected String getGroupName(CharacterFilter filter) {
-        return null;
+        return "pipeline";
     }
-
-//	/**
-//	 * Gauge measuring the number of queued input buffers of a task.
-//	 */
-//	private static final class InputBuffersGauge implements Gauge<Integer> {
-//
-//		private final Task task;
-//
-//		public InputBuffersGauge(Task task) {
-//			this.task = task;
-//		}
-//
-//		@Override
-//		public Integer getValue() {
-//			int totalBuffers = 0;
-//
-//			for (SingleInputGate inputGate : task.getAllInputGates()) {
-//				totalBuffers += inputGate.getNumberOfQueuedBuffers();
-//			}
-//
-//			return totalBuffers;
-//		}
-//	}
-//
-//	/**
-//	 * Gauge measuring the number of queued output buffers of a task.
-//	 */
-//	private static final class OutputBuffersGauge implements Gauge<Integer> {
-//
-//		private final Task task;
-//
-//		public OutputBuffersGauge(Task task) {
-//			this.task = task;
-//		}
-//
-//		@Override
-//		public Integer getValue() {
-//			int totalBuffers = 0;
-//
-//			for (ResultPartition producedPartition : task.getProducedPartitions()) {
-//				totalBuffers += producedPartition.getNumberOfQueuedBuffers();
-//			}
-//
-//			return totalBuffers;
-//		}
-//	}
-//
-//	/**
-//	 * Gauge measuring the input buffer pool usage gauge of a task.
-//	 */
-//	private static final class InputBufferPoolUsageGauge implements Gauge<Float> {
-//
-//		private final Task task;
-//
-//		public InputBufferPoolUsageGauge(Task task) {
-//			this.task = task;
-//		}
-//
-//		@Override
-//		public Float getValue() {
-//			int usedBuffers = 0;
-//			int bufferPoolSize = 0;
-//
-//			for (SingleInputGate inputGate : task.getAllInputGates()) {
-//				usedBuffers += inputGate.getBufferPool().bestEffortGetNumOfUsedBuffers();
-//				bufferPoolSize += inputGate.getBufferPool().getNumBuffers();
-//			}
-//
-//			if (bufferPoolSize != 0) {
-//				return ((float) usedBuffers) / bufferPoolSize;
-//			} else {
-//				return 0.0f;
-//			}
-//		}
-//	}
-//
-//	/**
-//	 * Gauge measuring the output buffer pool usage gauge of a task.
-//	 */
-//	private static final class OutputBufferPoolUsageGauge implements Gauge<Float> {
-//
-//		private final Task task;
-//
-//		public OutputBufferPoolUsageGauge(Task task) {
-//			this.task = task;
-//		}
-//
-//		@Override
-//		public Float getValue() {
-//			int usedBuffers = 0;
-//			int bufferPoolSize = 0;
-//
-//			for (ResultPartition resultPartition : task.getProducedPartitions()) {
-//				usedBuffers += resultPartition.getBufferPool().bestEffortGetNumOfUsedBuffers();
-//				bufferPoolSize += resultPartition.getBufferPool().getNumBuffers();
-//			}
-//
-//			if (bufferPoolSize != 0) {
-//				return ((float) usedBuffers) / bufferPoolSize;
-//			} else {
-//				return 0.0f;
-//			}
-//		}
-//	}
 
     // ============================================================================================
     // Metric Reuse
