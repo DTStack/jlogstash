@@ -30,6 +30,7 @@ import java.util.Map;
 
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;
+import com.dtstack.jlogstash.metrics.groups.PipelineInputMetricGroup;
 import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 
     private static String jobName;
 
-    private PipelineIOMetricGroup pipelineIOMetricGroup;
+    private PipelineInputMetricGroup pipelineInputMetricGroup;
 
     public IDecode createDecoder() {
         String codec = (String) this.config.get("codec");
@@ -114,7 +115,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         if (metricRegistry!=null){
 			String hostname = LocalIpAddressUtil.getLocalAddress();
 			String pluginName = this.getClass().getSimpleName();
-			pipelineIOMetricGroup = new PipelineIOMetricGroup(metricRegistry, hostname, "input", pluginName, jobName);
+			pipelineInputMetricGroup = new PipelineInputMetricGroup(metricRegistry, hostname, "input", pluginName, jobName);
 		}
     }
 
@@ -127,8 +128,8 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         	if(addFields!=null){
         		basePluginUtil.addFields(event,addFields);
         	}
-			pipelineIOMetricGroup.getNumRecordsInCounter().inc();
-			pipelineIOMetricGroup.getNumBytesInLocalCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+			pipelineInputMetricGroup.getNumRecordsInCounter().inc();
+			pipelineInputMetricGroup.getNumBytesInLocalCounter().inc(ObjectSizeCalculator.getObjectSize(event));
         	inputQueueList.put(event);
     	}
     }

@@ -25,7 +25,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
-import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;
+import com.dtstack.jlogstash.metrics.groups.PipelineOutputMetricGroup;
 import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 
 	private static String jobName;
 
-	private PipelineIOMetricGroup pipelineIOMetricGroup;
+	private PipelineOutputMetricGroup pipelineOutputMetricGroup;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public BaseOutput(Map config) {
@@ -93,7 +93,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 		if (metricRegistry!=null){
 			String hostname = LocalIpAddressUtil.getLocalAddress();
 			String pluginName = this.getClass().getSimpleName();
-			pipelineIOMetricGroup = new PipelineIOMetricGroup(metricRegistry, hostname, "output", pluginName, jobName);
+			pipelineOutputMetricGroup = new PipelineOutputMetricGroup(metricRegistry, hostname, "output", pluginName, jobName);
 		}
 	}
 
@@ -119,9 +119,9 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 			}
 			if (succuess == true) {
 				this.emit(event);
-				if (pipelineIOMetricGroup!=null){
-					pipelineIOMetricGroup.getNumRecordsOutCounter().inc();
-					pipelineIOMetricGroup.getNumBytesOutCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+				if (pipelineOutputMetricGroup!=null){
+					pipelineOutputMetricGroup.getNumRecordsOutCounter().inc();
+					pipelineOutputMetricGroup.getNumBytesOutCounter().inc(ObjectSizeCalculator.getObjectSize(event));
 				}
 			}
 		}

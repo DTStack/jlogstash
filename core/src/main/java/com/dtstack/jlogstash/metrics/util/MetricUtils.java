@@ -22,7 +22,6 @@ import com.dtstack.jlogstash.metrics.base.Gauge;
 import com.dtstack.jlogstash.metrics.base.MetricGroup;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
 import com.dtstack.jlogstash.metrics.groups.JlogstashJobMetricGroup;
-import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;
 import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
