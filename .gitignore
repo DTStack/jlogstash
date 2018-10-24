@@ -15,3 +15,4 @@ jlogstash.iml
 lib/
 
 !/pipeline/outputs/hdfs/src/main/java/com/dtstack/jlogstash/format/plugin/
+!/core/src/main/java/com/dtstack/jlogstash/annotation/plugin/

@@ -1,4 +1,4 @@
-package com.dtstack.jlogstash.annotation;
+package com.dtstack.jlogstash.annotation.plugin;
 
 import java.lang.reflect.Field;
 
