@@ -56,7 +56,11 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     
     protected static BasePluginUtil basePluginUtil = new BasePluginUtil();
 
-    private static PipelineIOMetricGroup pipelineIOMetricGroup;
+    private static MetricRegistryImpl metricRegistry;
+
+    private static String jobName;
+
+    private PipelineIOMetricGroup pipelineIOMetricGroup;
 
     public IDecode createDecoder() {
         String codec = (String) this.config.get("codec");
@@ -107,6 +111,11 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         if(this.config!=null){
         	addFields = (Map<String, Object>) this.config.get("addFields");
         }
+        if (metricRegistry!=null){
+			String hostname = LocalIpAddressUtil.getLocalAddress();
+			String pluginName = this.getClass().getSimpleName();
+			pipelineIOMetricGroup = new PipelineIOMetricGroup(metricRegistry, hostname, "input", pluginName, jobName);
+		}
     }
 
     public abstract void prepare();
@@ -139,9 +148,8 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 		return inputQueueList;
 	}
 
-	public static void setMetricRegistry(MetricRegistryImpl metricRegistry, String name) {
-		String hostname = LocalIpAddressUtil.getLocalAddress();
-		String pluginName = BaseInput.class.getSimpleName();
-		BaseInput.pipelineIOMetricGroup = new PipelineIOMetricGroup(metricRegistry, hostname, "input", pluginName, name);
+	public static void setMetricRegistry(MetricRegistryImpl metricRegistry, String jobName) {
+		BaseInput.metricRegistry = metricRegistry;
+		BaseInput.jobName = jobName;
 	}
 }

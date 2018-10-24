@@ -81,7 +81,7 @@ public class AssemblyPipeline {
         if (CollectionUtils.isNotEmpty(metrics)) {
             String jobName = CmdLineParams.getName();
             metricRegistry = new MetricRegistryImpl(metrics);
-            jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry,CmdLineParams.getName());
+            jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry,jobName);
             BaseInput.setMetricRegistry(metricRegistry, jobName);
             BaseOutput.setMetricRegistry(metricRegistry, jobName);
         }

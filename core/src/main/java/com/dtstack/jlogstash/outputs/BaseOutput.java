@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dtstack.jlogstash.inputs.BaseInput;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;
 import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
@@ -63,7 +62,11 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 	
 	public BlockingQueue<Object> failedMsgQueue = Queues.newLinkedBlockingDeque();
 
-	private static PipelineIOMetricGroup pipelineIOMetricGroup;
+	private static MetricRegistryImpl metricRegistry;
+
+	private static String jobName;
+
+	private PipelineIOMetricGroup pipelineIOMetricGroup;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public BaseOutput(Map config) {
@@ -85,6 +88,12 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 		
 		if(this.config.containsKey("consistency")){
 			consistency = (boolean) this.config.get("consistency");
+		}
+
+		if (metricRegistry!=null){
+			String hostname = LocalIpAddressUtil.getLocalAddress();
+			String pluginName = this.getClass().getSimpleName();
+			pipelineIOMetricGroup = new PipelineIOMetricGroup(metricRegistry, hostname, "output", pluginName, jobName);
 		}
 	}
 
@@ -110,8 +119,10 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 			}
 			if (succuess == true) {
 				this.emit(event);
-				pipelineIOMetricGroup.getNumRecordsOutCounter().inc();
-				pipelineIOMetricGroup.getNumBytesOutCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+				if (pipelineIOMetricGroup!=null){
+					pipelineIOMetricGroup.getNumRecordsOutCounter().inc();
+					pipelineIOMetricGroup.getNumBytesOutCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+				}
 			}
 		}
 	}
@@ -159,9 +170,8 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
         return super.clone();
     }
 
-    public static void setMetricRegistry(MetricRegistryImpl metricRegistry, String name) {
-		String hostname = LocalIpAddressUtil.getLocalAddress();
-		String pluginName = BaseInput.class.getSimpleName();
-		BaseOutput.pipelineIOMetricGroup = new PipelineIOMetricGroup(metricRegistry, hostname, "output", pluginName, name);
+    public static void setMetricRegistry(MetricRegistryImpl metricRegistry, String jobName) {
+		BaseOutput.metricRegistry = metricRegistry;
+		BaseOutput.jobName = jobName;
     }
 }
