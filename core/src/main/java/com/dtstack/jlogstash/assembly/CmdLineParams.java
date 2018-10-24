@@ -47,7 +47,14 @@ public class CmdLineParams {
 	public static void setLine(CommandLine line) {
 		CmdLineParams.line = line;
 	}
-	
+
+
+	public static String getName(){
+		String name =line.getOptionValue("name");
+		name = StringUtils.isNotBlank(name) ? "" : name;
+		logger.warn("name:{}",name);
+		return name;
+	}
 
 	public static double getFilterQueueCoefficient(){
 		String number =line.getOptionValue("c");

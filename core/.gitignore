@@ -14,3 +14,4 @@ dependency-reduced-pom.xml
 jlogstash.iml
 lib/
 
+!/src/main/java/com/dtstack/jlogstash/annotation/plugin/

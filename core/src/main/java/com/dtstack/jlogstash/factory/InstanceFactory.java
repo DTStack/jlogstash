@@ -134,7 +134,7 @@ public abstract class InstanceFactory {
 			logger.error("className:{} not found: {}",className,ex.getCause());
 			return;
 		}
-		AnnotationInterface annotationInterface = (AnnotationInterface) cla.newInstance();	
+		AnnotationInterface annotationInterface = (AnnotationInterface) cla.newInstance();
 		annotationInterface.required(field, obj);
 	}
 }
