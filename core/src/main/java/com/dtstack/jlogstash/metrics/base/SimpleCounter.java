@@ -16,13 +16,58 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.metrics;
+package com.dtstack.jlogstash.metrics.base;
 
 /**
+ * A simple low-overhead {@link Counter} that is not thread-safe.
  *
  * copy from https://github.com/apache/flink
- *
- * Common super interface for all metrics.
  */
-public interface Metric {
+public class SimpleCounter implements Counter {
+
+	/** the current count. */
+	private long count;
+
+	/**
+	 * Increment the current count by 1.
+	 */
+
+	public void inc() {
+		count++;
+	}
+
+	/**
+	 * Increment the current count by the given value.
+	 *
+	 * @param n value to increment the current count by
+	 */
+	public void inc(long n) {
+		count += n;
+	}
+
+	/**
+	 * Decrement the current count by 1.
+	 */
+	public void dec() {
+		count--;
+	}
+
+	/**
+	 * Decrement the current count by the given value.
+	 *
+	 * @param n value to decrement the current count by
+	 */
+	public void dec(long n) {
+		count -= n;
+	}
+
+	/**
+	 * Returns the current count.
+	 *
+	 * @return current count
+	 */
+	public long getCount() {
+		return count;
+	}
+
 }

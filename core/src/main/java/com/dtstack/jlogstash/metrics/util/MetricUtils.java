@@ -18,8 +18,8 @@
 
 package com.dtstack.jlogstash.metrics.util;
 
-import com.dtstack.jlogstash.metrics.Gauge;
-import com.dtstack.jlogstash.metrics.MetricGroup;
+import com.dtstack.jlogstash.metrics.base.Gauge;
+import com.dtstack.jlogstash.metrics.base.MetricGroup;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
 import com.dtstack.jlogstash.metrics.groups.JobMetricGroup;
 import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;

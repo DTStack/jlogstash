@@ -16,38 +16,23 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.metrics;
+package com.dtstack.jlogstash.metrics.base;
 
 /**
  * copy from https://github.com/apache/flink
  *
- * Metric for measuring throughput.
+ * Interface for a character filter function. The filter function is given a string which the filter
+ * can transform. The returned string is the transformation result.
  */
-public interface Meter extends Metric {
+public interface CharacterFilter {
 
 	/**
-	 * Mark occurrence of an event.
-	 */
-	void markEvent();
-
-	/**
-	 * Mark occurrence of multiple events.
+	 * Filter the given string and generate a resulting string from it.
 	 *
-	 * @param n number of events occurred
-	 */
-	void markEvent(long n);
-
-	/**
-	 * Returns the current rate of events per second.
+	 * <p>For example, one implementation could filter out invalid characters from the input string.
 	 *
-	 * @return current rate of events per second
+	 * @param input Input string
+	 * @return Filtered result string
 	 */
-	double getRate();
-
-	/**
-	 * Get number of events marked on the meter.
-	 *
-	 * @return number of events marked on the meter
-	 */
-	long getCount();
+	String filterCharacters(String input);
 }

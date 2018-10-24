@@ -51,8 +51,8 @@ public class CmdLineParams {
 
 	public static String getName(){
 		String name =line.getOptionValue("name");
-		name = StringUtils.isNotBlank(name) ? "" : name;
-		logger.warn("name:{}",name);
+		name = StringUtils.isBlank(name) ? "" : name;
+		logger.warn("job of name:{}",name);
 		return name;
 	}
 

@@ -27,7 +27,7 @@ import java.util.Map;
  *
  * copy from https://github.com/apache/flink
  *
- * Abstract {@link com.dtstack.jlogstash.metrics.MetricGroup} for system components (e.g.,
+ * Abstract {@link com.dtstack.jlogstash.metrics.base.MetricGroup} for system components (e.g.,
  * TaskManager, Job, Task, Operator).
  *
  * <p>Usually, the scope of metrics is simply the hierarchy of the containing groups. For example

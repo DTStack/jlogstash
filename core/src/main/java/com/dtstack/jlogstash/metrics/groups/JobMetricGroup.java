@@ -19,7 +19,7 @@
 package com.dtstack.jlogstash.metrics.groups;
 
 
-import com.dtstack.jlogstash.metrics.CharacterFilter;
+import com.dtstack.jlogstash.metrics.base.CharacterFilter;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
 import com.dtstack.jlogstash.metrics.scope.ScopeFormat;
 
@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * copy from https://github.com/apache/flink
  * <p>
- * Special {@link com.dtstack.jlogstash.metrics.MetricGroup} representing a JobManager.
+ * Special {@link com.dtstack.jlogstash.metrics.base.MetricGroup} representing a JobManager.
  * <p>
  * <p>Contains extra logic for adding jobs with tasks, and removing jobs when they do
  * not contain tasks any more

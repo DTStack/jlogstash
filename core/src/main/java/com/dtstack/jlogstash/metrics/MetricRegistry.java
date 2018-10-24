@@ -18,6 +18,7 @@
 
 package com.dtstack.jlogstash.metrics;
 
+import com.dtstack.jlogstash.metrics.base.Metric;
 import com.dtstack.jlogstash.metrics.groups.AbstractMetricGroup;
 import com.dtstack.jlogstash.metrics.scope.PipelineScopeFormat;
 

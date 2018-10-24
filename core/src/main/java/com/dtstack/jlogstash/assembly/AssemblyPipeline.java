@@ -79,10 +79,11 @@ public class AssemblyPipeline {
 
         List<Map> metrics = configs.getMetrics();
         if (CollectionUtils.isNotEmpty(metrics)) {
+            String jobName = CmdLineParams.getName();
             metricRegistry = new MetricRegistryImpl(metrics);
-            jobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry,CmdLineParams.getName());
-            BaseInput.setMetricRegistry(metricRegistry, CmdLineParams.getName());
-            BaseOutput.setMetricRegistry(metricRegistry, CmdLineParams.getName());
+//            jobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry,CmdLineParams.getName());
+            BaseInput.setMetricRegistry(metricRegistry, jobName);
+            BaseOutput.setMetricRegistry(metricRegistry, jobName);
         }
         if (CollectionUtils.isNotEmpty(filters)) {
             initFilterQueueList = FilterQueueList.getFilterQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getFilterQueueSize());

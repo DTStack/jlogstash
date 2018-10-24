@@ -16,58 +16,38 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.metrics;
+package com.dtstack.jlogstash.metrics.base;
 
 /**
- * A simple low-overhead {@link Counter} that is not thread-safe.
- *
  * copy from https://github.com/apache/flink
+ *
+ * Metric for measuring throughput.
  */
-public class SimpleCounter implements Counter {
-
-	/** the current count. */
-	private long count;
+public interface Meter extends Metric {
 
 	/**
-	 * Increment the current count by 1.
+	 * Mark occurrence of an event.
 	 */
-
-	public void inc() {
-		count++;
-	}
+	void markEvent();
 
 	/**
-	 * Increment the current count by the given value.
+	 * Mark occurrence of multiple events.
 	 *
-	 * @param n value to increment the current count by
+	 * @param n number of events occurred
 	 */
-	public void inc(long n) {
-		count += n;
-	}
+	void markEvent(long n);
 
 	/**
-	 * Decrement the current count by 1.
-	 */
-	public void dec() {
-		count--;
-	}
-
-	/**
-	 * Decrement the current count by the given value.
+	 * Returns the current rate of events per second.
 	 *
-	 * @param n value to decrement the current count by
+	 * @return current rate of events per second
 	 */
-	public void dec(long n) {
-		count -= n;
-	}
+	double getRate();
 
 	/**
-	 * Returns the current count.
+	 * Get number of events marked on the meter.
 	 *
-	 * @return current count
+	 * @return number of events marked on the meter
 	 */
-	public long getCount() {
-		return count;
-	}
-
+	long getCount();
 }

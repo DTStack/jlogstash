@@ -1,8 +1,9 @@
-package com.dtstack.jlogstash.metrics.reporter;
+package com.dtstack.jlogstash.metrics.base.reporter;
 
-import com.dtstack.jlogstash.metrics.Metric;
-import com.dtstack.jlogstash.metrics.MetricConfig;
-import com.dtstack.jlogstash.metrics.MetricGroup;
+
+import com.dtstack.jlogstash.metrics.base.Metric;
+import com.dtstack.jlogstash.metrics.base.MetricConfig;
+import com.dtstack.jlogstash.metrics.base.MetricGroup;
 
 /**
  * copy from https://github.com/apache/flink

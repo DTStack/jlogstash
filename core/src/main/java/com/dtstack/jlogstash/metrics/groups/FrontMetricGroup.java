@@ -18,7 +18,7 @@
 
 package com.dtstack.jlogstash.metrics.groups;
 
-import com.dtstack.jlogstash.metrics.CharacterFilter;
+import com.dtstack.jlogstash.metrics.base.CharacterFilter;
 
 /**
  * copy from https://github.com/apache/flink

@@ -18,7 +18,7 @@
 
 package com.dtstack.jlogstash.metrics.groups;
 
-import com.dtstack.jlogstash.metrics.CharacterFilter;
+import com.dtstack.jlogstash.metrics.base.CharacterFilter;
 import com.dtstack.jlogstash.metrics.MetricRegistry;
 
 /**

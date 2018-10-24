@@ -18,10 +18,10 @@
 
 package com.dtstack.jlogstash.metrics.groups;
 
-import com.dtstack.jlogstash.metrics.Counter;
-import com.dtstack.jlogstash.metrics.Gauge;
-import com.dtstack.jlogstash.metrics.Meter;
-import com.dtstack.jlogstash.metrics.MetricGroup;
+import com.dtstack.jlogstash.metrics.base.Counter;
+import com.dtstack.jlogstash.metrics.base.Gauge;
+import com.dtstack.jlogstash.metrics.base.Meter;
+import com.dtstack.jlogstash.metrics.base.MetricGroup;
 
 import java.util.Map;
 

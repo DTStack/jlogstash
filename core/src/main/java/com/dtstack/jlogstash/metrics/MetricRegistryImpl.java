@@ -19,10 +19,12 @@
 package com.dtstack.jlogstash.metrics;
 
 import com.dtstack.jlogstash.factory.LogstashThreadFactory;
+import com.dtstack.jlogstash.metrics.base.Metric;
+import com.dtstack.jlogstash.metrics.base.MetricConfig;
 import com.dtstack.jlogstash.metrics.groups.AbstractMetricGroup;
 import com.dtstack.jlogstash.metrics.groups.FrontMetricGroup;
-import com.dtstack.jlogstash.metrics.reporter.MetricReporter;
-import com.dtstack.jlogstash.metrics.reporter.Scheduled;
+import com.dtstack.jlogstash.metrics.base.reporter.MetricReporter;
+import com.dtstack.jlogstash.metrics.base.reporter.Scheduled;
 import com.dtstack.jlogstash.metrics.scope.PipelineScopeFormat;
 import com.dtstack.jlogstash.metrics.scope.ScopeFormat;
 import org.apache.commons.collections.MapUtils;

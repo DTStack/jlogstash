@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.metrics;
+package com.dtstack.jlogstash.metrics.base;
 
 
 import java.util.Map;

@@ -18,7 +18,7 @@
 
 package com.dtstack.jlogstash.metrics.scope;
 
-import com.dtstack.jlogstash.metrics.CharacterFilter;
+import com.dtstack.jlogstash.metrics.base.CharacterFilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

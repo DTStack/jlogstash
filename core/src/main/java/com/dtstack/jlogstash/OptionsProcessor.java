@@ -60,6 +60,7 @@ public class OptionsProcessor {
 		options.addOption("vvv", false, "print info log");
 		options.addOption("vvvv", false, "print debug log");
 		options.addOption("vvvvv", false, "print trace log");
+		options.addOption("name", true, "print job name");
 		CommandLineParser paraer = new BasicParser();
 		CommandLine cmdLine = paraer.parse(options, args);
 		if (cmdLine.hasOption("help") || cmdLine.hasOption("h")) {
@@ -91,7 +92,8 @@ public class OptionsProcessor {
 				.append("vv").append("\t\t\tprint warn log").append("\n")
 				.append("vvv").append("\t\t\tprint info log").append("\n")
 				.append("vvvv").append("\t\t\tprint debug log").append("\n")
-				.append("vvvvv").append("\t\t\tprint trace log").append("\n");
+				.append("vvvvv").append("\t\t\tprint trace log").append("\n")
+				.append("name").append("\t\t\tprint job name").append("\n");
 		         System.out.println(helpInfo.toString());
 	}
 }

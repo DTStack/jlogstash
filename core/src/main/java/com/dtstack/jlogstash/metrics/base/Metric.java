@@ -16,18 +16,13 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.metrics.reporter;
+package com.dtstack.jlogstash.metrics.base;
 
 /**
+ *
  * copy from https://github.com/apache/flink
  *
- * Interface for reporters that actively send out data periodically.
+ * Common super interface for all metrics.
  */
-public interface Scheduled {
-
-	/**
-	 * Report the current measurements. This method is called periodically by the
-	 * metrics registry that uses the reporter.
-	 */
-	void report();
+public interface Metric {
 }

@@ -16,23 +16,19 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.metrics;
+package com.dtstack.jlogstash.metrics.base;
 
 /**
  * copy from https://github.com/apache/flink
  *
- * Interface for a character filter function. The filter function is given a string which the filter
- * can transform. The returned string is the transformation result.
+ * A Gauge is a {@link Metric} that calculates a specific value at a point in time.
  */
-public interface CharacterFilter {
+public interface Gauge<T> extends Metric {
 
 	/**
-	 * Filter the given string and generate a resulting string from it.
+	 * Calculates and returns the measured value.
 	 *
-	 * <p>For example, one implementation could filter out invalid characters from the input string.
-	 *
-	 * @param input Input string
-	 * @return Filtered result string
+	 * @return calculated value
 	 */
-	String filterCharacters(String input);
+	T getValue();
 }

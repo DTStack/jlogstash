@@ -16,19 +16,20 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.metrics;
+package com.dtstack.jlogstash.metrics.base;
 
 /**
+ *
  * copy from https://github.com/apache/flink
  *
- * A Gauge is a {@link Metric} that calculates a specific value at a point in time.
+ * An interface for metrics which should be updated in regular intervals by a background thread.
  */
-public interface Gauge<T> extends Metric {
+public interface View {
+	/** The interval in which metrics are updated. */
+	int UPDATE_INTERVAL_SECONDS = 5;
 
 	/**
-	 * Calculates and returns the measured value.
-	 *
-	 * @return calculated value
+	 * This method will be called regularly to update the metric.
 	 */
-	T getValue();
+	void update();
 }

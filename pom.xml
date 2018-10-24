@@ -23,6 +23,5 @@
         <module>pipeline/filters</module>
         <module>pipeline/inputs</module>
         <module>pipeline/outputs</module>
-        <module>metrics</module>
     </modules>
 </project>

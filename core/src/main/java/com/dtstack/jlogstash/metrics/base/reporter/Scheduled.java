@@ -16,20 +16,18 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.metrics;
+package com.dtstack.jlogstash.metrics.base.reporter;
 
 /**
- *
  * copy from https://github.com/apache/flink
  *
- * An interface for metrics which should be updated in regular intervals by a background thread.
+ * Interface for reporters that actively send out data periodically.
  */
-public interface View {
-	/** The interval in which metrics are updated. */
-	int UPDATE_INTERVAL_SECONDS = 5;
+public interface Scheduled {
 
 	/**
-	 * This method will be called regularly to update the metric.
+	 * Report the current measurements. This method is called periodically by the
+	 * metrics registry that uses the reporter.
 	 */
-	void update();
+	void report();
 }
