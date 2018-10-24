@@ -52,13 +52,26 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.4</version>
 				<executions>
 					<execution>
-						<id>attach-javadocs</id>
+						<phase>package</phase>
 						<goals>
-							<goal>jar</goal>
+							<goal>shade</goal>
 						</goals>
+						<configuration>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
