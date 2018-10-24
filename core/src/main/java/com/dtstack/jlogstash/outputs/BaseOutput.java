@@ -111,7 +111,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 			if (succuess == true) {
 				this.emit(event);
 				pipelineIOMetricGroup.getNumRecordsOutCounter().inc();
-				pipelineIOMetricGroup.getNumBytesOutRateMeter().markEvent(ObjectSizeCalculator.getObjectSize(event));
+				pipelineIOMetricGroup.getNumBytesOutCounter().inc(ObjectSizeCalculator.getObjectSize(event));
 			}
 		}
 	}

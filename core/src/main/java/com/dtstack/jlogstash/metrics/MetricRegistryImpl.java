@@ -21,6 +21,7 @@ package com.dtstack.jlogstash.metrics;
 import com.dtstack.jlogstash.factory.LogstashThreadFactory;
 import com.dtstack.jlogstash.metrics.base.Metric;
 import com.dtstack.jlogstash.metrics.base.MetricConfig;
+import com.dtstack.jlogstash.metrics.base.View;
 import com.dtstack.jlogstash.metrics.groups.AbstractMetricGroup;
 import com.dtstack.jlogstash.metrics.groups.FrontMetricGroup;
 import com.dtstack.jlogstash.metrics.base.reporter.MetricReporter;
@@ -59,6 +60,8 @@ public class MetricRegistryImpl implements MetricRegistry {
 	private final ScopeFormats scopeFormats = ScopeFormats.fromDefault();
 	private final char globalDelimiter = '.';
 	private final List<Character> delimiters = new ArrayList<>();
+
+	private ViewUpdater viewUpdater;
 
 	/**
 	 * Creates a new MetricRegistry and starts the configured reporter.
@@ -234,6 +237,16 @@ public class MetricRegistryImpl implements MetricRegistry {
 							LOG.warn("Error while registering metric.", e);
 						}
 					}
+				}
+				try {
+					if (metric instanceof View) {
+						if (viewUpdater == null) {
+							viewUpdater = new ViewUpdater(executor);
+						}
+						viewUpdater.notifyOfAddedView((View) metric);
+					}
+				} catch (Exception e) {
+					LOG.warn("Error while registering metric.", e);
 				}
 			}
 		}
