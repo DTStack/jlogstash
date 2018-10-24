@@ -29,7 +29,6 @@ package com.dtstack.jlogstash.inputs;
 import java.util.Map;
 
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
-import com.dtstack.jlogstash.metrics.groups.PipelineIOMetricGroup;
 import com.dtstack.jlogstash.metrics.groups.PipelineInputMetricGroup;
 import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
