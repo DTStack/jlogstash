@@ -47,16 +47,19 @@ public class PipelineOutputMetricGroup<C extends ComponentMetricGroup<C>> extend
     private final String hostname;
     private final String pluginType;
     private final String pluginName;
+    private final String jobName;
 
     public PipelineOutputMetricGroup(MetricRegistry registry,
                                      String hostname,
                                      String pluginType,
-                                     String pluginName) {
-        super(registry, registry.getScopeFormats().getPipelineScopeFormat().formatScope(hostname, pluginType, pluginName), null);
+                                     String pluginName,
+                                     String jobName) {
+        super(registry, registry.getScopeFormats().getPipelineScopeFormat().formatScope(hostname, pluginType, pluginName, jobName), null);
 
         this.hostname = hostname;
         this.pluginType = pluginType;
         this.pluginName = pluginName;
+        this.jobName = jobName;
 
         this.numBytesOut = counter(MetricNames.IO_NUM_BYTES_OUT);
         this.numBytesOutRate = meter(MetricNames.IO_NUM_BYTES_OUT_RATE, new MeterView(numBytesOut, 60));
@@ -84,6 +87,7 @@ public class PipelineOutputMetricGroup<C extends ComponentMetricGroup<C>> extend
         variables.put(ScopeFormat.SCOPE_HOST, hostname);
         variables.put(ScopeFormat.SCOPE_PLUGINE_TYPE, pluginType);
         variables.put(ScopeFormat.SCOPE_PLUGINE_NAME, pluginName);
+        variables.put(ScopeFormat.SCOPE_JOB_NAME, jobName);
     }
 
     @Override

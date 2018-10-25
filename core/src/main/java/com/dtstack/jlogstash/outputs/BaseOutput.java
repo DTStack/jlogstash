@@ -92,7 +92,7 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 		if (metricRegistry!=null){
 			String hostname = LocalIpAddressUtil.getLocalAddress();
 			String pluginName = this.getClass().getSimpleName();
-			pipelineOutputMetricGroup = new PipelineOutputMetricGroup(metricRegistry, hostname, "output", pluginName);
+			pipelineOutputMetricGroup = new PipelineOutputMetricGroup(metricRegistry, hostname, "output", pluginName, CmdLineParams.getName());
 		}
 	}
 

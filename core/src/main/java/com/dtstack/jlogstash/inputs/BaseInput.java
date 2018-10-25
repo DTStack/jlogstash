@@ -113,7 +113,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         if (metricRegistry!=null){
 			String hostname = LocalIpAddressUtil.getLocalAddress();
 			String pluginName = this.getClass().getSimpleName();
-			pipelineInputMetricGroup = new PipelineInputMetricGroup(metricRegistry, hostname, "input", pluginName);
+			pipelineInputMetricGroup = new PipelineInputMetricGroup(metricRegistry, hostname, "input", pluginName, CmdLineParams.getName());
 		}
     }
 

@@ -22,13 +22,14 @@ public class JlogstashJobScopeFormat extends ScopeFormat {
 
 	public JlogstashJobScopeFormat(String format) {
 		super(format, null, new String[] {
-			SCOPE_HOST
+			SCOPE_HOST,
+			SCOPE_JOB_NAME
 		});
 	}
 
-	public String[] formatScope(String hostname) {
+	public String[] formatScope(String hostname, String jobName) {
 		final String[] template = copyTemplate();
-		final String[] values = { hostname };
+		final String[] values = { hostname, jobName};
 		return bindVariables(template, values);
 	}
 }

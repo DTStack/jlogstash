@@ -57,8 +57,8 @@ public final class ScopeFormats {
 	// ------------------------------------------------------------------------
 
 	public static ScopeFormats fromDefault() {
-		String jlogstashJobScopeFormat = "<host>.jlogstash";
-		String pipelineScopeFormat = "<host>.jlogstash.<plugin_type>.<plugin_name>";
+		String jlogstashJobScopeFormat = "<host>.jlogstash.<job_name>";
+		String pipelineScopeFormat = "<host>.jlogstash.<plugin_type>.<plugin_name>.<job_name>";
 
 		return new ScopeFormats(jlogstashJobScopeFormat, pipelineScopeFormat);
 	}
