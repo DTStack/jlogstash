@@ -89,7 +89,7 @@
 						<configuration>
 							<tasks>
 								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/../../../plugin/filter/${project.name}-${project.version}.jar" />
+									  tofile="${basedir}/../../../plugin/output/${project.name}-${project.version}.jar" />
 							</tasks>
 						</configuration>
 					</execution>
