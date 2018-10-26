@@ -62,8 +62,8 @@
   
   4.插件开发样列 https://github.com/DTStack/jlogstash/tree/master/src/test/java/com/dtstack/jlogstash
   
-  5.每一个plugin打的包名的前缀要跟插件的类名一致，不区分大小写，不然会报类找不到，列如：input.kafka-1.0.0-with-dependencies.jar 或
-    kafka-1.0.0-with-dependencies.jar 
+  5.每一个plugin打的包名的前缀要跟插件的类名一致，不区分大小写，不然会报类找不到，列如：input.kafka-1.0.0.jar 或
+    kafka-1.0.0.jar 
     
 # 招聘：
    1.大数据平台开发工程师，想了解岗位详细信息可以添加本人微信号ysqwhiletrue,注明招聘，如有意者发送简历至sishu@dtstack.com。
