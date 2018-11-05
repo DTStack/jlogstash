@@ -28,6 +28,11 @@ package com.dtstack.jlogstash.inputs;
  */
 import java.util.Map;
 
+import com.dtstack.jlogstash.assembly.CmdLineParams;
+import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
+import com.dtstack.jlogstash.metrics.groups.PipelineInputMetricGroup;
+import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
+import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.jlogstash.assembly.qlist.QueueList;
@@ -51,7 +56,10 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
     protected Map<String, Object> addFields=null;
     
     protected static BasePluginUtil basePluginUtil = new BasePluginUtil();
-    
+
+    private static MetricRegistryImpl metricRegistry;
+
+    private PipelineInputMetricGroup pipelineInputMetricGroup;
 
     public IDecode createDecoder() {
         String codec = (String) this.config.get("codec");
@@ -102,6 +110,11 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         if(this.config!=null){
         	addFields = (Map<String, Object>) this.config.get("addFields");
         }
+        if (metricRegistry!=null){
+			String hostname = LocalIpAddressUtil.getLocalAddress();
+			String pluginName = this.getClass().getSimpleName();
+			pipelineInputMetricGroup = new PipelineInputMetricGroup(metricRegistry, hostname, "input", pluginName, CmdLineParams.getName());
+		}
     }
 
     public abstract void prepare();
@@ -113,6 +126,10 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         	if(addFields!=null){
         		basePluginUtil.addFields(event,addFields);
         	}
+        	if (pipelineInputMetricGroup!=null){
+				pipelineInputMetricGroup.getNumRecordsInCounter().inc();
+				pipelineInputMetricGroup.getNumBytesInLocalCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+			}
         	inputQueueList.put(event);
     	}
     }
@@ -130,5 +147,9 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 
 	public static QueueList getInputQueueList() {
 		return inputQueueList;
+	}
+
+	public static void setMetricRegistry(MetricRegistryImpl metricRegistry) {
+		BaseInput.metricRegistry = metricRegistry;
 	}
 }

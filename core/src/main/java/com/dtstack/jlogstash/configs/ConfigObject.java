@@ -30,6 +30,8 @@ public class ConfigObject {
 
     private List<Map> outputs;
 
+    private List<Map> metrics;
+
     public List<Map> getInputs() {
         return inputs;
     }
@@ -52,5 +54,13 @@ public class ConfigObject {
 
     public void setOutputs(List<Map> outputs) {
         this.outputs = outputs;
+    }
+
+    public List<Map> getMetrics() {
+        return metrics;
+    }
+
+    public void setMetrics(List<Map> metrics) {
+        this.metrics = metrics;
     }
 }

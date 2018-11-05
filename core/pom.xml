@@ -156,8 +156,10 @@
         <hamcrest-version>1.1</hamcrest-version>
         <snakeyaml-version>1.16</snakeyaml-version>
         <log4j-version>1.2.17</log4j-version>
+        <prometheus.version>0.5.0</prometheus.version>
     </properties>
     <dependencies>
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -248,6 +250,24 @@
             <groupId>io.thekraken</groupId>
             <artifactId>grok</artifactId>
             <version>0.1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient</artifactId>
+            <version>${prometheus.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_httpserver</artifactId>
+            <version>${prometheus.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_pushgateway</artifactId>
+            <version>${prometheus.version}</version>
         </dependency>
 
     </dependencies>

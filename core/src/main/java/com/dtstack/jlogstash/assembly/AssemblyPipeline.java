@@ -26,21 +26,25 @@ import com.dtstack.jlogstash.configs.YamlConfig;
 import com.dtstack.jlogstash.exception.LogstashException;
 import com.dtstack.jlogstash.factory.InputFactory;
 import com.dtstack.jlogstash.inputs.BaseInput;
+import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
+import com.dtstack.jlogstash.metrics.groups.JlogstashJobMetricGroup;
+import com.dtstack.jlogstash.metrics.util.MetricUtils;
 import com.dtstack.jlogstash.outputs.BaseOutput;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.jlogstash.configs.ConfigObject;
+
 import java.util.List;
 import java.util.Map;
 
 /**
- *
  * Reason: TODO ADD REASON(可选)
  * Date: 2016年8月31日 下午1:25:11
  * Company: www.dtstack.com
- * @author sishu.yss
  *
+ * @author sishu.yss
  */
 public class AssemblyPipeline {
 
@@ -54,28 +58,40 @@ public class AssemblyPipeline {
 
     private List<BaseOutput> allBaseOutputs = Lists.newCopyOnWriteArrayList();
 
+    private MetricRegistryImpl metricRegistry;
+
+    private JlogstashJobMetricGroup jlogstashJobMetricGroup;
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void assemblyPipeline() throws Exception {
         logger.info("load config start ...");
         ConfigObject configs = new YamlConfig().parse(CmdLineParams.getConfigFile());
         List<Map> inputs = configs.getInputs();
-        if (inputs == null || inputs.size() == 0) {
+        if (CollectionUtils.isEmpty(inputs)) {
             throw new LogstashException("input plugin is empty");
         }
         List<Map> outputs = configs.getOutputs();
-        if (outputs == null || outputs.size() == 0) {
+        if (CollectionUtils.isEmpty(outputs)) {
             throw new LogstashException("output plugin is empty");
         }
         logger.info("assemblyPipeline start ...");
         List<Map> filters = configs.getFilters();
-        if(filters != null && filters.size() > 0){
+
+        List<Map> metrics = configs.getMetrics();
+        if (CollectionUtils.isNotEmpty(metrics)) {
+            metricRegistry = new MetricRegistryImpl(metrics);
+            jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry);
+            BaseInput.setMetricRegistry(metricRegistry);
+            BaseOutput.setMetricRegistry(metricRegistry);
+        }
+        if (CollectionUtils.isNotEmpty(filters)) {
             initFilterQueueList = FilterQueueList.getFilterQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getFilterQueueSize());
             baseInputs = InputFactory.getBatchInstance(inputs, initFilterQueueList);
             InputThread.initInputThread(baseInputs);
             initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
             FilterThread.initFilterThread(filters, initFilterQueueList, initOutputQueueList);
             OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
-        }else{
+        } else {
             initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
             baseInputs = InputFactory.getBatchInstance(inputs, initOutputQueueList);
             InputThread.initInputThread(baseInputs);
@@ -85,7 +101,7 @@ public class AssemblyPipeline {
     }
 
     private void addShutDownHook() {
-        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs);
+        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs, metricRegistry, jlogstashJobMetricGroup);
         shutDownHook.addShutDownHook();
     }
 }

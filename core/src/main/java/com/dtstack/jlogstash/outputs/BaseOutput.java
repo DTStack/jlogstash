@@ -24,6 +24,11 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dtstack.jlogstash.assembly.CmdLineParams;
+import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
+import com.dtstack.jlogstash.metrics.groups.PipelineOutputMetricGroup;
+import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
+import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +63,10 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 	
 	public BlockingQueue<Object> failedMsgQueue = Queues.newLinkedBlockingDeque();
 
+	private static MetricRegistryImpl metricRegistry;
+
+	private PipelineOutputMetricGroup pipelineOutputMetricGroup;
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public BaseOutput(Map config) {
 		this.config = config;
@@ -78,6 +87,12 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 		
 		if(this.config.containsKey("consistency")){
 			consistency = (boolean) this.config.get("consistency");
+		}
+
+		if (metricRegistry!=null){
+			String hostname = LocalIpAddressUtil.getLocalAddress();
+			String pluginName = this.getClass().getSimpleName();
+			pipelineOutputMetricGroup = new PipelineOutputMetricGroup(metricRegistry, hostname, "output", pluginName, CmdLineParams.getName());
 		}
 	}
 
@@ -103,6 +118,10 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 			}
 			if (succuess == true) {
 				this.emit(event);
+				if (pipelineOutputMetricGroup!=null){
+					pipelineOutputMetricGroup.getNumRecordsOutCounter().inc();
+					pipelineOutputMetricGroup.getNumBytesOutCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+				}
 			}
 		}
 	}
@@ -148,5 +167,9 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 	@Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
-    }   
+    }
+
+    public static void setMetricRegistry(MetricRegistryImpl metricRegistry) {
+		BaseOutput.metricRegistry = metricRegistry;
+    }
 }
