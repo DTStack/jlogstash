@@ -39,27 +39,6 @@ filters:
         path: /tmp/filter-performance-%{+YYYY.MM.dd}.txt
         timeZone: Asia/Shanghai
         monitorPath: {"/tmp/filter-performance-%{+YYYY.MM.dd}.txt":"8"}
-   - dtstack.jdtloguserauth.DtLogUserAuth:
-        apiServer: 172.16.1.52:8668
-        useSsl: false
-        redisHost: 172.16.1.52
-        redisPort: 6379
-        isRedis: true
-        redisDB: 0
-        redisPassword: taukwnlwrd9
-   - dtstack.jdtlogparser.DtLogParser:
-        apiServer: 172.16.1.52:82
-        useSsl: false
-        redisHost: 172.16.1.52
-        redisPort: 6379
-        isRedis: true
-        redisDB: 0
-        redisPassword: taukwnlwrd9
-        timeWasteConfig: {"/tmp/timewaste-%{+yyyy.MM.dd}.log":"7"}  #记录解析日志耗时的配置，格式和Performance的一致，key为独立保存文件的路径，val为保留的最近日志数
-        timeWasteLogMaxFreq: 100 #设置解析日志耗时的写io的频率的上限，避免把磁盘打爆
-        parsedTimeThreshold: 2
-        parseFailedConfig : {"/tmp/parsefailed-%{+yyyy.MM.dd}.log":"7"} #记录解析失败的配置，格式和Performance的一致，key为独立保存文件的路径，val为保留的最近日志数
-        parseFailedLogMaxFreq: 100 #设置解析失败时的写io的频率的上限，避免把磁盘打爆
 
 outputs:
    - Performance:
