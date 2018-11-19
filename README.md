@@ -27,9 +27,13 @@
 
 # Jlogstash 启动参数：
 
+  -name:任务名称
+
   -f:配置文件 yaml格式路径
 
   -l:日志文件路径
+  
+  -name
 
   -i:input queue size coefficient 默认 200f/1024
 
@@ -50,6 +54,13 @@
   vvvv:debug级别
 
   vvvvv:trace级别
+
+# 性能采集：
+  
+  目前支持将jlogstash运行时的性能数据采集到promethues.
+  
+  详情：https://github.com/DTStack/jlogstash/tree/master/core/metrics.md
+
 
 # 插件开发：
 
