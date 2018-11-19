@@ -18,6 +18,12 @@
 
 # Outputs详情：
    https://github.com/DTStack/jlogstash/tree/master/pipeline/outputs/README.md
+   
+# 性能采集：
+  
+  目前支持将jlogstash运行时的性能数据采集到promethues.
+  
+  详情：https://github.com/DTStack/jlogstash/tree/master/core/metrics.md   
 
 # Jar放置目录（编译的jar必须要有版本号 ）：
   
@@ -54,13 +60,6 @@
   vvvv:debug级别
 
   vvvvv:trace级别
-
-# 性能采集：
-  
-  目前支持将jlogstash运行时的性能数据采集到promethues.
-  
-  详情：https://github.com/DTStack/jlogstash/tree/master/core/metrics.md
-
 
 # 插件开发：
 
