@@ -2,20 +2,20 @@
 > 性能指标介绍 
 
 * input 采集下列能数据
-    * 累计类型
+    * Count（累计类型)
         1. numRecordsInLocal（输入总数）
         2. numBytesIn（输入总字节数）
-    * 速率类型
+    * Meter（速率类型)
         1. numRecordsInPerSecond（每秒输入的数量）
         2. numBytesInLocalPerSecond（每秒输入的字节数）
         
 * output 采集下列能数据
-    * 累计类型
-        1. 输出总数（numRecordsOut）
-        2. 输出总字节数（numBytesOut）
-    * 速率类型
-        1. 每秒输出的数量（numRecordsOutPerSecond）
-        2. 每秒输出的字节数（numBytesOutPerSecond）
+    * Count（累计类型)
+        1. numRecordsOut（输出总数）
+        2. numBytesOut（输出总字节数）
+    * Meter（速率类型)
+        1. numRecordsOutPerSecond（每秒输出的数量）
+        2. numBytesOutPerSecond（每秒输出的字节数）
 
 * JVM 采集下列runtime数据
     * ClassLoader
