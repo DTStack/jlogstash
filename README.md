@@ -39,8 +39,6 @@
 
   -l:日志文件路径
   
-  -name
-
   -i:input queue size coefficient 默认 200f/1024
 
   -w:filter work number 默认是根据的机器cpu核数+2
