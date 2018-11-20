@@ -30,12 +30,16 @@
    jlogstash 核心代码放在jlogstash/lib/下
 
    插件的代码分别的放到jlogstash/plugin 下的filter,input,output目录下
+   
+# 启动命令:
+    
+  sh jlogstash.sh -f /home/admin/ysq.yaml vv
 
 # Jlogstash 启动参数：
 
   -name:任务名称
 
-  -f:配置文件 yaml格式路径
+  -f:配置文件 yaml格式路径(必填)
 
   -l:日志文件路径
   
