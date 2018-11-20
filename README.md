@@ -35,7 +35,7 @@
     
   sh jlogstash.sh -f /home/admin/ysq.yaml vv
 
-# Jlogstash 启动参数：
+# 启动参数：
 
   -name:任务名称
 
