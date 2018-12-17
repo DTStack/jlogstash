@@ -87,7 +87,7 @@ public class DateISO8601 extends BaseFilter {
             	  if(event.containsKey(src)){
             		    DateParser dateParser  = entry.getValue();
             		    String target = match.get(src).get("target");
-            			String input = (String)event.get(src);
+            			String input = String.valueOf(event.get(src));
             			event.put(target, dateParser.parse(input).toString());
             	  }  
           }
