@@ -7,7 +7,7 @@
 		<version>1.0.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-  <artifactId>input.kafka</artifactId>
+  <artifactId>input.kafka09</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
 

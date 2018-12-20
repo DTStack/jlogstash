@@ -47,8 +47,8 @@ import kafka.javaapi.consumer.ConsumerConnector;
  *
  */
 @SuppressWarnings("serial")
-public class Kafka extends BaseInput implements IKafkaChg{
-	private static final Logger logger = LoggerFactory.getLogger(Kafka.class);
+public class Kafka09 extends BaseInput implements IKafkaChg{
+	private static final Logger logger = LoggerFactory.getLogger(Kafka09.class);
 
 	private Map<String, ConsumerConnector> consumerConnMap = new HashMap<>();
 	
@@ -74,10 +74,10 @@ public class Kafka extends BaseInput implements IKafkaChg{
 
 	private class Consumer implements Runnable {
 		private KafkaStream<byte[], byte[]> m_stream;
-		private Kafka kafkaInput;
+		private Kafka09 kafkaInput;
 		private IDecode decoder;
 
-		public Consumer(KafkaStream<byte[], byte[]> a_stream, Kafka kafkaInput) {
+		public Consumer(KafkaStream<byte[], byte[]> a_stream, Kafka09 kafkaInput) {
 			this.m_stream = a_stream;
 			this.kafkaInput = kafkaInput;
 			this.decoder = kafkaInput.getDecoder();
@@ -91,7 +91,7 @@ public class Kafka extends BaseInput implements IKafkaChg{
 						String m = null;
 						try {
 							m = new String(it.next().message(),
-									this.kafkaInput.encoding);
+									Kafka09.encoding);
 							Map<String, Object> event = this.decoder
 									.decode(m);
 							if (event!=null&&event.size()>0){
@@ -108,7 +108,7 @@ public class Kafka extends BaseInput implements IKafkaChg{
 		}
 	}
 
-	public Kafka(Map<String, Object> config){
+	public Kafka09(Map<String, Object> config){
 		super(config);
 	}
 

@@ -50,6 +50,7 @@ public class Kafka10 extends BaseInput {
 		super(config);
 	}
 
+	@Override
 	public void prepare() {
 		Properties props = geneConsumerProp();
 		

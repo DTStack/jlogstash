@@ -16,7 +16,7 @@
         <module>elasticsearch</module>
         <module>file</module>
         <module>jdbc</module>
-        <module>kafka</module>
+        <module>kafka09</module>
         <module>kafka10</module>
         <module>kafkadistributed</module>
         <module>mongodb</module>
