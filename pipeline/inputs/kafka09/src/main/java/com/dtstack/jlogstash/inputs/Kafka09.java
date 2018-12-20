@@ -83,6 +83,7 @@ public class Kafka09 extends BaseInput implements IKafkaChg{
 			this.decoder = kafkaInput.getDecoder();
 		}
 
+		@Override
 		public void run() {
 			try {
 				while(true){
@@ -113,6 +114,7 @@ public class Kafka09 extends BaseInput implements IKafkaChg{
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public void prepare() {
 		Properties props = geneConsumerProp();
 		
@@ -140,6 +142,7 @@ public class Kafka09 extends BaseInput implements IKafkaChg{
 		return props;
 	}
 
+	@Override
 	public void emit() {
 		
 		Iterator<Entry<String, Integer>> topicIT = topic.entrySet().iterator();
@@ -231,7 +234,8 @@ public class Kafka09 extends BaseInput implements IKafkaChg{
 			lock.unlock();
 		}
 	}
-	
+
+	@Override
 	public void onClusterShutDown(){
 		logger.error("---- kafka cluster shutdown!!!");
 	}

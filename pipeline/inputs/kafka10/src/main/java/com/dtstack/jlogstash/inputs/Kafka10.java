@@ -75,6 +75,7 @@ public class Kafka10 extends BaseInput {
 		return props;
 	}
 
+	@Override
 	public void emit() {
 		
 		try {
