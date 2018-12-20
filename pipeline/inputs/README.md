@@ -7,7 +7,7 @@
    
    addFields: 需要添加的属性，map 结构
 
-# Kafka:
+# Kafka09:
    encoding:编码 默认 utf8
 
    codec:默认plain
@@ -17,6 +17,20 @@
    consumerSettings:必填 consumer 连接kafka的属性配置，map结构 {group.id: jlogstashvvvvv,zookeeper.connect: 127.0.0.1:2181,auto.commit.interval.ms:"1000",auto.offset.reset: smallest}
 
    addFields: 需要添加的属性，map 结构
+   
+# Kafka10:
+
+   codec:默认plain
+ 
+   topic:必填，string
+   
+   groupId:必填，string
+
+   consumerSettings:必填 consumer 连接kafka的属性配置，map结构 {zookeeper.connect: 127.0.0.1:2181,auto.commit.interval.ms:"1000",auto.offset.reset: smallest}
+   
+   bootstrapServers: 必填 127.0.0.1:9020,127.0.0.2:9020
+
+   addFields: 需要添加的属性，map 结构    
    
 # KafkaDistribute:
    encoding:编码 默认 utf8
