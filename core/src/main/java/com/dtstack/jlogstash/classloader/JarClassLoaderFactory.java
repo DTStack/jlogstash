@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Map;
 
 import com.dtstack.jlogstash.assembly.CmdLineParams;
@@ -41,21 +40,34 @@ import com.google.common.collect.Maps;
  * @author sishu.yss
  *
  */
-public class JarClassLoader {
+public class JARClassLoaderFactory {
 	
-	private static Logger logger = LoggerFactory.getLogger(JarClassLoader.class);
+	private static Logger logger = LoggerFactory.getLogger(JARClassLoaderFactory.class);
 
 	private static String pluginDir = StringUtils.isNotBlank(CmdLineParams.getPluginPath())?CmdLineParams.getPluginPath():System.getProperty("user.dir");
 	
 	private Map<String,URL[]> jarUrls = null;
+
+	private static JARClassLoaderFactory jarClassLoaderInstance = null;
 	
-	public JarClassLoader(){
+	private JARClassLoaderFactory(){
 		if(jarUrls==null){
 			jarUrls = getClassLoadJarUrls();
 			if(jarUrls != null&&jarUrls.size() > 0){
 				Thread.currentThread().setContextClassLoader(null);
 			}
 		}
+	}
+
+	public static JARClassLoaderFactory getInstance(){
+		if(jarClassLoaderInstance==null){
+			synchronized (JARClassLoaderFactory.class){
+				if(jarClassLoaderInstance == null){
+					jarClassLoaderInstance = new JARClassLoaderFactory();
+				}
+			}
+		}
+		return jarClassLoaderInstance;
 	}
 		
 	public ClassLoader getClassLoaderByPluginName(String name){
@@ -65,7 +77,7 @@ public class JarClassLoader {
 			 logger.warn("{}:load by AppclassLoader",name);
 			 return classLoader;
 		}
-		return new URLClassLoader(urls,classLoader);
+		return new JARClassLoader(urls,classLoader);
 	}
 	
 	private Map<String,URL[]> getClassLoadJarUrls(){

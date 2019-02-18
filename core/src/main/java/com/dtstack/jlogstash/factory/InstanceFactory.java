@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dtstack.jlogstash.annotation.plugin.AnnotationInterface;
 import com.dtstack.jlogstash.assembly.CmdLineParams;
-import com.dtstack.jlogstash.classloader.JarClassLoader;
+import com.dtstack.jlogstash.classloader.JARClassLoaderFactory;
 import com.dtstack.jlogstash.property.SystemProperty;
 
 
@@ -42,7 +42,7 @@ public abstract class InstanceFactory {
 	
 	private static Logger logger = LoggerFactory.getLogger(InstanceFactory.class);
 		
-	private static JarClassLoader JarClassLoader = new JarClassLoader();
+	private static JARClassLoaderFactory jarClassLoader = JARClassLoaderFactory.getInstance();
 	
 	@SuppressWarnings("rawtypes")
 	protected static void configInstance(Class<?> clasz,Map config) throws Exception{
@@ -117,7 +117,7 @@ public abstract class InstanceFactory {
 		
 		String[] names = type.split("\\.");
 		String key = String.format("%s:%s",pluginType, names[names.length-1].toLowerCase());
-		return JarClassLoader.getClassLoaderByPluginName(key).loadClass(className);
+		return jarClassLoader.getClassLoaderByPluginName(key).loadClass(className);
 	}
 	
 	protected static String getClassName(String type,String pluginType){
