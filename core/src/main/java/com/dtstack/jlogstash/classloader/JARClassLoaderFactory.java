@@ -53,9 +53,6 @@ public class JARClassLoaderFactory {
     private JARClassLoaderFactory(){
         if(jarUrls==null){
             jarUrls = getClassLoadJarUrls();
-//			if(jarUrls != null&&jarUrls.size() > 0){
-//				Thread.currentThread().setContextClassLoader(null);
-//			}
         }
     }
 
