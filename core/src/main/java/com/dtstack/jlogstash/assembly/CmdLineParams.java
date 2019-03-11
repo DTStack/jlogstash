@@ -118,6 +118,14 @@ public class CmdLineParams {
 	public static String getConfigFile(){
 		return line.getOptionValue("f");
 	}
+
+	/**
+	 * 获取多个配置文件
+	 * @return
+	 */
+	public static String[] getConfigFiles(){
+		return line.getOptionValues("f");
+	}
 	
 	public static boolean isDev() {
 		return line.hasOption("dev");
