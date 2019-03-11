@@ -17,11 +17,7 @@
  */
 package com.dtstack.jlogstash;
 
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 
 
 /**
@@ -34,10 +30,11 @@ import org.apache.commons.cli.ParseException;
  */
 public class OptionsProcessor {
 
-	public class Option {
+	public class Option extends org.apache.commons.cli.Option{
 		String flag, opt;
 
 		public Option(String flag, String opt) {
+			super(flag,opt);
 			this.flag = flag;
 			
 			this.opt = opt;
@@ -49,7 +46,16 @@ public class OptionsProcessor {
         options.addOption("dev", false, "dev mode");
 		options.addOption("h", false, "usage help");
 		options.addOption("p", true, "plugin path");
-		options.addOption("f", true, "configuration file");
+//		options.addOption("f", true, "configuration file");
+		org.apache.commons.cli.Option o = Option.builder("f")
+				.required(true)
+				.hasArg().numberOfArgs(10)
+				.argName("filename")
+				.desc("configuration file")
+				.build();
+
+		options.addOption(o);
+
 		options.addOption("l", true, "log file");
 		options.addOption("w", true, "filter worker number");
 		options.addOption("o", true, "output worker number");
@@ -61,7 +67,7 @@ public class OptionsProcessor {
 		options.addOption("vvvv", false, "print debug log");
 		options.addOption("vvvvv", false, "print trace log");
 		options.addOption("name", true, "print job name");
-		CommandLineParser paraer = new BasicParser();
+		CommandLineParser paraer = new DefaultParser();
 		CommandLine cmdLine = paraer.parse(options, args);
 		if (cmdLine.hasOption("help") || cmdLine.hasOption("h")) {
 			usage();
