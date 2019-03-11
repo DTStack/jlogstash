@@ -65,39 +65,45 @@ public class AssemblyPipeline {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void assemblyPipeline() throws Exception {
         logger.info("load config start ...");
-        ConfigObject configs = new YamlConfig().parse(CmdLineParams.getConfigFile());
-        List<Map> inputs = configs.getInputs();
-        if (CollectionUtils.isEmpty(inputs)) {
-            throw new LogstashException("input plugin is empty");
-        }
-        List<Map> outputs = configs.getOutputs();
-        if (CollectionUtils.isEmpty(outputs)) {
-            throw new LogstashException("output plugin is empty");
-        }
-        logger.info("assemblyPipeline start ...");
-        List<Map> filters = configs.getFilters();
+        String[] configFiles = CmdLineParams.getConfigFiles();
+        if(null != configFiles && configFiles.length>0){
+            for (int i = 0; i < configFiles.length; i++) {
+                ConfigObject configs = new YamlConfig().parse(configFiles[i]);
+                List<Map> inputs = configs.getInputs();
+                if (CollectionUtils.isEmpty(inputs)) {
+                    throw new LogstashException("input plugin is empty");
+                }
+                List<Map> outputs = configs.getOutputs();
+                if (CollectionUtils.isEmpty(outputs)) {
+                    throw new LogstashException("output plugin is empty");
+                }
+                logger.info("assemblyPipeline start ...");
+                List<Map> filters = configs.getFilters();
 
-        List<Map> metrics = configs.getMetrics();
-        if (CollectionUtils.isNotEmpty(metrics)) {
-            metricRegistry = new MetricRegistryImpl(metrics);
-            jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry);
-            BaseInput.setMetricRegistry(metricRegistry);
-            BaseOutput.setMetricRegistry(metricRegistry);
+                List<Map> metrics = configs.getMetrics();
+                if (CollectionUtils.isNotEmpty(metrics)) {
+                    metricRegistry = new MetricRegistryImpl(metrics);
+                    jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry);
+                    BaseInput.setMetricRegistry(metricRegistry);
+                    BaseOutput.setMetricRegistry(metricRegistry);
+                }
+                if (CollectionUtils.isNotEmpty(filters)) {
+                    initFilterQueueList = FilterQueueList.getFilterQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getFilterQueueSize());
+                    baseInputs = InputFactory.getBatchInstance(inputs, initFilterQueueList);
+                    InputThread.initInputThread(baseInputs);
+                    initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
+                    FilterThread.initFilterThread(filters, initFilterQueueList, initOutputQueueList);
+                    OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
+                } else {
+                    initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
+                    baseInputs = InputFactory.getBatchInstance(inputs, initOutputQueueList);
+                    InputThread.initInputThread(baseInputs);
+                    OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
+                }
+                addShutDownHook();
+            }
         }
-        if (CollectionUtils.isNotEmpty(filters)) {
-            initFilterQueueList = FilterQueueList.getFilterQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getFilterQueueSize());
-            baseInputs = InputFactory.getBatchInstance(inputs, initFilterQueueList);
-            InputThread.initInputThread(baseInputs);
-            initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
-            FilterThread.initFilterThread(filters, initFilterQueueList, initOutputQueueList);
-            OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
-        } else {
-            initOutputQueueList = OutPutQueueList.getOutPutQueueListInstance(CmdLineParams.getOutputWork(), CmdLineParams.getOutputQueueSize());
-            baseInputs = InputFactory.getBatchInstance(inputs, initOutputQueueList);
-            InputThread.initInputThread(baseInputs);
-            OutputThread.initOutPutThread(outputs, initOutputQueueList, allBaseOutputs);
-        }
-        addShutDownHook();
+
     }
 
     private void addShutDownHook() {
