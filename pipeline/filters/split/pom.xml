@@ -4,11 +4,10 @@
 	<parent>
 		<artifactId>filter.plugin</artifactId>
 		<groupId>com.dtstack.jlogstash</groupId>
-		<version>1.0.0</version>
+		<version>${git.branch}</version>
 	</parent>
 
 	<artifactId>filter.split</artifactId>
-  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <url>http://maven.apache.org</url>
@@ -82,12 +81,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-  <dependencies>
-	  <dependency>
-		  <groupId>com.dtstack.jlogstash</groupId>
-		  <artifactId>jlogstash</artifactId>
-		  <version>1.0.0</version>
-	  </dependency>
-  </dependencies>
 </project>

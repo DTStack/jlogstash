@@ -6,11 +6,10 @@
     <parent>
         <groupId>com.dtstack.jlogstash</groupId>
         <artifactId>filter.plugin</artifactId>
-        <version>1.0.0</version>
+        <version>${git.branch}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>filter.java</artifactId>
-    <version>1.0.1</version>
 
     <build>
         <plugins>
@@ -71,12 +70,4 @@
         </plugins>
     </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>jlogstash</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
 </project>

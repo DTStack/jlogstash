@@ -4,11 +4,10 @@
 	<parent>
 		<groupId>com.dtstack.jlogstash</groupId>
 		<artifactId>output.plugin</artifactId>
-		<version>1.0.0</version>
+		<version>${git.branch}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   <artifactId>output.hdfs</artifactId>
-  <version>1.0.0</version>
   <packaging>jar</packaging>
   <description>output plugin netty</description>
 

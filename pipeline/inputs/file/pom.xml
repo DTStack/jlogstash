@@ -4,11 +4,10 @@
 	<parent>
 		<groupId>com.dtstack.jlogstash</groupId>
 		<artifactId>input.plugin</artifactId>
-		<version>1.0.0</version>
+		<version>${git.branch}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>input.file</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<description>input plugin file</description>
 
@@ -159,13 +158,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<version>1.4.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.dtstack.jlogstash</groupId>
-			<artifactId>jlogstash</artifactId>
-			<version>1.0.0</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

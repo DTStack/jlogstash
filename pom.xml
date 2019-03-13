@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.dtstack.jlogstash</groupId>
     <artifactId>jlogstash-all</artifactId>
-    <version>1.0.0</version>
+    <version>${git.branch}</version>
     <packaging>pom</packaging>
     <url>https://github.com/DTStack/jlogstash</url>
 
@@ -24,4 +24,33 @@
         <module>pipeline/inputs</module>
         <module>pipeline/outputs</module>
     </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.2.6</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <dateFormat>yyyy.MM.dd HH:mm:ss</dateFormat>
+                    <verbose>true</verbose>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <gitDescribe>
+                        <always>false</always>
+                        <dirty>-dirty</dirty>
+                        <forceLongFormat>false</forceLongFormat>
+                    </gitDescribe>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

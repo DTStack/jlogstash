@@ -4,11 +4,10 @@
 	<parent>
 		<groupId>com.dtstack.jlogstash</groupId>
 		<artifactId>filter.plugin</artifactId>
-		<version>1.0.0</version>
+		<version>${git.branch}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   <artifactId>filter.geoip2</artifactId>
-  <version>1.0.0</version>
   <packaging>jar</packaging>
   <url>http://maven.apache.org</url>
 
@@ -94,12 +93,5 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
-	  <dependency>
-		  <groupId>com.dtstack.jlogstash</groupId>
-		  <artifactId>jlogstash</artifactId>
-		  <version>1.0.0</version>
-		  <scope>provided</scope>
-	  </dependency>
   </dependencies>
 </project>

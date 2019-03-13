@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.dtstack.jlogstash</groupId>
         <artifactId>jlogstash-all</artifactId>
-        <version>1.0.0</version>
+        <version>${git.branch}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jlogstash</artifactId>

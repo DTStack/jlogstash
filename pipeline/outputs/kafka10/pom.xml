@@ -4,11 +4,10 @@
 	<parent>
 		<groupId>com.dtstack.jlogstash</groupId>
 		<artifactId>output.plugin</artifactId>
-		<version>1.0.0</version>
+		<version>${git.branch}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>output.kafka10</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<description>output plugin kafka</description>
 	<url>https://github.com/DTStack/jlogstash-output-plugin/tree/master/kafka</url>
@@ -134,12 +133,6 @@
 	</distributionManagement>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>com.dtstack.jlogstash</groupId>
-			<artifactId>jlogstash</artifactId>
-			<version>1.0.0</version>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka-clients</artifactId>

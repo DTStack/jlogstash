@@ -6,11 +6,10 @@
     <parent>
         <groupId>com.dtstack.jlogstash</groupId>
         <artifactId>input.plugin</artifactId>
-        <version>1.0.0</version>
+        <version>${git.branch}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>input.mongodb</artifactId>
-    <version>1.0.0</version>
     <packaging>jar</packaging>
     <description>input plugin mongodb</description>
     <properties>
@@ -151,12 +150,6 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>jlogstash</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>

@@ -4,11 +4,10 @@
 	<parent>
 		<groupId>com.dtstack.jlogstash</groupId>
 		<artifactId>input.plugin</artifactId>
-		<version>1.0.0</version>
+		<version>${git.branch}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>input.tcp</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<description>input plugin tcp</description>
 	<url>https://github.com/DTStack/jlogstash-input-plugin/tree/master/tcp</url>
@@ -158,13 +157,6 @@
 			<groupId>org.apache.mina</groupId>
 			<artifactId>mina-filter-ssl</artifactId>
 			<version>1.1.7</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.dtstack.jlogstash</groupId>
-			<artifactId>jlogstash</artifactId>
-			<version>1.0.0</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>
