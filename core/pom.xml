@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.dtstack.jlogstash</groupId>
         <artifactId>jlogstash-all</artifactId>
-        <version>${git.branch}</version>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jlogstash</artifactId>
@@ -92,8 +92,11 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <delete>
+                                    <fileset dir="${basedir}/../lib" includes="${project.name}-*.jar"/>
+                                </delete>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../lib/${project.name}-${project.version}.jar" />
+                                      tofile="${basedir}/../lib/${project.name}-${git.branch}.jar" />
                             </tasks>
                         </configuration>
                     </execution>
@@ -136,6 +139,8 @@
                     <!--</execution>-->
                 <!--</executions>-->
             <!--</plugin>-->
+
+
         </plugins>
     </build>
 

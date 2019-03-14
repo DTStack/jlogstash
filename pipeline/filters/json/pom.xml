@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.dtstack.jlogstash</groupId>
 		<artifactId>filter.plugin</artifactId>
-		<version>${git.branch}</version>
+		<version>1.0.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   <artifactId>filter.json</artifactId>
@@ -71,8 +71,11 @@
 						</goals>
 						<configuration>
 							<tasks>
+								<delete>
+									<fileset dir="${basedir}/../../../plugin/filter" includes="${project.name}-*.jar"/>
+								</delete>
 								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/../../../plugin/filter/${project.name}-${project.version}.jar" />
+									  tofile="${basedir}/../../../plugin/filter/${project.name}-${git.branch}.jar" />
 							</tasks>
 						</configuration>
 					</execution>

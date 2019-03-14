@@ -14,7 +14,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.dtstack.jlogstash</groupId>
     <artifactId>jlogstash-all</artifactId>
-    <version>${git.branch}</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <url>https://github.com/DTStack/jlogstash</url>
 

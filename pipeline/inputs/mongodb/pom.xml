@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.dtstack.jlogstash</groupId>
         <artifactId>input.plugin</artifactId>
-        <version>${git.branch}</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>input.mongodb</artifactId>
@@ -103,8 +103,11 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <delete>
+                                    <fileset dir="${basedir}/../../../plugin/input" includes="${project.name}-*.jar"/>
+                                </delete>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../../../plugin/input/${project.name}-${project.version}.jar" />
+                                      tofile="${basedir}/../../../plugin/input/${project.name}-${git.branch}.jar" />
                             </tasks>
                         </configuration>
                     </execution>
