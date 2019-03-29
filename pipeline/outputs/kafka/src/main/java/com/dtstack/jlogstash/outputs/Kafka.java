@@ -105,7 +105,12 @@ public class Kafka extends BaseOutput {
 			if(producerSettings!=null){
 				props.putAll(producerSettings);
 			}
-			props.put("metadata.broker.list",brokerList);
+			if (!brokerList.trim().equals("")){
+				props.put("metadata.broker.list",brokerList);
+			} else {
+				throw new Exception("brokerList can not be empty!");
+			}
+
 			if(pconfig==null){
 				pconfig = new ProducerConfig(props);
 			}
