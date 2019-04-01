@@ -139,6 +139,7 @@
 			<groupId>com.dtstack.jlogstash</groupId>
 			<artifactId>jlogstash</artifactId>
 			<version>1.0.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
