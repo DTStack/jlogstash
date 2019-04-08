@@ -8,7 +8,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>input.file</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<description>input plugin file</description>
 
@@ -102,8 +101,11 @@
 						</goals>
 						<configuration>
 							<tasks>
+								<delete>
+									<fileset dir="${basedir}/../../../plugin/input" includes="${project.name}-*.jar"/>
+								</delete>
 								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/../../../plugin/input/${project.name}-${project.version}.jar" />
+									  tofile="${basedir}/../../../plugin/input/${project.name}-${git.branch}.jar" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -159,13 +161,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<version>1.4.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.dtstack.jlogstash</groupId>
-			<artifactId>jlogstash</artifactId>
-			<version>1.0.0</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

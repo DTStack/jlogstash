@@ -8,7 +8,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>output.elasticsearch</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<description>output plugin elasticsearch</description>
 
@@ -103,8 +102,11 @@
 						</goals>
 						<configuration>
 							<tasks>
+								<delete>
+									<fileset dir="${basedir}/../../../plugin/output" includes="${project.name}-*.jar"/>
+								</delete>
 								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/../../../plugin/output/${project.name}-${project.version}.jar" />
+									  tofile="${basedir}/../../../plugin/output/${project.name}-${git.branch}.jar" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -152,13 +154,6 @@
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
 			<version>2.3.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.dtstack.jlogstash</groupId>
-			<artifactId>jlogstash</artifactId>
-			<version>1.0.0</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

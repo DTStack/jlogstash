@@ -8,7 +8,6 @@
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <version>1.0.0</version>
     <artifactId>filter.splitStr</artifactId>
 
     <properties>
@@ -71,8 +70,11 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <delete>
+                                    <fileset dir="${basedir}/../../../plugin/filter" includes="${project.name}-*.jar"/>
+                                </delete>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../../../plugin/filter/${project.name}-${project.version}.jar" />
+                                      tofile="${basedir}/../../../plugin/filter/${project.name}-${git.branch}.jar" />
                             </tasks>
                         </configuration>
                     </execution>
@@ -80,14 +82,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>jlogstash</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-    </dependencies>
 </project>

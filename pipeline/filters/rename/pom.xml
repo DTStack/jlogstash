@@ -9,7 +9,6 @@
 	</parent>
   <groupId>com.dtstack.jlogstash</groupId>
   <artifactId>filter.rename</artifactId>
-  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -72,8 +71,11 @@
 						</goals>
 						<configuration>
 							<tasks>
+								<delete>
+									<fileset dir="${basedir}/../../../plugin/filter" includes="${project.name}-*.jar"/>
+								</delete>
 								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/../../../plugin/filter/${project.name}-${project.version}.jar" />
+									  tofile="${basedir}/../../../plugin/filter/${project.name}-${git.branch}.jar" />
 							</tasks>
 						</configuration>
 					</execution>

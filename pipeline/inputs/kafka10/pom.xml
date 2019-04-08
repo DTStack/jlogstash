@@ -8,7 +8,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>input.kafka10</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<url>http://maven.apache.org</url>
@@ -74,8 +73,11 @@
 						</goals>
 						<configuration>
 							<tasks>
+								<delete>
+									<fileset dir="${basedir}/../../../plugin/input" includes="${project.name}-*.jar"/>
+								</delete>
 								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/../../../plugin/input/${project.name}-${project.version}.jar" />
+									  tofile="${basedir}/../../../plugin/input/${project.name}-${git.branch}.jar" />
 							</tasks>
 						</configuration>
 					</execution>

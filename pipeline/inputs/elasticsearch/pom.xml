@@ -10,15 +10,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>input.elasticsearch</artifactId>
-    <version>1.0.0</version>
-
     <dependencies>
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>jlogstash</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
@@ -66,8 +58,11 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <delete>
+                                    <fileset dir="${basedir}/../../../plugin/input" includes="${project.name}-*.jar"/>
+                                </delete>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../../../plugin/input/${project.name}-${project.version}.jar" />
+                                      tofile="${basedir}/../../../plugin/input/${project.name}-${git.branch}.jar" />
                             </tasks>
                         </configuration>
                     </execution>

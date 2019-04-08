@@ -8,7 +8,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>input.redis</artifactId>
-  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <url>http://maven.apache.org</url>
@@ -77,8 +76,11 @@
             </goals>
             <configuration>
               <tasks>
+                <delete>
+                  <fileset dir="${basedir}/../../../plugin/input" includes="${project.name}-*.jar"/>
+                </delete>
                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                      tofile="${basedir}/../../../plugin/input/${project.name}-${project.version}.jar" />
+                      tofile="${basedir}/../../../plugin/input/${project.name}-${git.branch}.jar" />
               </tasks>
             </configuration>
           </execution>
@@ -114,19 +116,4 @@
     </plugins>
   </build>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.dtstack.jlogstash</groupId>
-      <artifactId>jlogstash</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
 </project>

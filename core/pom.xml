@@ -92,8 +92,11 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <delete>
+                                    <fileset dir="${basedir}/../lib" includes="${project.name}-*.jar"/>
+                                </delete>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../lib/${project.name}-${project.version}.jar" />
+                                      tofile="${basedir}/../lib/${project.name}-${git.branch}.jar" />
                             </tasks>
                         </configuration>
                     </execution>
@@ -136,6 +139,8 @@
                     <!--</execution>-->
                 <!--</executions>-->
             <!--</plugin>-->
+
+
         </plugins>
     </build>
 

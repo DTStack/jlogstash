@@ -8,7 +8,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   <artifactId>filter.remove</artifactId>
-  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <url>http://maven.apache.org</url>
@@ -74,8 +73,11 @@
 						</goals>
 						<configuration>
 							<tasks>
+								<delete>
+									<fileset dir="${basedir}/../../../plugin/filter" includes="${project.name}-*.jar"/>
+								</delete>
 								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/../../../plugin/filter/${project.name}-${project.version}.jar" />
+									  tofile="${basedir}/../../../plugin/filter/${project.name}-${git.branch}.jar" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -83,14 +85,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-  <dependencies>
-
-	  <dependency>
-		  <groupId>com.dtstack.jlogstash</groupId>
-		  <artifactId>jlogstash</artifactId>
-		  <version>1.0.0</version>
-		  <scope>provided</scope>
-	  </dependency>
-  </dependencies>
 </project>

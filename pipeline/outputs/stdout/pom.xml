@@ -8,7 +8,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>output.stdout</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<description>output plugin stdout</description>
 
@@ -102,8 +101,11 @@
 						</goals>
 						<configuration>
 							<tasks>
+								<delete>
+									<fileset dir="${basedir}/../../../plugin/output" includes="${project.name}-*.jar"/>
+								</delete>
 								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/../../../plugin/output/${project.name}-${project.version}.jar" />
+									  tofile="${basedir}/../../../plugin/output/${project.name}-${git.branch}.jar" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -147,12 +149,4 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
 	</distributionManagement>
-	<dependencies>
-		<dependency>
-			<groupId>com.dtstack.jlogstash</groupId>
-			<artifactId>jlogstash</artifactId>
-			<version>1.0.0</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
 </project>
