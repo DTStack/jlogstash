@@ -21,6 +21,7 @@ package com.dtstack.jlogstash.metrics.promethues;
 import com.dtstack.jlogstash.assembly.CmdLineParams;
 import com.dtstack.jlogstash.metrics.base.MetricConfig;
 import com.dtstack.jlogstash.metrics.base.reporter.Scheduled;
+import com.dtstack.jlogstash.metrics.util.AbstractID;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.PushGateway;
 
@@ -47,7 +48,7 @@ public class PrometheusPushGatewayReporter extends AbstractPrometheusReporter im
 			throw new IllegalArgumentException("Invalid host/port configuration. Host: " + host + " Port: " + port);
 		}
 
-		this.jobName = configuredJobName;
+		this.jobName = configuredJobName + new AbstractID();
 
 		pushGateway = new PushGateway(host + ':' + port);
 		log.info("Configured PrometheusPushGatewayReporter with {host:{}, port:{}, jobName: {}, deleteOnShutdown:{}}", host, port, jobName, deleteOnShutdown);
