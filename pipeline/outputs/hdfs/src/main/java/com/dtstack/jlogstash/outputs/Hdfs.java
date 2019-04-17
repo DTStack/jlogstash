@@ -81,6 +81,10 @@ public class Hdfs extends BaseOutput{
 	private Lock lock = new ReentrantLock();
 	
 	private AtomicBoolean lockBoolean = new AtomicBoolean(true);
+
+	static{
+		Thread.currentThread().setContextClassLoader(null);
+	}
 	
 	public Hdfs(Map config) {
 		super(config);

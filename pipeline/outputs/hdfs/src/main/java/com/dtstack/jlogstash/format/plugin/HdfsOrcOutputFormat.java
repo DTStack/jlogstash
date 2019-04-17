@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.hadoop.mapred.FileOutputFormat;
 
 /**
  * 
@@ -81,7 +82,7 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat {
         }
 
         if(codecClass != null){
-            this.outputFormat.setOutputCompressorClass(jobConf, codecClass);
+            FileOutputFormat.setOutputCompressorClass(jobConf, codecClass);
         }
     }
 
@@ -89,7 +90,7 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat {
     public void open() throws IOException {
             String pathStr = String.format("%s/%s-%d-%s.orc", outputFilePath, HostUtil.getHostName(),Thread.currentThread().getId(),UUID.randomUUID().toString());
             logger.info("hdfs path:{}",pathStr);
-            outputFormat.setOutputPath(jobConf, new Path(pathStr));
+            FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
             this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
     }
 
