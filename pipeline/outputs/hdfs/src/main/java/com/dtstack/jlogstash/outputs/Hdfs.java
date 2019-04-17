@@ -73,7 +73,9 @@ public class Hdfs extends BaseOutput{
 	private static String hadoopUserName = "root";
 	
 	private static Configuration configuration;
-	
+
+	private static Map<String, Object> hadoopConfigMap;
+
 	private Map<String,HdfsOutputFormat> hdfsOutputFormats = Maps.newConcurrentMap();
 	
 	private Lock lock = new ReentrantLock();
@@ -152,9 +154,9 @@ public class Hdfs extends BaseOutput{
 		}
 		HdfsOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(realPath);
 		if(hdfsOutputFormat == null){
-			if(StoreEnum.TEXT.name().equals(store)){
+			if(StoreEnum.TEXT.name().equalsIgnoreCase(store)){
 				hdfsOutputFormat = new HdfsTextOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, delimiter);
-			}else if(StoreEnum.ORC.name().equals(store)){
+			}else if(StoreEnum.ORC.name().equalsIgnoreCase(store)){
 				hdfsOutputFormat = new HdfsOrcOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset);
 			}
 			hdfsOutputFormat.configure();
@@ -202,6 +204,15 @@ public class Hdfs extends BaseOutput{
 	}
 	
 	private void setHadoopConfiguration() throws Exception{
+		if (hadoopConfigMap != null) {
+			configuration = new Configuration(false);
+			System.setProperty("HADOOP_USER_NAME", hadoopUserName);
+			configuration = new Configuration();
+			for(Map.Entry<String,Object> entry : hadoopConfigMap.entrySet()) {
+				configuration.set(entry.getKey(), entry.getValue().toString());
+			}
+			configuration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+		}
 		if(configuration == null){
 			synchronized(Hdfs.class){
 				if(configuration == null){
@@ -226,39 +237,5 @@ public class Hdfs extends BaseOutput{
 			}
 			
 		}
-	}
-	
-	public static void main(String[] args) throws Exception{
-		Hdfs.hadoopConf = "/Users/sishuyss/ysq/dtstack/rdos-web-all/conf/hadoop";
-		Hdfs.hadoopUserName = "admin";
-		Hdfs.path = "/test13/%{table}";
-		Hdfs.store = "TEXT";
-		Hdfs.interval= 2000;
-//		Hdfs.compression="GZIP";
-		List<String> sche = Lists.newArrayList("table:varchar","op_type:varchar","op_ts:varchar","current_ts:varchar","pos:varchar","before:varchar","after:varchar");
-		Hdfs.schema = sche;
-		
-//		for(int i =0;i<1;i++){
-//			new Thread(new Runnable(){
-//
-//				@Override
-//				public void run() {
-//					// TODO Auto-generated method stub
-//					
-//					Hdfs hdfs = new Hdfs(Maps.newConcurrentMap());
-//					hdfs.prepare();
-//					for(int i=0;i<100000;i++){
-//						Map<String,Object> event = Maps.newConcurrentMap();
-//						event.put("table", "TEST.T");
-//						event.put("op_type", "U");
-//						event.put("op_ts", "2017-09-05 09:47:45.040103");
-//						event.put("current_ts", "2017-09-05T17:47:52.868000");
-//						event.put("before", "{\"ID\":12,\"NAME\":\"dsasasdas\"}");
-//						event.put("after", "{\"ID\":12,\"NAME\":\"1234455\"}");
-//						hdfs.emit(event);	
-//					}
-//				}
-//			}).start();
-//		}
 	}
 }
