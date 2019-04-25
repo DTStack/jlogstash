@@ -50,6 +50,10 @@ public class Kafka10 extends BaseInput {
 		super(config);
 	}
 
+	static{
+		Thread.currentThread().setContextClassLoader(null);
+	}
+
 	@Override
 	public void prepare() {
 		Properties props = geneConsumerProp();
@@ -81,7 +85,7 @@ public class Kafka10 extends BaseInput {
 		try {
 			
 			consumer.add(topic, groupId, new JKafkaConsumer.Caller() {
-				
+
 				@Override
 				public void processMessage(String message) {
 					Map<String, Object> event = Kafka10.this.getDecoder().decode(message);
