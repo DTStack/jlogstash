@@ -34,6 +34,7 @@ public abstract class HdfsOutputFormat implements  OutputFormat {
     protected  Map<String, String> columnNameTypeMap;
     protected  Map<String, Integer> columnNameIndexMap;
     protected  RecordWriter recordWriter;
+    protected String fileName;
     public static ObjectMapper objectMapper = new ObjectMapper();
 
     @Override

@@ -50,7 +50,9 @@ public class Hdfs extends BaseOutput{
 	private static String compression = "NONE";
 	
 	private static String charsetName = "UTF-8";
-	
+
+	private static String fileName;
+
 	private static Charset charset;
 	
 	private static String delimiter = "\001";
@@ -159,9 +161,9 @@ public class Hdfs extends BaseOutput{
 		HdfsOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(realPath);
 		if(hdfsOutputFormat == null){
 			if(StoreEnum.TEXT.name().equalsIgnoreCase(store)){
-				hdfsOutputFormat = new HdfsTextOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, delimiter);
+				hdfsOutputFormat = new HdfsTextOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, delimiter, fileName);
 			}else if(StoreEnum.ORC.name().equalsIgnoreCase(store)){
-				hdfsOutputFormat = new HdfsOrcOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset);
+				hdfsOutputFormat = new HdfsOrcOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, fileName);
 			}
 			hdfsOutputFormat.configure();
 			hdfsOutputFormat.open();

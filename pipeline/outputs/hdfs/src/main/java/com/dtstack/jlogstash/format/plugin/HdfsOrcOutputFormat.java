@@ -35,7 +35,8 @@ import org.apache.hadoop.mapred.FileOutputFormat;
  */
 public class HdfsOrcOutputFormat extends HdfsOutputFormat {
 	
-	public HdfsOrcOutputFormat(Configuration conf,String outputFilePath,List<String> columnNames,List<String> columnTypes,String compress,String writeMode,Charset charset) {
+	public HdfsOrcOutputFormat(Configuration conf,String outputFilePath,List<String> columnNames,
+                               List<String> columnTypes,String compress,String writeMode,Charset charset, String fileName) {
 	   this.conf = conf;
 	   this.outputFilePath = outputFilePath;
 	   this.columnNames = columnNames;
@@ -43,6 +44,10 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat {
 	   this.compress = compress;
 	   this.writeMode = writeMode;
 	   this.charset = charset;
+        if (fileName == null || fileName.length()==0) {
+            fileName = HostUtil.getHostName();
+        }
+        this.fileName = fileName;
 	}
 
 	private static Logger logger = LoggerFactory.getLogger(HdfsOrcOutputFormat.class);
@@ -88,7 +93,7 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat {
 
     @Override
     public void open() throws IOException {
-            String pathStr = String.format("%s/%s-%d-%s.orc", outputFilePath, HostUtil.getHostName(),Thread.currentThread().getId(),UUID.randomUUID().toString());
+            String pathStr = String.format("%s/%s-%d-%s.orc", outputFilePath, fileName,Thread.currentThread().getId(),UUID.randomUUID().toString());
             logger.info("hdfs path:{}",pathStr);
             FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
             this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);

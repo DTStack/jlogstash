@@ -37,7 +37,7 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 
 	public HdfsTextOutputFormat(Configuration conf, String outputFilePath,
 			List<String> columnNames, List<String> columnTypes,
-			String compress, String writeMode, Charset charset, String delimiter) {
+			String compress, String writeMode, Charset charset, String delimiter,String fileName) {
 		this.conf = conf;
 		this.outputFilePath = outputFilePath;
 		this.columnNames = columnNames;
@@ -46,6 +46,10 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 		this.writeMode = writeMode;
 		this.charset = charset;
 		this.delimiter = delimiter;
+		if (fileName == null || fileName.length()==0) {
+			fileName = HostUtil.getHostName();
+		}
+		this.fileName = fileName;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -71,7 +75,7 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 
 	@Override
 	public void open() throws IOException {
-        String pathStr = String.format("%s/%s-%d-%s.txt", outputFilePath, HostUtil.getHostName(),Thread.currentThread().getId(),UUID.randomUUID().toString());
+        String pathStr = String.format("%s/%s-%d-%s.txt", outputFilePath, fileName, Thread.currentThread().getId(), UUID.randomUUID().toString());
 		logger.info("hdfs path:{}", pathStr);
 		// // 此处好像并没有什么卵用
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
