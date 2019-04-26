@@ -50,7 +50,10 @@ public abstract class HdfsOutputFormat implements  OutputFormat {
 
     public abstract void writeRecord(Map<String,Object> row) throws IOException;
 
-    public abstract void outputReopen() throws IOException;
+    public void outputReopen() throws IOException {
+        this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, outputFilePath, Reporter.NULL);
+        isClosed = false;
+    }
 
     public boolean isClosed(){
         return isClosed;

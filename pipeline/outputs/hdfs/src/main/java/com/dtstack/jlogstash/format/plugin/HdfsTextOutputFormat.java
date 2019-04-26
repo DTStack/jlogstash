@@ -89,11 +89,6 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 				pathStr, Reporter.NULL);
 	}
 
-	@Override
-	public void outputReopen() throws IOException {
-		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, outputFilePath, Reporter.NULL);
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void writeRecord(Map<String, Object> row) throws IOException {
