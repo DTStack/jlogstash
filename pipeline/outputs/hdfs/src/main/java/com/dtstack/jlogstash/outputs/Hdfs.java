@@ -62,7 +62,9 @@ public class Hdfs extends BaseOutput{
 	 * 间隔 interval 时间对 outputFormat 进行一次 close，触发输出文件的合并
 	 */
 	public static int interval = 5 * 60 * 1000;
-	
+
+	public static boolean dataSplit;
+
 	public static int bufferSize = 1024;//bytes
 	
     private ExecutorService executor;
@@ -159,6 +161,9 @@ public class Hdfs extends BaseOutput{
 			hdfsOutputFormat.open();
 			hdfsOutputFormats.put(realPath, hdfsOutputFormat);
 		}
+		if (!dataSplit && hdfsOutputFormat.isClosed()){
+			hdfsOutputFormat.outputReopen();
+		}
 		return hdfsOutputFormat;
 	}
 	
@@ -174,7 +179,9 @@ public class Hdfs extends BaseOutput{
 		for(Map.Entry<String, HdfsOutputFormat> entry:entrys){
 			try {
 				entry.getValue().close();
-				hdfsOutputFormats.remove(entry.getKey());
+				if (dataSplit){
+					hdfsOutputFormats.remove(entry.getKey());
+				}
 			} catch (Exception e) {
 				logger.error("",e);
 			}

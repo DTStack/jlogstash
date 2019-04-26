@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.hadoop.mapred.FileOutputFormat;
 
 /**
  * 
@@ -35,11 +36,11 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 
 	private String delimiter;
 
-	public HdfsTextOutputFormat(Configuration conf, String outputFilePath,
+	public HdfsTextOutputFormat(Configuration conf, String outputFileDir,
 			List<String> columnNames, List<String> columnTypes,
 			String compress, String writeMode, Charset charset, String delimiter,String fileName) {
 		this.conf = conf;
-		this.outputFilePath = outputFilePath;
+		this.outputFileDir = outputFileDir;
 		this.columnNames = columnNames;
 		this.columnTypes = columnTypes;
 		this.compress = compress;
@@ -69,22 +70,28 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 					+ compress);
 		}
 		if (codecClass != null) {
-			this.outputFormat.setOutputCompressorClass(jobConf, codecClass);
+			FileOutputFormat.setOutputCompressorClass(jobConf, codecClass);
 		}
 	}
 
 	@Override
 	public void open() throws IOException {
-        String pathStr = String.format("%s/%s-%d-%s.txt", outputFilePath, fileName, Thread.currentThread().getId(), UUID.randomUUID().toString());
+        String pathStr = String.format("%s/%s-%d-%s.txt", outputFileDir, fileName, Thread.currentThread().getId(), UUID.randomUUID().toString());
 		logger.info("hdfs path:{}", pathStr);
 		// // 此处好像并没有什么卵用
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 		String attempt = "attempt_" + dateFormat.format(new Date())
 				+ "_0001_m_000000_" +Thread.currentThread().getId();
 		jobConf.set("mapreduce.task.attempt.id", attempt);
-		outputFormat.setOutputPath(jobConf, new Path(pathStr));
+		this.outputFilePath = pathStr;
+		FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
 		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf,
 				pathStr, Reporter.NULL);
+	}
+
+	@Override
+	public void outputReopen() throws IOException {
+		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, outputFilePath, Reporter.NULL);
 	}
 
 	@SuppressWarnings("unchecked")
