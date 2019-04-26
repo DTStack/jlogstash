@@ -61,7 +61,7 @@ public class Hdfs extends BaseOutput{
 	/**
 	 * 间隔 interval 时间对 outputFormat 进行一次 close，触发输出文件的合并
 	 */
-	public static int interval = 5 * 60 * 1000;
+	public static int interval = 60 * 60 * 1000;
 
 	public static int bufferSize = 1024;//bytes
 	
