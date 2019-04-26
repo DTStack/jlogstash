@@ -58,8 +58,11 @@ public class Hdfs extends BaseOutput{
 	private static String delimiter = "\001";
 	
 	public static String timezone;
-	
-	public static int interval = 5*60*1000;//millseconds
+
+	/**
+	 * 间隔 interval 时间对 outputFormat 进行一次 close，触发输出文件的合并
+	 */
+	public static int interval = 5 * 60 * 1000;
 	
 	public static int bufferSize = 1024;//bytes
 	
@@ -123,8 +126,8 @@ public class Hdfs extends BaseOutput{
 							release();
 							logger.warn("hdfs commit again...");
 						}finally{
-							lock.unlock();
 							lockBoolean.set(true);
+							lock.unlock();
 						}
 					}
 				} catch (InterruptedException e) {
@@ -148,22 +151,26 @@ public class Hdfs extends BaseOutput{
 	}
 	
 	public HdfsOutputFormat getHdfsOutputFormat(String realPath) throws IOException{
+		HdfsOutputFormat hdfsOutputFormat = null;
 		if(!lockBoolean.get()){
 			try {
 				lock.lockInterruptibly();
+				hdfsOutputFormat = hdfsOutputFormats.get(realPath);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				logger.error("",e);
 			}finally{
 				lock.unlock();
 			}
+		} else {
+			hdfsOutputFormat = hdfsOutputFormats.get(realPath);
 		}
-		HdfsOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(realPath);
 		if(hdfsOutputFormat == null){
 			if(StoreEnum.TEXT.name().equalsIgnoreCase(store)){
 				hdfsOutputFormat = new HdfsTextOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, delimiter, fileName);
 			}else if(StoreEnum.ORC.name().equalsIgnoreCase(store)){
 				hdfsOutputFormat = new HdfsOrcOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, fileName);
+			} else {
+				throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
 			}
 			hdfsOutputFormat.configure();
 			hdfsOutputFormat.open();
