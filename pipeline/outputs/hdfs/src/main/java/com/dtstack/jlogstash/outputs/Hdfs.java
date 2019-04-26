@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -85,8 +84,6 @@ public class Hdfs extends BaseOutput{
 	
 	private Lock lock = new ReentrantLock();
 	
-	private AtomicBoolean lockBoolean = new AtomicBoolean(true);
-
 	static{
 		Thread.currentThread().setContextClassLoader(null);
 	}
@@ -112,38 +109,36 @@ public class Hdfs extends BaseOutput{
 
 	public void process(){
 		executor = Executors.newSingleThreadExecutor();
-		executor.submit(new Runnable(){
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				try {
-					while(true){
-						Thread.sleep(interval);
-						try{
-							lock.lockInterruptibly();
-							lockBoolean.set(false);
-							release();
-							logger.warn("hdfs commit again...");
-						}finally{
-							lockBoolean.set(true);
-							lock.unlock();
-						}
+		executor.submit(()->{
+			try {
+				while(true){
+					Thread.sleep(interval);
+					try{
+						lock.lockInterruptibly();
+						release();
+						logger.warn("hdfs commit again...");
+					}finally{
+						lock.unlock();
 					}
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					logger.error("",e);
 				}
+			} catch (InterruptedException e) {
+				logger.error("",e);
 			}
 		});
 	}
 	
 	@Override
 	protected void emit(Map event) {
-		// TODO Auto-generated method stub
 		try{
 			String realPath = Formatter.format(event, path, timezone);
-			getHdfsOutputFormat(realPath).writeRecord(event);
+			try {
+				lock.lockInterruptibly();
+				getHdfsOutputFormat(realPath).writeRecord(event);
+			} catch (InterruptedException e) {
+				throw e;
+			} finally{
+				lock.unlock();
+			}
 		}catch(Exception e){
 			this.addFailedMsg(event);
 			logger.error("",e);
@@ -151,19 +146,7 @@ public class Hdfs extends BaseOutput{
 	}
 	
 	public HdfsOutputFormat getHdfsOutputFormat(String realPath) throws IOException{
-		HdfsOutputFormat hdfsOutputFormat = null;
-		if(!lockBoolean.get()){
-			try {
-				lock.lockInterruptibly();
-				hdfsOutputFormat = hdfsOutputFormats.get(realPath);
-			} catch (InterruptedException e) {
-				logger.error("",e);
-			}finally{
-				lock.unlock();
-			}
-		} else {
-			hdfsOutputFormat = hdfsOutputFormats.get(realPath);
-		}
+		HdfsOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(realPath);
 		if(hdfsOutputFormat == null){
 			if(StoreEnum.TEXT.name().equalsIgnoreCase(store)){
 				hdfsOutputFormat = new HdfsTextOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, delimiter, fileName);
@@ -193,7 +176,6 @@ public class Hdfs extends BaseOutput{
 				entry.getValue().close();
 				hdfsOutputFormats.remove(entry.getKey());
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				logger.error("",e);
 			}
 		}
