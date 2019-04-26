@@ -95,7 +95,6 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat {
     public void open() throws IOException {
         String pathStr = String.format("%s/%s-%d-%s.orc", outputFileDir, fileName,Thread.currentThread().getId(),UUID.randomUUID().toString());
         logger.info("hdfs path:{}",pathStr);
-        this.outputFilePath = pathStr;
         FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
         this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
     }

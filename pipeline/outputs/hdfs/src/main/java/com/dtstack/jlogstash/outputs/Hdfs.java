@@ -63,8 +63,6 @@ public class Hdfs extends BaseOutput{
 	 */
 	public static int interval = 5 * 60 * 1000;
 
-	public static boolean dataSplit;
-
 	public static int bufferSize = 1024;//bytes
 	
     private ExecutorService executor;
@@ -161,9 +159,6 @@ public class Hdfs extends BaseOutput{
 			hdfsOutputFormat.open();
 			hdfsOutputFormats.put(realPath, hdfsOutputFormat);
 		}
-		if (!dataSplit && hdfsOutputFormat.isClosed()){
-			hdfsOutputFormat.outputReopen();
-		}
 		return hdfsOutputFormat;
 	}
 	
@@ -179,9 +174,7 @@ public class Hdfs extends BaseOutput{
 		for(Map.Entry<String, HdfsOutputFormat> entry:entrys){
 			try {
 				entry.getValue().close();
-				if (dataSplit){
-					hdfsOutputFormats.remove(entry.getKey());
-				}
+                hdfsOutputFormats.remove(entry.getKey());
 			} catch (Exception e) {
 				logger.error("",e);
 			}

@@ -83,7 +83,6 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 		String attempt = "attempt_" + dateFormat.format(new Date())
 				+ "_0001_m_000000_" +Thread.currentThread().getId();
 		jobConf.set("mapreduce.task.attempt.id", attempt);
-		this.outputFilePath = pathStr;
 		FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
 		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf,
 				pathStr, Reporter.NULL);

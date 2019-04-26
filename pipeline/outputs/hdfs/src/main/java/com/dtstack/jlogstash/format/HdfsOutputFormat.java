@@ -36,8 +36,6 @@ public abstract class HdfsOutputFormat implements  OutputFormat {
     protected  Map<String, Integer> columnNameIndexMap;
     protected  RecordWriter recordWriter;
     protected String fileName;
-    protected String outputFilePath;
-    protected volatile boolean isClosed;
 
 
     public static ObjectMapper objectMapper = new ObjectMapper();
@@ -50,22 +48,12 @@ public abstract class HdfsOutputFormat implements  OutputFormat {
 
     public abstract void writeRecord(Map<String,Object> row) throws IOException;
 
-    public void outputReopen() throws IOException {
-        this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, outputFilePath, Reporter.NULL);
-        isClosed = false;
-    }
-
-    public boolean isClosed(){
-        return isClosed;
-    }
-
     @Override
     public void close() throws IOException {
         RecordWriter<?, ?> rw = this.recordWriter;
         if(rw != null) {
             rw.close(Reporter.NULL);
         }
-        isClosed = true;
     }
     
 }
