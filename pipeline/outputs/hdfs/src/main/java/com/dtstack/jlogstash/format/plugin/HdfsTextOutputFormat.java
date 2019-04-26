@@ -10,6 +10,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapred.TextOutputFormatBak;
 import org.apache.hadoop.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 	@Override
 	public void configure() {
 		super.configure();
-		outputFormat = new TextOutputFormat();
+		outputFormat = new TextOutputFormatBak<>();
 		Class<? extends CompressionCodec> codecClass = null;
 		if (CompressEnum.NONE.name().equalsIgnoreCase(compress)) {
 			codecClass = null;
