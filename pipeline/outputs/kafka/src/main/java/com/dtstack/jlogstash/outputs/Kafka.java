@@ -95,33 +95,47 @@ public class Kafka extends BaseOutput {
 	@Override
 	public void prepare() {
 		try{
-			if(topicSelect!=null){
+			if(topicSelect != null){
 				entryTopicSelect = topicSelect.entrySet();
 			}
 			
-			if(props==null){
+			if(props == null){
 				props = new Properties();
+                addDefaultKafkaSetting();
 			}
-			if(producerSettings!=null){
+
+			if(producerSettings != null){
 				props.putAll(producerSettings);
 			}
+
 			if (!brokerList.trim().equals("")){
 				props.put("metadata.broker.list",brokerList);
 			} else {
 				throw new Exception("brokerList can not be empty!");
 			}
 
-			if(pconfig==null){
+			if(pconfig == null){
 				pconfig = new ProducerConfig(props);
 			}
-			if(producer==null){
+			if(producer == null){
 				producer= new Producer<String, byte[]>(pconfig);
 			}
 		}catch(Exception e){
-			logger.error(e.getMessage());
+			logger.error("", e);
 			System.exit(1);
 		}
 	}
+
+	private void addDefaultKafkaSetting(){
+        props.put("key.serializer.class", "kafka.serializer.StringEncoder");
+        props.put("value.serializer.class", "kafka.serializer.StringEncoder");
+        props.put("partitioner.class", "kafka.producer.DefaultPartitioner");
+        props.put("producer.type", "sync");
+        props.put("compression.codec", "none");
+        props.put("request.required.acks", "1");
+        props.put("batch.num.messages", "1024");
+        props.put("client.id", "");
+    }
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -129,7 +143,7 @@ public class Kafka extends BaseOutput {
 		try {
 			String tp = null;
 			if(entryTopicSelect != null){
-				for(Map.Entry<String,Map<String,String>> entry:entryTopicSelect){
+				for(Map.Entry<String,Map<String,String>> entry : entryTopicSelect){
 					String key = entry.getKey();
 					Map<String,String> value = entry.getValue();
 					Set<Map.Entry<String,String>> sets = value.entrySet();
@@ -146,7 +160,7 @@ public class Kafka extends BaseOutput {
 			}
 			producer.send(new KeyedMessage<>(tp, event.toString(), objectMapper.writeValueAsString(event).getBytes(encoding)));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("", e);
 		}
 	}
 	 public static void main(String[] args){
