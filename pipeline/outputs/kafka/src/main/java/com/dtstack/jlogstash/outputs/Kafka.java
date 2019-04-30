@@ -118,7 +118,7 @@ public class Kafka extends BaseOutput {
 				producer= new Producer<String, byte[]>(pconfig);
 			}
 		}catch(Exception e){
-			logger.error(e.getMessage());
+			logger.error("", e);
 			System.exit(1);
 		}
 	}
