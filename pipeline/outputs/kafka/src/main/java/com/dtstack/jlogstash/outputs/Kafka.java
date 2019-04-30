@@ -95,26 +95,29 @@ public class Kafka extends BaseOutput {
 	@Override
 	public void prepare() {
 		try{
-			if(topicSelect!=null){
+			if(topicSelect != null){
 				entryTopicSelect = topicSelect.entrySet();
 			}
 			
-			if(props==null){
+			if(props == null){
 				props = new Properties();
+                addDefaultKafkaSetting();
 			}
-			if(producerSettings!=null){
+
+			if(producerSettings != null){
 				props.putAll(producerSettings);
 			}
+
 			if (!brokerList.trim().equals("")){
 				props.put("metadata.broker.list",brokerList);
 			} else {
 				throw new Exception("brokerList can not be empty!");
 			}
 
-			if(pconfig==null){
+			if(pconfig == null){
 				pconfig = new ProducerConfig(props);
 			}
-			if(producer==null){
+			if(producer == null){
 				producer= new Producer<String, byte[]>(pconfig);
 			}
 		}catch(Exception e){
@@ -122,6 +125,17 @@ public class Kafka extends BaseOutput {
 			System.exit(1);
 		}
 	}
+
+	private void addDefaultKafkaSetting(){
+        props.put("key.serializer.class", "kafka.serializer.StringEncoder");
+        props.put("value.serializer.class", "kafka.serializer.StringEncoder");
+        props.put("partitioner.class", "kafka.producer.DefaultPartitioner");
+        props.put("producer.type", "sync");
+        props.put("compression.codec", "none");
+        props.put("request.required.acks", "1");
+        props.put("batch.num.messages", "1024");
+        props.put("client.id", "");
+    }
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
