@@ -129,7 +129,7 @@ public class Kafka extends BaseOutput {
 		try {
 			String tp = null;
 			if(entryTopicSelect != null){
-				for(Map.Entry<String,Map<String,String>> entry:entryTopicSelect){
+				for(Map.Entry<String,Map<String,String>> entry : entryTopicSelect){
 					String key = entry.getKey();
 					Map<String,String> value = entry.getValue();
 					Set<Map.Entry<String,String>> sets = value.entrySet();
@@ -146,7 +146,7 @@ public class Kafka extends BaseOutput {
 			}
 			producer.send(new KeyedMessage<>(tp, event.toString(), objectMapper.writeValueAsString(event).getBytes(encoding)));
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("", e);
 		}
 	}
 	 public static void main(String[] args){
