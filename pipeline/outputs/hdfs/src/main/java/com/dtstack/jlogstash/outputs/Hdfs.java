@@ -76,7 +76,7 @@ public class Hdfs extends BaseOutput{
 	
 	private static String hadoopUserName = "root";
 	
-	private static Configuration configuration;
+	private Configuration configuration;
 
 	private static Map<String, Object> hadoopConfigMap;
 
@@ -87,7 +87,7 @@ public class Hdfs extends BaseOutput{
 	static{
 		Thread.currentThread().setContextClassLoader(null);
 	}
-	
+
 	public Hdfs(Map config) {
 		super(config);
 		// TODO Auto-generated constructor stub
@@ -100,6 +100,9 @@ public class Hdfs extends BaseOutput{
 			formatSchema();
 			setHadoopConfiguration();
 			process();
+			if (Thread.currentThread().getContextClassLoader() == null){
+				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			logger.error("",e);
@@ -134,12 +137,12 @@ public class Hdfs extends BaseOutput{
 			try {
 				lock.lockInterruptibly();
 				getHdfsOutputFormat(realPath).writeRecord(event);
-			} catch (InterruptedException e) {
+			} catch (Throwable e) {
 				throw e;
 			} finally{
 				lock.unlock();
 			}
-		}catch(Exception e){
+		} catch (Throwable e) {
 			this.addFailedMsg(event);
 			logger.error("",e);
 		}
@@ -202,7 +205,6 @@ public class Hdfs extends BaseOutput{
 		if (hadoopConfigMap != null) {
 			configuration = new Configuration(false);
 			System.setProperty("HADOOP_USER_NAME", hadoopUserName);
-			configuration = new Configuration();
 			for(Map.Entry<String,Object> entry : hadoopConfigMap.entrySet()) {
 				configuration.set(entry.getKey(), entry.getValue().toString());
 			}
