@@ -22,6 +22,7 @@ import com.alibaba.otter.canal.parse.inbound.mysql.MysqlEventParser;
 import com.alibaba.otter.canal.parse.support.AuthenticationInfo;
 import com.alibaba.otter.canal.protocol.position.EntryPosition;
 import com.dtstack.jlogstash.annotation.Required;
+import com.dtstack.jlogstash.assembly.CmdLineParams;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +86,7 @@ public class Binlog extends BaseInput {
 
     public Binlog(Map config) {
         super(config);
+        taskId = CmdLineParams.getName();
     }
 
     public void updateLastPos(EntryPosition entryPosition) {
