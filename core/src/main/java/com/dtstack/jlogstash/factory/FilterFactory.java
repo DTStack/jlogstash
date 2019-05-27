@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.dtstack.jlogstash.callback.ClassLoaderCallBackMethod;
 import com.dtstack.jlogstash.filters.BaseFilter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -37,20 +38,20 @@ import com.google.common.collect.Maps;
  */
 public class FilterFactory extends InstanceFactory{
 	
-	private static Map<String,Class<?>> filtersClassLoader = Maps.newConcurrentMap();
-	
 	private final static String PLUGINTYPE = "filter";
 
 	@SuppressWarnings("rawtypes")
-	private static BaseFilter getInstance(String filterType,Map filterConfig,Class<?> filterClass) throws Exception{
-	      configInstance(filterClass,filterConfig);//设置static field
-          Constructor<?> ctor = filterClass
-                  .getConstructor(Map.class);
-          BaseFilter filterInstance = (BaseFilter) ctor
-                  .newInstance(filterConfig);
-	      configInstance(filterInstance,filterConfig);//设置非static field
-          filterInstance.prepare();
-          return filterInstance;
+	private static BaseFilter getInstance(String filterType,Map filterConfig) throws Exception{
+		ClassLoader classLoader = getClassLoader(filterType, PLUGINTYPE);
+		return ClassLoaderCallBackMethod.callbackAndReset(()->{
+			Class<?> filterClass = classLoader.loadClass(getClassName(filterType, PLUGINTYPE));
+			configInstance(filterClass,filterConfig);//设置static field
+			Constructor<?> ctor = filterClass.getConstructor(Map.class);
+			BaseFilter filterInstance = (BaseFilter) ctor.newInstance(filterConfig);
+			configInstance(filterInstance,filterConfig);//设置非static field
+			filterInstance.prepare();
+			return filterInstance;
+		}, classLoader, true);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -63,15 +64,9 @@ public class FilterFactory extends InstanceFactory{
 				Map.Entry<String, Map> filterEntry = filterIT.next();
 				String filterType = filterEntry.getKey();
 				Map filterConfig = filterEntry.getValue();
-				String className = getClassName(filterType,PLUGINTYPE);
-				String key = String.format("%s%d",className, i);
-				Class<?> filterClass = filtersClassLoader.get(key);
-				if(filterClass==null){
-				   filterClass = getPluginClass(filterType,PLUGINTYPE,className);
-				   filtersClassLoader.put(key, filterClass);
-				}
 				if(filterConfig==null){filterConfig=Maps.newLinkedHashMap();}
-				baseFilters.add(getInstance(filterType,filterConfig,filterClass));
+				BaseFilter baseFilter = getInstance(filterType,filterConfig);
+				baseFilters.add(baseFilter);
 			}
 		}
 		return baseFilters;

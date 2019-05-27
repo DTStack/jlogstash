@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.dtstack.jlogstash.callback.ClassLoaderCallBackMethod;
 import com.dtstack.jlogstash.outputs.BaseOutput;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,20 +37,21 @@ import com.google.common.collect.Maps;
  *
  */
 public class OutputFactory extends InstanceFactory{
-	
-	private static Map<String,Class<?>> outputsClassLoader = Maps.newConcurrentMap();
 
 	private final static String PLUGINTYPE = "output";
 
-
 	@SuppressWarnings("rawtypes")
-	private static BaseOutput getInstance(String outputType,Map outputConfig,Class<?> outputClass) throws Exception{
-		 configInstance(outputClass,outputConfig);//设置static field
-         Constructor<?> ctor = outputClass.getConstructor(Map.class);
-         BaseOutput baseOutput = (BaseOutput) ctor.newInstance(outputConfig);
-		 configInstance(baseOutput,outputConfig);//设置非static field
-         baseOutput.prepare();
-         return baseOutput;
+	private static BaseOutput getInstance(String outputType,Map outputConfig) throws Exception{
+		ClassLoader classLoader = getClassLoader(outputType, PLUGINTYPE);
+		return ClassLoaderCallBackMethod.callbackAndReset(()->{
+			Class<?> outputClass = classLoader.loadClass(getClassName(outputType, PLUGINTYPE));
+			configInstance(outputClass,outputConfig);//设置static field
+			Constructor<?> ctor = outputClass.getConstructor(Map.class);
+			BaseOutput baseOutput = (BaseOutput) ctor.newInstance(outputConfig);
+			configInstance(baseOutput,outputConfig);//设置非static field
+			baseOutput.prepare();
+			return baseOutput;
+		}, classLoader, true);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -61,15 +64,9 @@ public class OutputFactory extends InstanceFactory{
 				Map.Entry<String, Map> outputEntry = outputIT.next();
 				String outputType = outputEntry.getKey();
 				Map outputConfig = outputEntry.getValue();
-				String className = getClassName(outputType,PLUGINTYPE);
-				String key = String.format("%s%d",className, i);
-				Class<?> outputClass = outputsClassLoader.get(key);
-				if(outputClass==null){
-				    outputClass = getPluginClass(outputType,PLUGINTYPE,className);
-				    outputsClassLoader.put(key, outputClass);
-				}
 				if(outputConfig==null){outputConfig=Maps.newLinkedHashMap();}
-				baseoutputs.add(getInstance(outputType,outputConfig,outputClass));
+				BaseOutput baseOutput = getInstance(outputType,outputConfig);
+				baseoutputs.add(baseOutput);
 			}
 		}
 		return baseoutputs;

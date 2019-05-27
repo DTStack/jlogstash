@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import com.dtstack.jlogstash.assembly.qlist.QueueList;
+import com.dtstack.jlogstash.callback.ClassLoaderCallBackMethod;
 import com.dtstack.jlogstash.inputs.BaseInput;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -40,13 +41,17 @@ public class InputFactory extends InstanceFactory{
 	private final static String PLUGINTYPE = "input";
 	
 	@SuppressWarnings("rawtypes")
-	private static BaseInput getInstance(String inputType,Map inputConfig,Class<?> inputClass) throws Exception{
-		configInstance(inputClass,inputConfig);//设置static field
-		Constructor<?> ctor = inputClass.getConstructor(Map.class);
-		BaseInput inputInstance = (BaseInput) ctor.newInstance(inputConfig);
-		configInstance(inputInstance,inputConfig);//设置非static field
-		inputInstance.prepare();
-		return inputInstance;
+	private static BaseInput getInstance(String inputType,Map inputConfig) throws Exception{
+		ClassLoader classLoader = getClassLoader(inputType, PLUGINTYPE);
+		return ClassLoaderCallBackMethod.callbackAndReset(()->{
+			Class<?> inputClass = classLoader.loadClass(getClassName(inputType,PLUGINTYPE));
+			configInstance(inputClass,inputConfig);//设置static field
+			Constructor<?> ctor = inputClass.getConstructor(Map.class);
+			BaseInput inputInstance = (BaseInput) ctor.newInstance(inputConfig);
+			configInstance(inputInstance,inputConfig);//设置非static field
+			inputInstance.prepare();
+			return inputInstance;
+		}, classLoader, true);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -60,8 +65,7 @@ public class InputFactory extends InstanceFactory{
 				String inputType = inputEntry.getKey();
 				Map inputConfig = inputEntry.getValue();
 				if(inputConfig==null){inputConfig=Maps.newLinkedHashMap();}
-			    Class<?> inputClass = getPluginClass(inputType, PLUGINTYPE,getClassName(inputType,PLUGINTYPE));
-				BaseInput baseInput =getInstance(inputType, inputConfig,inputClass);
+				BaseInput baseInput = getInstance(inputType, inputConfig);
 				baseinputs.add(baseInput);
 			}
 		}

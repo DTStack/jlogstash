@@ -198,6 +198,10 @@
                     <artifactId>calcite-avatica</artifactId>
                     <groupId>org.apache.calcite</groupId>
                 </exclusion>
+				<exclusion>
+					<groupId>org.apache.hive.shims</groupId>
+					<artifactId>hive-shims-common</artifactId>
+				</exclusion>
             </exclusions>
         </dependency>
         <dependency>
