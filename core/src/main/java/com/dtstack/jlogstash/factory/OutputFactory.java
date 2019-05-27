@@ -43,15 +43,15 @@ public class OutputFactory extends InstanceFactory{
 	@SuppressWarnings("rawtypes")
 	private static BaseOutput getInstance(String outputType,Map outputConfig) throws Exception{
 		ClassLoader classLoader = getClassLoader(outputType, PLUGINTYPE);
-		return ClassLoaderCallBackMethod.callbackAndReset(()->{
-			Class<?> outputClass = classLoader.loadClass(getClassName(outputType, PLUGINTYPE));
-			configInstance(outputClass,outputConfig);//设置static field
-			Constructor<?> ctor = outputClass.getConstructor(Map.class);
-			BaseOutput baseOutput = (BaseOutput) ctor.newInstance(outputConfig);
-			configInstance(baseOutput,outputConfig);//设置非static field
-			baseOutput.prepare();
-			return baseOutput;
+		Class<?> outputClass = ClassLoaderCallBackMethod.callbackAndReset(()->{
+			return classLoader.loadClass(getClassName(outputType, PLUGINTYPE));
 		}, classLoader, true);
+		configInstance(outputClass,outputConfig);//设置static field
+		Constructor<?> ctor = outputClass.getConstructor(Map.class);
+		BaseOutput baseOutput = (BaseOutput) ctor.newInstance(outputConfig);
+		configInstance(baseOutput,outputConfig);//设置非static field
+		baseOutput.prepare();
+		return baseOutput;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

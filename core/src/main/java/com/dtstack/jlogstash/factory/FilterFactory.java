@@ -43,15 +43,15 @@ public class FilterFactory extends InstanceFactory{
 	@SuppressWarnings("rawtypes")
 	private static BaseFilter getInstance(String filterType,Map filterConfig) throws Exception{
 		ClassLoader classLoader = getClassLoader(filterType, PLUGINTYPE);
-		return ClassLoaderCallBackMethod.callbackAndReset(()->{
-			Class<?> filterClass = classLoader.loadClass(getClassName(filterType, PLUGINTYPE));
-			configInstance(filterClass,filterConfig);//设置static field
-			Constructor<?> ctor = filterClass.getConstructor(Map.class);
-			BaseFilter filterInstance = (BaseFilter) ctor.newInstance(filterConfig);
-			configInstance(filterInstance,filterConfig);//设置非static field
-			filterInstance.prepare();
-			return filterInstance;
+		Class<?> filterClass = ClassLoaderCallBackMethod.callbackAndReset(()->{
+			 return classLoader.loadClass(getClassName(filterType, PLUGINTYPE));
 		}, classLoader, true);
+		configInstance(filterClass,filterConfig);//设置static field
+		Constructor<?> ctor = filterClass.getConstructor(Map.class);
+		BaseFilter filterInstance = (BaseFilter) ctor.newInstance(filterConfig);
+		configInstance(filterInstance,filterConfig);//设置非static field
+		filterInstance.prepare();
+		return filterInstance;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

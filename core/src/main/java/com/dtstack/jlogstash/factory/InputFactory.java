@@ -43,15 +43,15 @@ public class InputFactory extends InstanceFactory{
 	@SuppressWarnings("rawtypes")
 	private static BaseInput getInstance(String inputType,Map inputConfig) throws Exception{
 		ClassLoader classLoader = getClassLoader(inputType, PLUGINTYPE);
-		return ClassLoaderCallBackMethod.callbackAndReset(()->{
-			Class<?> inputClass = classLoader.loadClass(getClassName(inputType,PLUGINTYPE));
-			configInstance(inputClass,inputConfig);//设置static field
-			Constructor<?> ctor = inputClass.getConstructor(Map.class);
-			BaseInput inputInstance = (BaseInput) ctor.newInstance(inputConfig);
-			configInstance(inputInstance,inputConfig);//设置非static field
-			inputInstance.prepare();
-			return inputInstance;
+		Class<?> inputClass = ClassLoaderCallBackMethod.callbackAndReset(()->{
+			 return classLoader.loadClass(getClassName(inputType,PLUGINTYPE));
 		}, classLoader, true);
+		configInstance(inputClass,inputConfig);//设置static field
+		Constructor<?> ctor = inputClass.getConstructor(Map.class);
+		BaseInput inputInstance = (BaseInput) ctor.newInstance(inputConfig);
+		configInstance(inputInstance,inputConfig);//设置非static field
+		inputInstance.prepare();
+		return inputInstance;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
