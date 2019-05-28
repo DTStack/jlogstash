@@ -7,11 +7,14 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.slf4j.Logger;
@@ -63,9 +66,16 @@ public class Hdfs extends BaseOutput{
 	 */
 	public static int interval = 60 * 60 * 1000;
 
-	public static int bufferSize = 1024;//bytes
+	private long lastTime = System.currentTimeMillis();
+
+	/**
+	 * 字节数量超过 bufferSize 时，outputFormat 进行一次 close，触发输出文件的合并
+	 */
+	public static int bufferSize = 128 * 1024 * 1024;
+
+	private AtomicLong dataSize = new AtomicLong(0L);
 	
-    private ExecutorService executor;
+    private ScheduledExecutorService executor;
 
 	@Required(required = true)
 	private static List<String> schema;//["name:varchar"]
@@ -111,23 +121,21 @@ public class Hdfs extends BaseOutput{
 	}
 
 	public void process(){
-		executor = Executors.newSingleThreadExecutor();
-		executor.submit(()->{
-			try {
-				while(true){
-					Thread.sleep(interval);
-					try{
-						lock.lockInterruptibly();
-						release();
-						logger.warn("hdfs commit again...");
-					}finally{
-						lock.unlock();
-					}
+		executor = new ScheduledThreadPoolExecutor(1);
+		executor.scheduleWithFixedDelay(()->{
+			if ((System.currentTimeMillis() - lastTime >= interval)
+					|| dataSize.get() >= bufferSize) {
+				try{
+					lock.lockInterruptibly();
+					release();
+					logger.warn("hdfs commit again...");
+				} catch (InterruptedException e) {
+					logger.error("{}",e);
+				} finally{
+					lock.unlock();
 				}
-			} catch (InterruptedException e) {
-				logger.error("",e);
 			}
-		});
+		},1000, 1000, TimeUnit.MILLISECONDS);
 	}
 	
 	@Override
@@ -137,6 +145,7 @@ public class Hdfs extends BaseOutput{
 			try {
 				lock.lockInterruptibly();
 				getHdfsOutputFormat(realPath).writeRecord(event);
+				dataSize.addAndGet(ObjectSizeCalculator.getObjectSize(event));
 			} catch (Throwable e) {
 				throw e;
 			} finally{
