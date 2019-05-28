@@ -87,6 +87,7 @@ public class Binlog extends BaseInput {
     public Binlog(Map config) {
         super(config);
         taskId = CmdLineParams.getName();
+        new com.dtstack.jlogstash.inputs.LogbackComponent().setupLogger();
     }
 
     public void updateLastPos(EntryPosition entryPosition) {
