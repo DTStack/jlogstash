@@ -84,7 +84,7 @@ public class Hdfs extends BaseOutput{
 	
 	private static List<String> columnTypes;
 	
-	private static String hadoopUserName = "root";
+	private static String hadoopUserName;
 	
 	private Configuration configuration;
 
@@ -211,9 +211,11 @@ public class Hdfs extends BaseOutput{
 	}
 	
 	private void setHadoopConfiguration() throws Exception{
+		if (hadoopUserName != null) {
+			System.setProperty("HADOOP_USER_NAME", hadoopUserName);
+		}
 		if (hadoopConfigMap != null) {
 			configuration = new Configuration(false);
-			System.setProperty("HADOOP_USER_NAME", hadoopUserName);
 			for(Map.Entry<String,Object> entry : hadoopConfigMap.entrySet()) {
 				configuration.set(entry.getKey(), entry.getValue().toString());
 			}
@@ -222,7 +224,6 @@ public class Hdfs extends BaseOutput{
 		if(configuration == null){
 			synchronized(Hdfs.class){
 				if(configuration == null){
-					System.setProperty("HADOOP_USER_NAME", hadoopUserName);
 					configuration = new Configuration();
 		    		configuration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
 		            File[] xmlFileList = new File(hadoopConf).listFiles(new FilenameFilter() {

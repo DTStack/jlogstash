@@ -50,7 +50,10 @@ public class InputFactory extends InstanceFactory{
 		Constructor<?> ctor = inputClass.getConstructor(Map.class);
 		BaseInput inputInstance = (BaseInput) ctor.newInstance(inputConfig);
 		configInstance(inputInstance,inputConfig);//设置非static field
-		inputInstance.prepare();
+		ClassLoaderCallBackMethod.callbackAndReset(()->{
+			inputInstance.prepare();
+			return null;
+		}, classLoader, true);
 		return inputInstance;
 	}
 	
