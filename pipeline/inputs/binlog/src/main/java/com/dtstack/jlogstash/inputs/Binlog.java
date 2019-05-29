@@ -158,9 +158,9 @@ public class Binlog extends BaseInput {
                 logger.error("Failed to read pos file: " + e.getMessage());
             }
         } else {
-            try (FSDataInputStream inputStream = dfs.open(posPath);
-                 JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream))) {
-                startPosition = new Gson().fromJson(jsonReader, EntryPosition.class);
+            try (FSDataInputStream inputStream = dfs.open(posPath)){
+                String json = inputStream.readUTF();
+                startPosition = new ObjectMapper().readValue(json, EntryPosition.class);
             } catch(Exception e) {
                 logger.error("Failed to read pos file: " + e.getMessage());
             }
@@ -176,8 +176,10 @@ public class Binlog extends BaseInput {
             parseCategories();
 
             setHadoopConfiguration();
-            posPath = new Path(configuration.get("fs.defaultFS"), "/user/jlogstash/" + taskId + "_output");
-            dfs = FileSystem.get(configuration);
+            if (configuration != null) {
+                posPath = new Path(configuration.get("fs.defaultFS"), "/user/jlogstash/" + taskId + "_output");
+                dfs = FileSystem.get(configuration);
+            }
 
             controller = new MysqlEventParser();
             controller.setConnectionCharset(Charset.forName("UTF-8"));
@@ -198,7 +200,6 @@ public class Binlog extends BaseInput {
             if (startPosition != null) {
                controller.setMasterPosition(startPosition);
             }
-
 
             if (filter != null) {
                 controller.setEventFilter(new AviaterRegexFilter(filter));
