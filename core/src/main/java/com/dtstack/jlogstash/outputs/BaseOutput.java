@@ -44,7 +44,7 @@ import com.google.common.collect.Queues;
  * @author sishu.yss
  *
  */
-public abstract class BaseOutput implements Cloneable, java.io.Serializable{
+public abstract class BaseOutput implements IBaseOutput, java.io.Serializable{
 
 	private static final long serialVersionUID = -1613159084286522811L;
 
@@ -96,15 +96,11 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 		}
 	}
 
-	public abstract void prepare();
-
 	@SuppressWarnings("rawtypes")
 	protected abstract void emit(Map event);
-	
-	public void release(){};
 
-	
 	@SuppressWarnings("rawtypes")
+	@Override
 	public void process(Map event) {
 		if(event != null && event.size() > 0){
 			boolean succuess = true;
@@ -126,15 +122,18 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
 		}
 	}
 	
-	
+
+	@Override
     public AtomicInteger getAto() {
 		return ato;
 	}
 
+	@Override
 	public boolean isConsistency() {
 		return consistency;
 	}
-	
+
+	@Override
 	public boolean dealFailedMsg(){
 		if(failedMsgQueue.size() == 0){
     		return false;
@@ -153,13 +152,15 @@ public abstract class BaseOutput implements Cloneable, java.io.Serializable{
     	
     	return true;
 	}
-	
+
+	@Override
 	public void addFailedMsg(Object msg){
 		if(consistency){
 			failedMsgQueue.offer(msg);
 		}
 	}
-	
+
+	@Override
 	public void sendFailedMsg(Object msg){
 	}
 

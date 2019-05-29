@@ -126,6 +126,10 @@ public class Kafka extends BaseOutput {
 		}
 	}
 
+	@Override
+	public void release() {
+	}
+
 	private void addDefaultKafkaSetting(){
         props.put("key.serializer.class", "kafka.serializer.StringEncoder");
         props.put("value.serializer.class", "kafka.serializer.StringEncoder");

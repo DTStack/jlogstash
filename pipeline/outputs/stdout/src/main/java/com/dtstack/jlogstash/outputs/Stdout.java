@@ -53,6 +53,10 @@ public class Stdout extends BaseOutput {
 	}
 
 	@Override
+	public void release() {
+	}
+
+	@Override
 	protected void emit(Map event) {
 		try{
 			if (codec.equals("line")){

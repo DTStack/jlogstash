@@ -244,9 +244,6 @@ public class Binlog extends BaseInput {
         if (configuration != null) {
             FSDataOutputStream out = null;
             try {
-                if (dfs.exists(posPath)){
-                    dfs.delete(posPath);
-                }
                 out = FileSystem.create(posPath.getFileSystem(configuration), posPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
                 out.writeUTF(new ObjectMapper().writeValueAsString(entryPosition));
             } catch (IOException e) {
@@ -274,17 +271,6 @@ public class Binlog extends BaseInput {
             }
             configuration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
         }
-    }
-
-    public static void main(String[] args) {
-        Map<String,Object> config = new HashMap<>();
-        Binlog binlog = new Binlog(config);
-        binlog.host = "rdos1";
-        binlog.username = "canal";
-        binlog.password = "canal";
-
-        binlog.prepare();
-        binlog.emit();
     }
 
 }

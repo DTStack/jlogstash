@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author sishu.yss
  *
  */
-public abstract class BaseFilter implements Cloneable, java.io.Serializable{
+public abstract class BaseFilter implements IBaseFilter, java.io.Serializable{
 
 	private static final long serialVersionUID = -6525215605315577598L;
 	private static final Logger logger = LoggerFactory.getLogger(BaseFilter.class);
@@ -49,8 +49,8 @@ public abstract class BaseFilter implements Cloneable, java.io.Serializable{
 		}
 	}
 
-	public abstract void prepare();
 
+	@Override
 	public Map process(Map event) {
 		if(event != null && event.size() > 0){
 			try{
@@ -66,8 +66,9 @@ public abstract class BaseFilter implements Cloneable, java.io.Serializable{
 	protected abstract Map filter(Map event) ;
 
 	@SuppressWarnings("unchecked")
-	public void postProcess(Map event, boolean ifsuccess) {
-		if (ifsuccess == false) {
+	@Override
+	public void postProcess(Map event, boolean ifSuccess) {
+		if (ifSuccess == false) {
 			if (this.tagOnFailure == null) {
 				return;
 			}
@@ -83,7 +84,7 @@ public abstract class BaseFilter implements Cloneable, java.io.Serializable{
 			}
 		}
 	}
-	
+
     @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
