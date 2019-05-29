@@ -161,7 +161,7 @@ public class Binlog extends BaseInput {
             try (FSDataInputStream inputStream = dfs.open(posPath);
                  JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream))) {
                 startPosition = new Gson().fromJson(jsonReader, EntryPosition.class);
-            } catch(IOException e) {
+            } catch(Exception e) {
                 logger.error("Failed to read pos file: " + e.getMessage());
             }
         }
@@ -241,14 +241,14 @@ public class Binlog extends BaseInput {
             scheduler.shutdown();
         }
 
-        FSDataOutputStream out = null;
         if (configuration != null) {
+            FSDataOutputStream out = null;
             try {
                 if (dfs.exists(posPath)){
                     dfs.delete(posPath);
                 }
                 out = FileSystem.create(posPath.getFileSystem(configuration), posPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
-                out.write(new ObjectMapper().writeValueAsString(entryPosition).getBytes());
+                out.writeUTF(new ObjectMapper().writeValueAsString(entryPosition));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
