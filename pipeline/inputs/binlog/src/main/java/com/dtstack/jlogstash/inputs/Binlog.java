@@ -217,22 +217,22 @@ public class Binlog extends BaseInput {
 
         controller.start();
 
+        long period = configuration != null ? 5000 : 1000;
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                try {
-                    BinlogPosUtil.savePos(taskId + "_output", entryPosition);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                savePos();
             }
-        }, 500, 1000, TimeUnit.MILLISECONDS);
+        }, period, period, TimeUnit.MILLISECONDS);
 
         logger.info("binlog emit ended...");
     }
 
     @Override
     public void release() {
+
+        logger.info("binlog release...");
+
         if(controller != null) {
             controller.stop();
         }
@@ -241,6 +241,11 @@ public class Binlog extends BaseInput {
             scheduler.shutdown();
         }
 
+        savePos();
+        logger.info("binlog release..., save pos:{}", entryPosition);
+    }
+
+    private void savePos(){
         if (configuration != null) {
             FSDataOutputStream out = null;
             try {
@@ -251,12 +256,14 @@ public class Binlog extends BaseInput {
             } finally {
                 IOUtils.closeStream(out);
             }
+            logger.debug("save pos to hdfs, entryPosition:{}", entryPosition);
         } else {
             try {
                 BinlogPosUtil.savePos(taskId + "_output", entryPosition);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            logger.debug("save pos to local, entryPosition:{}", entryPosition);
         }
     }
 
