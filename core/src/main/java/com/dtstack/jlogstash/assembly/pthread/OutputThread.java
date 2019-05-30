@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,83 +23,79 @@ import java.util.concurrent.*;
 
 import com.dtstack.jlogstash.assembly.qlist.QueueList;
 import com.dtstack.jlogstash.factory.LogstashThreadFactory;
+import com.dtstack.jlogstash.outputs.IBaseOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.jlogstash.assembly.qlist.OutPutQueueList;
 import com.dtstack.jlogstash.exception.ExceptionUtil;
 import com.dtstack.jlogstash.factory.OutputFactory;
-import com.dtstack.jlogstash.outputs.BaseOutput;
 
 /**
- * 
  * Reason: TODO ADD REASON(可选)
  * Date: 2016年11月29日 下午15:30:18
  * Company: www.dtstack.com
- * @author sishu.yss
  *
+ * @author sishu.yss
  */
-public class OutputThread implements Runnable{
-	
-	private static Logger logger = LoggerFactory.getLogger(OutputThread.class);
-	
-	
-	private List<BaseOutput> outputProcessors;
-	
-	private static ExecutorService outputExecutor;
-	
-	private BlockingQueue<Map<String, Object>> outputQueue;
+public class OutputThread implements Runnable {
+
+    private static Logger logger = LoggerFactory.getLogger(OutputThread.class);
 
 
-    public OutputThread(List<BaseOutput> outputProcessors,BlockingQueue<Map<String, Object>> outputQueue){
-    	this.outputProcessors  = outputProcessors;
-    	this.outputQueue = outputQueue;
+    private List<IBaseOutput> outputProcessors;
+
+    private static ExecutorService outputExecutor;
+
+    private BlockingQueue<Map<String, Object>> outputQueue;
+
+
+    public OutputThread(List<IBaseOutput> outputProcessors, BlockingQueue<Map<String, Object>> outputQueue) {
+        this.outputProcessors = outputProcessors;
+        this.outputQueue = outputQueue;
     }
-    
-	@SuppressWarnings("rawtypes")
-	public static  void initOutPutThread(List<Map> outputs, QueueList outPutQueueList, List<BaseOutput> allBaseOutputs) throws Exception{
-		if(outputExecutor==null){
-			int size = outPutQueueList.getQueueList().size();
-			outputExecutor =  new ThreadPoolExecutor(size,size,
-					0L, TimeUnit.MILLISECONDS,
-					new LinkedBlockingQueue<Runnable>(),new LogstashThreadFactory(OutputThread.class.getName()));
-		}
-		for(BlockingQueue<Map<String, Object>> queueList:outPutQueueList.getQueueList()){
-			List<BaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);
-			allBaseOutputs.addAll(baseOutputs);
-			outputExecutor.submit(new OutputThread(baseOutputs,queueList));
-		}
-	}
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-	 Map<String, Object> event = null;
-	 try {
-		Thread.sleep(2000); 
-	    while (true) {
-				if(!priorityFail()){
-					event = this.outputQueue.take();
-					if (event != null) {
-						for (BaseOutput bo : outputProcessors) {
-							bo.process(event);
-						}
-					}	
-				}		
-			} 
-	    }catch (Exception e) {
-				// TODO Auto-generated catch block
-				logger.error("{}:output event failed:{}",event, ExceptionUtil.getErrorMessage(e));
-		}
-	}
-	
-	private boolean priorityFail(){
-		//优先处理失败信息
-		boolean dealFailMsg = false;
-		for (BaseOutput bo : outputProcessors) {
-			if (bo.isConsistency()) {
-				dealFailMsg = dealFailMsg || bo.dealFailedMsg();
-			}
-		}
-		return dealFailMsg;
-	}
+    @SuppressWarnings("rawtypes")
+    public static void initOutPutThread(List<Map> outputs, QueueList outPutQueueList, List<IBaseOutput> allBaseOutputs) throws Exception {
+        if (outputExecutor == null) {
+            int size = outPutQueueList.getQueueList().size();
+            outputExecutor = new ThreadPoolExecutor(size, size,
+                    0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<Runnable>(), new LogstashThreadFactory(OutputThread.class.getName()));
+        }
+        for (BlockingQueue<Map<String, Object>> queueList : outPutQueueList.getQueueList()) {
+            List<IBaseOutput> baseOutputs = OutputFactory.getBatchInstance(outputs);
+            allBaseOutputs.addAll(baseOutputs);
+            outputExecutor.submit(new OutputThread(baseOutputs, queueList));
+        }
+    }
+
+    @Override
+    public void run() {
+        Map<String, Object> event = null;
+        try {
+            Thread.sleep(2000);
+            while (true) {
+                if (!priorityFail()) {
+                    event = this.outputQueue.take();
+                    if (event != null) {
+                        for (IBaseOutput bo : outputProcessors) {
+                            bo.process(event);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("{}:output event failed:{}", event, ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
+    private boolean priorityFail() {
+        //优先处理失败信息
+        boolean dealFailMsg = false;
+        for (IBaseOutput bo : outputProcessors) {
+            if (bo.isConsistency()) {
+                dealFailMsg = dealFailMsg || bo.dealFailedMsg();
+            }
+        }
+        return dealFailMsg;
+    }
 }

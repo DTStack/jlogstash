@@ -50,6 +50,8 @@ public class JARClassLoaderFactory {
 
     private static JARClassLoaderFactory jarClassLoaderInstance = null;
 
+    private static Map<String, ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
+
     private JARClassLoaderFactory(){
         if(jarUrls==null){
             jarUrls = getClassLoadJarUrls();
@@ -67,14 +69,18 @@ public class JARClassLoaderFactory {
         return jarClassLoaderInstance;
     }
 
+
+
     public ClassLoader getClassLoaderByPluginName(String name){
-        URL[] urls =  jarUrls.get(name);
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        if(urls==null || urls.length==0){
-            logger.warn("{}:load by AppclassLoader",name);
-            return classLoader;
-        }
-        return new JARClassLoader(urls,classLoader);
+        ClassLoader classLoader = pluginClassLoader.computeIfAbsent(name, k -> {
+            URL[] urls =  jarUrls.get(name);
+            if(urls==null || urls.length==0){
+                logger.warn("{}:load by AppclassLoader",name);
+                return this.getClass().getClassLoader();
+            }
+            return new JARClassLoader(urls, this.getClass().getClassLoader());
+        });
+        return classLoader;
     }
 
     private Map<String,URL[]> getClassLoadJarUrls(){

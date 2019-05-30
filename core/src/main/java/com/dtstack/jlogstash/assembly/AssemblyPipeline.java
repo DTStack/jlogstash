@@ -26,10 +26,12 @@ import com.dtstack.jlogstash.configs.YamlConfig;
 import com.dtstack.jlogstash.exception.LogstashException;
 import com.dtstack.jlogstash.factory.InputFactory;
 import com.dtstack.jlogstash.inputs.BaseInput;
+import com.dtstack.jlogstash.inputs.IBaseInput;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import com.dtstack.jlogstash.metrics.groups.JlogstashJobMetricGroup;
 import com.dtstack.jlogstash.metrics.util.MetricUtils;
 import com.dtstack.jlogstash.outputs.BaseOutput;
+import com.dtstack.jlogstash.outputs.IBaseOutput;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -54,9 +56,9 @@ public class AssemblyPipeline {
 
     private OutPutQueueList initOutputQueueList;
 
-    private List<BaseInput> baseInputs;
+    private List<IBaseInput> baseInputs;
 
-    private List<BaseOutput> allBaseOutputs = Lists.newCopyOnWriteArrayList();
+    private List<IBaseOutput> allBaseOutputs = Lists.newCopyOnWriteArrayList();
 
     private MetricRegistryImpl metricRegistry;
 
