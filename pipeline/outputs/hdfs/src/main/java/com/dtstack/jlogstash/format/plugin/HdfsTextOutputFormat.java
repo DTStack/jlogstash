@@ -9,7 +9,6 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.TextOutputFormatBak;
 import org.apache.hadoop.util.StringUtils;
 import org.slf4j.Logger;
@@ -25,7 +24,7 @@ import java.util.UUID;
 import org.apache.hadoop.mapred.FileOutputFormat;
 
 /**
- * 
+ *
  * @author sishu.yss
  *
  */
@@ -77,7 +76,12 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 
 	@Override
 	public void open() throws IOException {
-        String pathStr = String.format("%s/%s-%d-%s.txt", outputFileDir, fileName, Thread.currentThread().getId(), UUID.randomUUID().toString());
+		String pathStr = null;
+		if (outputFormat instanceof TextOutputFormatBak){
+			 pathStr = String.format("%s/%s-%d.txt", outputFileDir, fileName, Thread.currentThread().getId());
+		} else {
+			 pathStr = String.format("%s/%s-%d-%s.txt", outputFileDir, fileName, Thread.currentThread().getId(), UUID.randomUUID().toString());
+		}
 		logger.info("hdfs path:{}", pathStr);
 		// // 此处好像并没有什么卵用
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
