@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.dtstack.jlogstash.format.util.HdfsConverter;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
@@ -141,7 +142,8 @@ public class Hdfs extends BaseOutput{
 	@Override
 	protected void emit(Map event) {
 		try{
-			String realPath = Formatter.format(event, path, timezone);
+			String ss = HdfsConverter.parseJson(event, path);
+			String realPath = Formatter.format(event, ss, timezone);
 			try {
 				lock.lockInterruptibly();
 				getHdfsOutputFormat(realPath).writeRecord(event);
