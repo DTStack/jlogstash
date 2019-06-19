@@ -1,5 +1,8 @@
 package com.dtstack.jlogstash.format.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +12,8 @@ import java.util.Map;
  */
 
 public class HdfsConverter {
+
+    private static Logger logger = LoggerFactory.getLogger(HdfsConverter.class);
 
     /**
      * path的参数格式，如$.user.id,若不是,返回原path
@@ -61,14 +66,14 @@ public class HdfsConverter {
                 } else if (obj instanceof String) {
                     result += String.format("/%s", obj);
                 } else {
-                    throw new Exception();
+                    throw new UnsupportedOperationException("unsupported this format");
                 }
             }
             return result;
         }catch (Exception e){
-            System.err.println(e);
+            logger.error("",e);
         }
-        return null;
+        return path;
     }
 }
 
