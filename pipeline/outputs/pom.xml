@@ -19,6 +19,7 @@
         <module>hdfs</module>
         <module>kafka</module>
         <module>kafka10</module>
+        <module>kafka11</module>
         <module>netty</module>
         <module>odps</module>
         <module>performance</module>
