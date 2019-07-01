@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.ua.parser;
+package com.dtstack.jlogstash.parser;
 
 import java.io.IOException;
 import java.io.InputStream;

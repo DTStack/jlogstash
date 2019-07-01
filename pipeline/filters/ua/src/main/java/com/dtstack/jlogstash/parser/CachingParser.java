@@ -15,19 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dtstack.jlogstash.ua.parser;
+package com.dtstack.jlogstash.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
 import org.apache.commons.collections.map.LRUMap;
-
-import com.dtstack.jlogstash.ua.parser.Client;
-import com.dtstack.jlogstash.ua.parser.Device;
-import com.dtstack.jlogstash.ua.parser.OS;
-import com.dtstack.jlogstash.ua.parser.Parser;
-import com.dtstack.jlogstash.ua.parser.UserAgent;
 
 /**
  * When doing webanalytics (with for example PIG) the main pattern is to process
