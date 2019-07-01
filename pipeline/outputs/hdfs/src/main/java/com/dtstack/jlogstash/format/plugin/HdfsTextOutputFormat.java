@@ -9,7 +9,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapred.TextOutputFormatBak;
 import org.apache.hadoop.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +21,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.hadoop.mapred.FileOutputFormat;
 
 /**
- * 
+ *
  * @author sishu.yss
  *
  */
@@ -35,24 +36,28 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 
 	private String delimiter;
 
-	public HdfsTextOutputFormat(Configuration conf, String outputFilePath,
+	public HdfsTextOutputFormat(Configuration conf, String outputFileDir,
 			List<String> columnNames, List<String> columnTypes,
-			String compress, String writeMode, Charset charset, String delimiter) {
+			String compress, String writeMode, Charset charset, String delimiter,String fileName) {
 		this.conf = conf;
-		this.outputFilePath = outputFilePath;
+		this.outputFileDir = outputFileDir;
 		this.columnNames = columnNames;
 		this.columnTypes = columnTypes;
 		this.compress = compress;
 		this.writeMode = writeMode;
 		this.charset = charset;
 		this.delimiter = delimiter;
+		if (fileName == null || fileName.length()==0) {
+			fileName = HostUtil.getHostName();
+		}
+		this.fileName = fileName;
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void configure() {
 		super.configure();
-		outputFormat = new TextOutputFormat();
+		outputFormat = new TextOutputFormatBak<>();
 		Class<? extends CompressionCodec> codecClass = null;
 		if (CompressEnum.NONE.name().equalsIgnoreCase(compress)) {
 			codecClass = null;
@@ -65,20 +70,25 @@ public class HdfsTextOutputFormat extends HdfsOutputFormat {
 					+ compress);
 		}
 		if (codecClass != null) {
-			this.outputFormat.setOutputCompressorClass(jobConf, codecClass);
+			FileOutputFormat.setOutputCompressorClass(jobConf, codecClass);
 		}
 	}
 
 	@Override
 	public void open() throws IOException {
-        String pathStr = String.format("%s/%s-%d-%s.txt", outputFilePath, HostUtil.getHostName(),Thread.currentThread().getId(),UUID.randomUUID().toString());
+		String pathStr = null;
+		if (outputFormat instanceof TextOutputFormatBak){
+			 pathStr = String.format("%s/%s-%d.txt", outputFileDir, fileName, Thread.currentThread().getId());
+		} else {
+			 pathStr = String.format("%s/%s-%d-%s.txt", outputFileDir, fileName, Thread.currentThread().getId(), UUID.randomUUID().toString());
+		}
 		logger.info("hdfs path:{}", pathStr);
 		// // 此处好像并没有什么卵用
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 		String attempt = "attempt_" + dateFormat.format(new Date())
 				+ "_0001_m_000000_" +Thread.currentThread().getId();
 		jobConf.set("mapreduce.task.attempt.id", attempt);
-		outputFormat.setOutputPath(jobConf, new Path(pathStr));
+		FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
 		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf,
 				pathStr, Reporter.NULL);
 	}

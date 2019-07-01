@@ -82,15 +82,4 @@ public class Split extends BaseFilter {
 		return true;
 	}
 
-	public static void main(String[] args) {
-		Split s = new Split(new HashMap());
-		Map<String, Object> event = new HashMap<>();
-		s.separator = ";";
-		s.fields = "a,b";
-		s.prepare();
-		event.put("message","xu;chao");
-		s.filter(event);
-		System.out.println(event);
-	}
-
 }

@@ -10,7 +10,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>filter.java</artifactId>
-    <version>1.0.1</version>
 
     <build>
         <plugins>
@@ -25,6 +24,15 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.slf4j:slf4j-log4j12</exclude>
+                                    <exclude>log4j:log4j</exclude>
+                                    <exclude>org.slf4j:slf4j-api</exclude>
+                                    <exclude>netty-all:io.netty</exclude>
+                                    <exclude>com.google.guava:guava</exclude>
+                                </excludes>
+                            </artifactSet>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -52,8 +60,11 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <delete>
+                                    <fileset dir="${basedir}/../../../plugin/filter" includes="${project.name}-*.jar"/>
+                                </delete>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../../../plugin/filter/${project.name}-${project.version}.jar" />
+                                      tofile="${basedir}/../../../plugin/filter/${project.name}-${git.branch}.jar" />
                             </tasks>
                         </configuration>
                     </execution>
@@ -71,12 +82,4 @@
         </plugins>
     </build>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>jlogstash</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
 </project>

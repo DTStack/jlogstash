@@ -132,7 +132,11 @@ public class Performance extends BaseOutput{
 			scheduleExecutor.scheduleWithFixedDelay(new ExpiredFileDeleRunnabel(), 0, monitorFileInterval, TimeUnit.SECONDS);
 		}
 	}
-	
+
+	@Override
+	public void release() {
+	}
+
 	@Override
 	protected void emit(Map event) {
 		// TODO Auto-generated method stub

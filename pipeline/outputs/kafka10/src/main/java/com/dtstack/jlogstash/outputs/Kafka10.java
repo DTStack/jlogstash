@@ -68,7 +68,11 @@ public class Kafka10 extends BaseOutput {
 			if (producerSettings != null) {
 				props.putAll(producerSettings);
 			}
-			props.put("bootstrap.servers", bootstrapServers);
+			if (!bootstrapServers.trim().equals("")){
+				props.put("bootstrap.servers", bootstrapServers);
+			} else {
+				throw new Exception("bootstrapServers can not be empty!");
+			}
 
 			if (isInit.compareAndSet(false, true)) {
 				

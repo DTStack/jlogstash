@@ -1,6 +1,7 @@
 package com.dtstack.jlogstash.format;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordWriter;
@@ -27,13 +28,16 @@ public abstract class HdfsOutputFormat implements  OutputFormat {
     protected List<String> columnNames;
     protected int columnSize;
     protected List<String> columnTypes;
-    protected  String outputFilePath;
+    protected  String outputFileDir;
     protected  FileOutputFormat<?, ?> outputFormat;
     protected  JobConf jobConf;
     protected  Configuration conf;
     protected  Map<String, String> columnNameTypeMap;
     protected  Map<String, Integer> columnNameIndexMap;
     protected  RecordWriter recordWriter;
+    protected String fileName;
+
+
     public static ObjectMapper objectMapper = new ObjectMapper();
 
     @Override

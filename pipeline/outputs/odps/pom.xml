@@ -8,7 +8,6 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>output.odps</artifactId>
-	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<url>http://maven.apache.org</url>
 
@@ -47,6 +46,15 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<artifactSet>
+								<excludes>
+									<exclude>org.slf4j:slf4j-log4j12</exclude>
+									<exclude>log4j:log4j</exclude>
+									<exclude>org.slf4j:slf4j-api</exclude>
+									<exclude>netty-all:io.netty</exclude>
+									<exclude>com.google.guava:guava</exclude>
+								</excludes>
+							</artifactSet>
 							<filters>
 								<filter>
 									<artifact>*:*</artifact>
@@ -74,8 +82,11 @@
 						</goals>
 						<configuration>
 							<tasks>
+								<delete>
+									<fileset dir="${basedir}/../../../plugin/output" includes="${project.name}-*.jar"/>
+								</delete>
 								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/../../../plugin/output/${project.name}-${project.version}.jar" />
+									  tofile="${basedir}/../../../plugin/output/${project.name}-${git.branch}.jar" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -89,13 +100,6 @@
 			<groupId>com.aliyun.odps</groupId>
 			<artifactId>odps-sdk-core</artifactId>
 			<version>0.26.2-public</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.dtstack.jlogstash</groupId>
-			<artifactId>jlogstash</artifactId>
-			<version>1.0.0</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

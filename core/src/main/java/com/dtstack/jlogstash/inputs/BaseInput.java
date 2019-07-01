@@ -43,7 +43,7 @@ import com.dtstack.jlogstash.decoder.PlainDecoder;
 import com.dtstack.jlogstash.utils.BasePluginUtil;
 
 @SuppressWarnings("serial")
-public abstract class BaseInput implements Cloneable, java.io.Serializable{
+public abstract class BaseInput implements IBaseInput, java.io.Serializable{
 		
 	private static final Logger baseLogger = LoggerFactory.getLogger(BaseInput.class);
 	
@@ -61,7 +61,7 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 
     private PipelineInputMetricGroup pipelineInputMetricGroup;
 
-    public IDecode createDecoder() {
+    private IDecode createDecoder() {
         String codec = (String) this.config.get("codec");
         if ("json".equals(codec)) {
              return new JsonDecoder();
@@ -117,10 +117,6 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
 		}
     }
 
-    public abstract void prepare();
-
-    public abstract void emit();
-
     public void process(Map<String,Object> event) {
     	if(event!=null&&event.size()>0){
         	if(addFields!=null){
@@ -133,8 +129,6 @@ public abstract class BaseInput implements Cloneable, java.io.Serializable{
         	inputQueueList.put(event);
     	}
     }
-    
-    public abstract void release();
     
     @Override
     public Object clone() throws CloneNotSupportedException {

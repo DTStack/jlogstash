@@ -5,7 +5,7 @@ target/*
 .classpath
 .metadata/
 .idea/
-plugin/
+/plugin/
 *.iml
 RemoteSystemsTempFiles/
 logs/
@@ -13,6 +13,5 @@ conf/
 dependency-reduced-pom.xml
 jlogstash.iml
 lib/
-
-!/pipeline/outputs/hdfs/src/main/java/com/dtstack/jlogstash/format/plugin/
-!/core/src/main/java/com/dtstack/jlogstash/annotation/plugin/
+*_output
+/test/

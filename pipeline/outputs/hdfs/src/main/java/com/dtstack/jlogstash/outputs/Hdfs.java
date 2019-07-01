@@ -7,12 +7,15 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.dtstack.jlogstash.format.util.HdfsConverter;
+import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.slf4j.Logger;
@@ -50,18 +53,30 @@ public class Hdfs extends BaseOutput{
 	private static String compression = "NONE";
 	
 	private static String charsetName = "UTF-8";
-	
+
+	private static String fileName;
+
 	private static Charset charset;
 	
 	private static String delimiter = "\001";
 	
 	public static String timezone;
+
+	/**
+	 * 间隔 interval 时间对 outputFormat 进行一次 close，触发输出文件的合并
+	 */
+	public static int interval = 60 * 60 * 1000;
+
+	private long lastTime = System.currentTimeMillis();
+
+	/**
+	 * 字节数量超过 bufferSize 时，outputFormat 进行一次 close，触发输出文件的合并
+	 */
+	public static int bufferSize = 128 * 1024 * 1024;
+
+	private AtomicLong dataSize = new AtomicLong(0L);
 	
-	public static int interval = 5*60*1000;//millseconds
-	
-	public static int bufferSize = 1024;//bytes
-	
-    private ExecutorService executor;
+    private ScheduledExecutorService executor;
 
 	@Required(required = true)
 	private static List<String> schema;//["name:varchar"]
@@ -70,16 +85,20 @@ public class Hdfs extends BaseOutput{
 	
 	private static List<String> columnTypes;
 	
-	private static String hadoopUserName = "root";
+	private static String hadoopUserName;
 	
-	private static Configuration configuration;
-	
+	private Configuration configuration;
+
+	private static Map<String, Object> hadoopConfigMap;
+
 	private Map<String,HdfsOutputFormat> hdfsOutputFormats = Maps.newConcurrentMap();
 	
 	private Lock lock = new ReentrantLock();
 	
-	private AtomicBoolean lockBoolean = new AtomicBoolean(true);
-	
+	static{
+		Thread.currentThread().setContextClassLoader(null);
+	}
+
 	public Hdfs(Map config) {
 		super(config);
 		// TODO Auto-generated constructor stub
@@ -92,6 +111,9 @@ public class Hdfs extends BaseOutput{
 			formatSchema();
 			setHadoopConfiguration();
 			process();
+			if (Thread.currentThread().getContextClassLoader() == null){
+				Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			logger.error("",e);
@@ -100,62 +122,52 @@ public class Hdfs extends BaseOutput{
 	}
 
 	public void process(){
-		executor = Executors.newSingleThreadExecutor();
-		executor.submit(new Runnable(){
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				try {
-					while(true){
-						Thread.sleep(interval);
-						try{
-							lock.lockInterruptibly();
-							lockBoolean.set(false);
-							release();
-							logger.warn("hdfs commit again...");
-						}finally{
-							lock.unlock();
-							lockBoolean.set(true);
-						}
-					}
+		executor = new ScheduledThreadPoolExecutor(1);
+		executor.scheduleWithFixedDelay(()->{
+			if ((System.currentTimeMillis() - lastTime >= interval)
+					|| dataSize.get() >= bufferSize) {
+				try{
+					lock.lockInterruptibly();
+					release();
+					logger.warn("hdfs commit again...");
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					logger.error("",e);
+					logger.error("{}",e);
+				} finally{
+					lock.unlock();
 				}
 			}
-		});
+		},1000, 1000, TimeUnit.MILLISECONDS);
 	}
 	
 	@Override
 	protected void emit(Map event) {
-		// TODO Auto-generated method stub
 		try{
-			String realPath = Formatter.format(event, path, timezone);
-			getHdfsOutputFormat(realPath).writeRecord(event);
-		}catch(Exception e){
+			String ss = HdfsConverter.parseJson(event, path);
+			String realPath = Formatter.format(event, ss, timezone);
+			try {
+				lock.lockInterruptibly();
+				getHdfsOutputFormat(realPath).writeRecord(event);
+				dataSize.addAndGet(ObjectSizeCalculator.getObjectSize(event));
+			} catch (Throwable e) {
+				throw e;
+			} finally{
+				lock.unlock();
+			}
+		} catch (Throwable e) {
 			this.addFailedMsg(event);
 			logger.error("",e);
 		}
 	}
 	
 	public HdfsOutputFormat getHdfsOutputFormat(String realPath) throws IOException{
-		if(!lockBoolean.get()){
-			try {
-				lock.lockInterruptibly();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				logger.error("",e);
-			}finally{
-				lock.unlock();
-			}
-		}
 		HdfsOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(realPath);
 		if(hdfsOutputFormat == null){
-			if(StoreEnum.TEXT.name().equals(store)){
-				hdfsOutputFormat = new HdfsTextOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, delimiter);
-			}else if(StoreEnum.ORC.name().equals(store)){
-				hdfsOutputFormat = new HdfsOrcOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset);
+			if(StoreEnum.TEXT.name().equalsIgnoreCase(store)){
+				hdfsOutputFormat = new HdfsTextOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, delimiter, fileName);
+			}else if(StoreEnum.ORC.name().equalsIgnoreCase(store)){
+				hdfsOutputFormat = new HdfsOrcOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, fileName);
+			} else {
+				throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
 			}
 			hdfsOutputFormat.configure();
 			hdfsOutputFormat.open();
@@ -176,9 +188,8 @@ public class Hdfs extends BaseOutput{
 		for(Map.Entry<String, HdfsOutputFormat> entry:entrys){
 			try {
 				entry.getValue().close();
-				hdfsOutputFormats.remove(entry.getKey());
+                hdfsOutputFormats.remove(entry.getKey());
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				logger.error("",e);
 			}
 		}
@@ -202,10 +213,19 @@ public class Hdfs extends BaseOutput{
 	}
 	
 	private void setHadoopConfiguration() throws Exception{
+		if (hadoopUserName != null) {
+			System.setProperty("HADOOP_USER_NAME", hadoopUserName);
+		}
+		if (hadoopConfigMap != null) {
+			configuration = new Configuration(false);
+			for(Map.Entry<String,Object> entry : hadoopConfigMap.entrySet()) {
+				configuration.set(entry.getKey(), entry.getValue().toString());
+			}
+			configuration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+		}
 		if(configuration == null){
 			synchronized(Hdfs.class){
 				if(configuration == null){
-					System.setProperty("HADOOP_USER_NAME", hadoopUserName);
 					configuration = new Configuration();
 		    		configuration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
 		            File[] xmlFileList = new File(hadoopConf).listFiles(new FilenameFilter() {
@@ -226,39 +246,5 @@ public class Hdfs extends BaseOutput{
 			}
 			
 		}
-	}
-	
-	public static void main(String[] args) throws Exception{
-		Hdfs.hadoopConf = "/Users/sishuyss/ysq/dtstack/rdos-web-all/conf/hadoop";
-		Hdfs.hadoopUserName = "admin";
-		Hdfs.path = "/test13/%{table}";
-		Hdfs.store = "TEXT";
-		Hdfs.interval= 2000;
-//		Hdfs.compression="GZIP";
-		List<String> sche = Lists.newArrayList("table:varchar","op_type:varchar","op_ts:varchar","current_ts:varchar","pos:varchar","before:varchar","after:varchar");
-		Hdfs.schema = sche;
-		
-//		for(int i =0;i<1;i++){
-//			new Thread(new Runnable(){
-//
-//				@Override
-//				public void run() {
-//					// TODO Auto-generated method stub
-//					
-//					Hdfs hdfs = new Hdfs(Maps.newConcurrentMap());
-//					hdfs.prepare();
-//					for(int i=0;i<100000;i++){
-//						Map<String,Object> event = Maps.newConcurrentMap();
-//						event.put("table", "TEST.T");
-//						event.put("op_type", "U");
-//						event.put("op_ts", "2017-09-05 09:47:45.040103");
-//						event.put("current_ts", "2017-09-05T17:47:52.868000");
-//						event.put("before", "{\"ID\":12,\"NAME\":\"dsasasdas\"}");
-//						event.put("after", "{\"ID\":12,\"NAME\":\"1234455\"}");
-//						hdfs.emit(event);	
-//					}
-//				}
-//			}).start();
-//		}
 	}
 }

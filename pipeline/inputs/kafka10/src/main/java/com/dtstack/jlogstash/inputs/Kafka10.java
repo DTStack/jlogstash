@@ -31,7 +31,7 @@ public class Kafka10 extends BaseInput {
 	private static final Logger logger = LoggerFactory.getLogger(Kafka10.class);
 
 	@Required(required=true)
-	private static String topics;
+	private static String topic;
 	
 	@Required(required=true)
 	private static String groupId;
@@ -48,6 +48,10 @@ public class Kafka10 extends BaseInput {
 
 	public Kafka10(Map<String, Object> config){
 		super(config);
+	}
+
+	static{
+		Thread.currentThread().setContextClassLoader(null);
 	}
 
 	@Override
@@ -80,8 +84,8 @@ public class Kafka10 extends BaseInput {
 		
 		try {
 			
-			consumer.add(topics, groupId, new JKafkaConsumer.Caller() {
-				
+			consumer.add(topic, groupId, new JKafkaConsumer.Caller() {
+
 				@Override
 				public void processMessage(String message) {
 					Map<String, Object> event = Kafka10.this.getDecoder().decode(message);

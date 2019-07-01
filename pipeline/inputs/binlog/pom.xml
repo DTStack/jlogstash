@@ -8,12 +8,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>input.binlog</artifactId>
-    <version>1.0.0</version>
     <packaging>jar</packaging>
     <description>input plugin binlog</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <hadoop2.version>2.7.3</hadoop2.version>
     </properties>
 
     <licenses>
@@ -68,6 +68,10 @@
                         <configuration>
                             <artifactSet>
                                 <excludes>
+                                    <exclude>org.slf4j:slf4j-log4j12</exclude>
+                                    <exclude>log4j:log4j</exclude>
+                                    <exclude>org.slf4j:slf4j-api</exclude>
+                                    <exclude>netty-all:io.netty</exclude>
                                     <exclude>com.google.guava:guava</exclude>
                                 </excludes>
                             </artifactSet>
@@ -109,8 +113,11 @@
                         </goals>
                         <configuration>
                             <tasks>
+                                <delete>
+                                    <fileset dir="${basedir}/../../../plugin/input" includes="${project.name}-*.jar"/>
+                                </delete>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../../../plugin/input/${project.name}-${project.version}.jar" />
+                                      tofile="${basedir}/../../../plugin/input/${project.name}-${git.branch}.jar" />
                             </tasks>
                         </configuration>
                     </execution>
@@ -141,10 +148,19 @@
     </distributionManagement>
     <dependencies>
         <dependency>
-            <groupId>com.dtstack.jlogstash</groupId>
-            <artifactId>jlogstash</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>${hadoop2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+            <version>${hadoop2.version}</version>
         </dependency>
 
         <dependency>

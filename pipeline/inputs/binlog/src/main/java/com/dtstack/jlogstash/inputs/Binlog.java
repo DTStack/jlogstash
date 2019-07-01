@@ -22,10 +22,28 @@ import com.alibaba.otter.canal.parse.inbound.mysql.MysqlEventParser;
 import com.alibaba.otter.canal.parse.support.AuthenticationInfo;
 import com.alibaba.otter.canal.protocol.position.EntryPosition;
 import com.dtstack.jlogstash.annotation.Required;
+import com.dtstack.jlogstash.assembly.CmdLineParams;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Hdfs;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.io.IOUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -49,6 +67,18 @@ import java.util.concurrent.TimeUnit;
 public class Binlog extends BaseInput {
 
     private static final Logger logger = LoggerFactory.getLogger(Binlog.class);
+
+    private static String hadoopConf = System.getenv("HADOOP_CONF_DIR");
+
+    private static String hadoopUserName = "admin";
+
+    private static Map<String, Object> hadoopConfigMap;
+
+    private Configuration configuration;
+
+    private FileSystem dfs;
+
+    private Path posPath;
 
     /** plugin properties */
 
@@ -85,6 +115,7 @@ public class Binlog extends BaseInput {
 
     public Binlog(Map config) {
         super(config);
+        taskId = CmdLineParams.getName();
     }
 
     public void updateLastPos(EntryPosition entryPosition) {
@@ -119,47 +150,65 @@ public class Binlog extends BaseInput {
         }
 
         EntryPosition startPosition = null;
-        try {
-            startPosition = BinlogPosUtil.readPos(taskId);
-        } catch(IOException e) {
-            logger.error("Failed to read pos file: " + e.getMessage());
+        if (configuration == null) {
+            try {
+                startPosition = BinlogPosUtil.readPos(taskId);
+            } catch(IOException e) {
+                logger.error("Failed to read pos file: " + e.getMessage());
+            }
+        } else {
+            try (FSDataInputStream inputStream = dfs.open(posPath)){
+                String json = inputStream.readUTF();
+                startPosition = new ObjectMapper().readValue(json, EntryPosition.class);
+            } catch(Exception e) {
+                logger.error("Failed to read pos file: " + e.getMessage());
+            }
         }
-
         return startPosition;
     }
 
     @Override
     public void prepare() {
-        logger.info("binlog prepare started..");
+        try {
+            logger.info("binlog prepare started..");
 
-        parseCategories();
+            parseCategories();
 
-        controller = new MysqlEventParser();
-        controller.setConnectionCharset(Charset.forName("UTF-8"));
-        controller.setSlaveId(slaveId);
-        controller.setDetectingEnable(false);
-        controller.setMasterInfo(new AuthenticationInfo(new InetSocketAddress(host, port), username, password));
-        controller.setEnableTsdb(true);
-        controller.setDestination("example");
-        controller.setParallel(true);
-        controller.setParallelBufferSize(256);
-        controller.setParallelThreadSize(2);
-        controller.setIsGTIDMode(false);
-        controller.setEventSink(new BinlogEventSink(this));
+            setHadoopConfiguration();
+            if (configuration != null) {
+                posPath = new Path(configuration.get("fs.defaultFS"), "/user/jlogstash/" + taskId + "_output");
+                dfs = FileSystem.get(configuration);
+            }
 
-        controller.setLogPositionManager(new BinlogPositionManager(this));
+            controller = new MysqlEventParser();
+            controller.setConnectionCharset(Charset.forName("UTF-8"));
+            controller.setSlaveId(slaveId);
+            controller.setDetectingEnable(false);
+            controller.setMasterInfo(new AuthenticationInfo(new InetSocketAddress(host, port), username, password));
+            controller.setEnableTsdb(true);
+            controller.setDestination("example");
+            controller.setParallel(true);
+            controller.setParallelBufferSize(256);
+            controller.setParallelThreadSize(2);
+            controller.setIsGTIDMode(false);
+            controller.setEventSink(new BinlogEventSink(this));
 
-        EntryPosition startPosition = findStartPosition();
-        if (startPosition != null) {
-           controller.setMasterPosition(startPosition);
+            controller.setLogPositionManager(new BinlogPositionManager(this));
+
+            EntryPosition startPosition = findStartPosition();
+            if (startPosition != null) {
+               controller.setMasterPosition(startPosition);
+            }
+
+            if (filter != null) {
+                controller.setEventFilter(new AviaterRegexFilter(filter));
+            }
+
+            logger.info("binlog prepare ended..");
+        } catch (Exception e) {
+            logger.error("",e);
+            System.exit(-1);
         }
-
-
-        if (filter != null) {
-            controller.setEventFilter(new AviaterRegexFilter(filter));
-        }
-
-        logger.info("binlog prepare ended..");
     }
 
     @Override
@@ -168,22 +217,22 @@ public class Binlog extends BaseInput {
 
         controller.start();
 
+        long period = configuration != null ? 5000 : 1000;
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                try {
-                    BinlogPosUtil.savePos(taskId + "_output", entryPosition);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                savePos();
             }
-        }, 500, 1000, TimeUnit.MILLISECONDS);
+        }, period, period, TimeUnit.MILLISECONDS);
 
         logger.info("binlog emit ended...");
     }
 
     @Override
     public void release() {
+
+        logger.info("binlog release...");
+
         if(controller != null) {
             controller.stop();
         }
@@ -192,22 +241,43 @@ public class Binlog extends BaseInput {
             scheduler.shutdown();
         }
 
-        try {
-            BinlogPosUtil.savePos(taskId + "_output", entryPosition);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        savePos();
+        logger.info("binlog release..., save pos:{}", entryPosition);
+    }
+
+    private void savePos(){
+        if (configuration != null) {
+            FSDataOutputStream out = null;
+            try {
+                out = FileSystem.create(posPath.getFileSystem(configuration), posPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
+                out.writeUTF(new ObjectMapper().writeValueAsString(entryPosition));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                IOUtils.closeStream(out);
+            }
+            logger.debug("save pos to hdfs, entryPosition:{}", entryPosition);
+        } else {
+            try {
+                BinlogPosUtil.savePos(taskId + "_output", entryPosition);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            logger.debug("save pos to local, entryPosition:{}", entryPosition);
         }
     }
 
-    public static void main(String[] args) {
-        Map<String,Object> config = new HashMap<>();
-        Binlog binlog = new Binlog(config);
-        binlog.host = "rdos1";
-        binlog.username = "canal";
-        binlog.password = "canal";
-
-        binlog.prepare();
-        binlog.emit();
+    private void setHadoopConfiguration() throws Exception{
+        if (hadoopUserName != null) {
+            System.setProperty("HADOOP_USER_NAME", hadoopUserName);
+        }
+        if (hadoopConfigMap != null) {
+            configuration = new Configuration(false);
+            for(Map.Entry<String,Object> entry : hadoopConfigMap.entrySet()) {
+                configuration.set(entry.getKey(), entry.getValue().toString());
+            }
+            configuration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+        }
     }
 
 }

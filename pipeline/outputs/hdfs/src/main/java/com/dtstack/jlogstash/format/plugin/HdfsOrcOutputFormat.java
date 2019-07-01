@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.hadoop.mapred.FileOutputFormat;
 
 /**
  * 
@@ -34,14 +35,19 @@ import java.util.UUID;
  */
 public class HdfsOrcOutputFormat extends HdfsOutputFormat {
 	
-	public HdfsOrcOutputFormat(Configuration conf,String outputFilePath,List<String> columnNames,List<String> columnTypes,String compress,String writeMode,Charset charset) {
+	public HdfsOrcOutputFormat(Configuration conf,String outputFileDir,List<String> columnNames,
+                               List<String> columnTypes,String compress,String writeMode,Charset charset, String fileName) {
 	   this.conf = conf;
-	   this.outputFilePath = outputFilePath;
+	   this.outputFileDir = outputFileDir;
 	   this.columnNames = columnNames;
 	   this.columnTypes = columnTypes;
 	   this.compress = compress;
 	   this.writeMode = writeMode;
 	   this.charset = charset;
+        if (fileName == null || fileName.length()==0) {
+            fileName = HostUtil.getHostName();
+        }
+        this.fileName = fileName;
 	}
 
 	private static Logger logger = LoggerFactory.getLogger(HdfsOrcOutputFormat.class);
@@ -81,16 +87,16 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat {
         }
 
         if(codecClass != null){
-            this.outputFormat.setOutputCompressorClass(jobConf, codecClass);
+            FileOutputFormat.setOutputCompressorClass(jobConf, codecClass);
         }
     }
 
     @Override
     public void open() throws IOException {
-            String pathStr = String.format("%s/%s-%d-%s.orc", outputFilePath, HostUtil.getHostName(),Thread.currentThread().getId(),UUID.randomUUID().toString());
-            logger.info("hdfs path:{}",pathStr);
-            outputFormat.setOutputPath(jobConf, new Path(pathStr));
-            this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
+        String pathStr = String.format("%s/%s-%d-%s.orc", outputFileDir, fileName,Thread.currentThread().getId(),UUID.randomUUID().toString());
+        logger.info("hdfs path:{}",pathStr);
+        FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
+        this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
     }
 
     @SuppressWarnings("unchecked")
