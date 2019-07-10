@@ -6,6 +6,7 @@ import com.dtstack.jlogstash.format.StoreEnum;
 import com.dtstack.jlogstash.format.plugin.HiveOrcOutputFormat;
 import com.dtstack.jlogstash.format.plugin.HiveTextOutputFormat;
 import com.dtstack.jlogstash.format.util.HiveConverter;
+import com.dtstack.jlogstash.format.util.HiveUtil;
 import com.dtstack.jlogstash.render.Formatter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,6 +63,11 @@ public class Hive extends BaseOutput{
 
 	public static String timezone;
 
+
+	private static String url;
+	private static String user;
+	private static String password;
+
 	/**
 	 * 间隔 interval 时间对 outputFormat 进行一次 close，触发输出文件的合并
 	 */
@@ -90,10 +97,21 @@ public class Hive extends BaseOutput{
 
 	private static Map<String, Object> hadoopConfigMap;
 
+	private static String analyticalRules;
+
+	private static String writeStrategy;
+
+	private static Integer strategySize;
+
+	private static String tablesColumn;
+
+	private static String driver = "org.apache.hive.jdbc.HiveDriver";
+
 	private Map<String, HiveOutputFormat> hdfsOutputFormats = Maps.newConcurrentMap();
 	
 	private Lock lock = new ReentrantLock();
-	
+
+	private HiveUtil hiveUtil;
 	static{
 		Thread.currentThread().setContextClassLoader(null);
 	}
@@ -101,6 +119,11 @@ public class Hive extends BaseOutput{
 	public Hive(Map config) {
 		super(config);
 		// TODO Auto-generated constructor stub
+		try {
+			hiveUtil=new HiveUtil(driver,url,user,password,analyticalRules,tablesColumn,store,delimiter);
+		} catch (SQLException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -145,7 +168,7 @@ public class Hive extends BaseOutput{
 			String realPath = Formatter.format(event, ss, timezone);
 			try {
 				lock.lockInterruptibly();
-				getHdfsOutputFormat(realPath).writeRecord(event);
+				getHdfsOutputFormat(realPath,event).writeRecord(event);
 				dataSize.addAndGet(ObjectSizeCalculator.getObjectSize(event));
 			} catch (Throwable e) {
 				throw e;
@@ -158,9 +181,10 @@ public class Hive extends BaseOutput{
 		}
 	}
 	
-	public HiveOutputFormat getHdfsOutputFormat(String realPath) throws IOException{
+	public HiveOutputFormat getHdfsOutputFormat(String realPath,Map event) throws IOException{
 		HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(realPath);
 		if(hdfsOutputFormat == null){
+			this.hiveUtil.run(tablesColumn,event);
 			if(StoreEnum.TEXT.name().equalsIgnoreCase(store)){
 				hdfsOutputFormat = new HiveTextOutputFormat(configuration,realPath, columns, columnTypes, compression, writeMode, charset, delimiter, fileName);
 			}else if(StoreEnum.ORC.name().equalsIgnoreCase(store)){

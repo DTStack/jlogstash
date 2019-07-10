@@ -34,6 +34,8 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
 
     private Binlog binlog;
 
+    private boolean pavingData;
+
     public BinlogEventSink(Binlog binlog) {
         this.binlog = binlog;
     }
@@ -91,8 +93,21 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
             message.put("schema", schema);
             message.put("table", table);
             message.put("ts", ts);
-            message.put("before", processColumnList(rowData.getBeforeColumnsList()));
-            message.put("after", processColumnList(rowData.getAfterColumnsList()));
+
+            if (pavingData){
+                Map after = processColumnList(rowData.getBeforeColumnsList());
+                for(Object key:after.keySet()){
+                    message.put("after_"+key,after.get(key));
+                }
+                Map before = processColumnList(rowData.getAfterColumnsList());
+                for(Object key:before.keySet()){
+                    message.put("before_"+key,after.get(key));
+                }
+            } else {
+                message.put("before", processColumnList(rowData.getBeforeColumnsList()));
+                message.put("after", processColumnList(rowData.getAfterColumnsList()));
+            }
+
             event.put("message", message);
             binlog.process(event);
         }

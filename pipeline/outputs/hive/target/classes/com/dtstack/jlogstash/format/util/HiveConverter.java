@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author: haisi
@@ -70,6 +72,33 @@ public class HiveConverter {
                 }
             }
             return result;
+        }catch (Exception e){
+            logger.error("",e);
+        }
+        return path;
+    }
+
+    /**
+     * nanqi_{$.table}
+     * 使用正则把{$.table}分离出来
+     * 并且使用上面的parseJson函数提取拼接
+     * @param path
+     * @return
+     */
+    public static String regaxByRules(Map output,String path){
+        StringBuilder res= new StringBuilder();
+        String p="";
+        try{
+            String pattern="\\{\\$.*?}";
+            Pattern pat1=Pattern.compile(pattern);
+            Matcher mat1 = pat1.matcher(path);
+            while (mat1.find()){
+                String newPath = parseJson(output,mat1.group().substring(1,mat1.group().length()-1));
+                res.append(newPath);
+                String tPath=String.valueOf(res).replace("/","");
+                p=path.replace(mat1.group(),tPath);
+            }
+            return p;
         }catch (Exception e){
             logger.error("",e);
         }
