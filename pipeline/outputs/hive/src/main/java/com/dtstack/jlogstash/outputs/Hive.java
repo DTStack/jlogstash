@@ -100,13 +100,6 @@ public class Hive extends BaseOutput {
     private Map<String, TableInfo> tableInfos;
 
     @Required(required = true)
-    private static String analyticalRules;
-
-    private static String writeStrategy;
-
-    private static Integer strategySize;
-
-    @Required(required = true)
     private static String tablesColumn;
 
     private Map<String, HiveOutputFormat> hdfsOutputFormats = Maps.newConcurrentMap();
