@@ -1,17 +1,19 @@
 package com.dtstack.jlogstash.outputs;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.jlogstash.annotation.Required;
 import com.dtstack.jlogstash.format.HiveOutputFormat;
 import com.dtstack.jlogstash.format.StoreEnum;
-import com.dtstack.jlogstash.format.TableColumnType;
+import com.dtstack.jlogstash.format.TableInfo;
 import com.dtstack.jlogstash.format.plugin.HiveOrcOutputFormat;
 import com.dtstack.jlogstash.format.plugin.HiveTextOutputFormat;
 import com.dtstack.jlogstash.format.util.HiveConverter;
 import com.dtstack.jlogstash.format.util.HiveUtil;
-import com.dtstack.jlogstash.render.Formatter;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.slf4j.Logger;
@@ -21,7 +23,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,17 +62,24 @@ public class Hive extends BaseOutput {
 
     private static String charsetName = "UTF-8";
 
-    private static String fileName;
-
-    private static Charset charset;
+    private Charset charset;
 
     private static String delimiter = "\001";
 
-    public static String timezone;
-
+    @Required(required = true)
     private static String url;
+
+    private String database;
+
+    @Required(required = true)
     private static String username;
+
+    @Required(required = true)
     private static String password;
+
+
+    private final static String TABLE_COLUMN_KEY = "key";
+    private final static String TABLE_COLUMN_TYPE = "type";
 
     /**
      * 间隔 interval 时间对 outputFormat 进行一次 close，触发输出文件的合并
@@ -89,9 +97,9 @@ public class Hive extends BaseOutput {
 
     private ScheduledExecutorService executor;
 
-    private Map<String, TableColumnType> schema;
+    private Map<String, TableInfo> tableInfos;
 
-
+    @Required(required = true)
     private static String analyticalRules;
 
     private static String writeStrategy;
@@ -100,8 +108,6 @@ public class Hive extends BaseOutput {
 
     @Required(required = true)
     private static String tablesColumn;
-
-    private static String driver = "org.apache.hive.jdbc.HiveDriver";
 
     private Map<String, HiveOutputFormat> hdfsOutputFormats = Maps.newConcurrentMap();
 
@@ -115,11 +121,7 @@ public class Hive extends BaseOutput {
 
     public Hive(Map config) {
         super(config);
-        try {
-            hiveUtil = new HiveUtil(driver, url, username, password, analyticalRules, tablesColumn, store, delimiter);
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        hiveUtil = new HiveUtil(url, username, password);
     }
 
     @Override
@@ -159,11 +161,10 @@ public class Hive extends BaseOutput {
     @Override
     protected void emit(Map event) {
         try {
-            String ss = HiveConverter.parseJson(event, path);
-            String realPath = Formatter.format(event, ss, timezone);
+            String tablePath = HiveConverter.parseJson(event, path);
             try {
                 lock.lockInterruptibly();
-                getHdfsOutputFormat(realPath, event).writeRecord(event);
+                getHdfsOutputFormat(tablePath, event).writeRecord(event);
                 dataSize.addAndGet(ObjectSizeCalculator.getObjectSize(event));
             } catch (Throwable e) {
                 throw e;
@@ -176,27 +177,24 @@ public class Hive extends BaseOutput {
         }
     }
 
-    public HiveOutputFormat getHdfsOutputFormat(String realPath, Map event) throws IOException {
-        HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(realPath);
+    public HiveOutputFormat getHdfsOutputFormat(String tablePath, Map event) throws IOException {
+        HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(tablePath);
         if (hdfsOutputFormat == null) {
-            this.hiveUtil.run(tablesColumn, event);
-
-
-            //根据表名从map里拿出tableColunmType的对象
-            TableColumnType tableColumnType = null;
-            for(String key:schema.keySet()) {
-                tableColumnType = schema.get(key);
-                if (StoreEnum.TEXT.name().equalsIgnoreCase(store)) {
-                    hdfsOutputFormat = new HiveTextOutputFormat(configuration, realPath, tableColumnType.getColumns(), tableColumnType.getColumnTypes(), compression, writeMode, charset, delimiter, fileName);
-                } else if (StoreEnum.ORC.name().equalsIgnoreCase(store)) {
-                    hdfsOutputFormat = new HiveOrcOutputFormat(configuration, realPath, tableColumnType.getColumns(), tableColumnType.getColumnTypes(), compression, writeMode, charset, fileName);
-                } else {
-                    throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
-                }
-                hdfsOutputFormat.configure();
-                hdfsOutputFormat.open();
-                hdfsOutputFormats.put(realPath, hdfsOutputFormat);
+            String tableName = StringUtils.substringBefore(tablePath, "_");
+            TableInfo tableInfo = tableInfos.get(tableName);
+            tableInfo.setTablePath(tablePath);
+            hiveUtil.createTableForPath(tablePath, tableInfo.getCreateTableSql());
+            if (StoreEnum.TEXT.name().equalsIgnoreCase(store)) {
+                hdfsOutputFormat = new HiveTextOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset, delimiter);
+            } else if (StoreEnum.ORC.name().equalsIgnoreCase(store)) {
+                hdfsOutputFormat = new HiveOrcOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset);
+            } else {
+                throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
             }
+            hdfsOutputFormat.configure();
+            hdfsOutputFormat.open();
+            hdfsOutputFormats.put(tablePath, hdfsOutputFormat);
+
         }
         return hdfsOutputFormat;
     }
@@ -221,32 +219,27 @@ public class Hive extends BaseOutput {
     }
 
     private void formatSchema() {
-        schema = new HashMap<String, TableColumnType>();
-        Map tableColumnMap = HiveUtil.getStructure(tablesColumn);
-        for (Object key : tableColumnMap.keySet()) {
-            String tableName = (String) key;
-            List tableColums = (List) tableColumnMap.get(key);
-            TableColumnType tableColumnType = new TableColumnType(tableColums.size());
-            for (Object tableColum : tableColums) {
-                tableColumnType.addColumnAndType((String) ((Map) tableColum).get("key"), (String) ((Map) tableColum).get("type"));
-            }
-            schema.put(tableName, tableColumnType);
+        tableInfos = new HashMap<String, TableInfo>();
+        int anythingIdx = StringUtils.indexOf(url, '?');
+        if (anythingIdx != -1) {
+            database = StringUtils.substring(url, StringUtils.lastIndexOf(url, '/') + 1, anythingIdx);
+        } else {
+            database = StringUtils.substring(url, StringUtils.lastIndexOf(url, '/') + 1);
         }
-
-//        if (columns == null) {
-//            synchronized (Hive.class) {
-//                if (columns == null) {
-//                    charset = Charset.forName(charsetName);
-//                    columns = Lists.newArrayList();
-//                    columnTypes = Lists.newArrayList();
-//                    for (String sche : schema) {
-//                        String[] sc = sche.split(":");
-//                        columns.add(sc[0]);
-//                        columnTypes.add(sc[1]);
-//                    }
-//                }
-//            }
-//        }
+        JSONObject tableColumnJson = JSON.parseObject(tablesColumn);
+        for (Map.Entry<String, Object> entry : tableColumnJson.entrySet()) {
+            String tableName = entry.getKey();
+            List<Map<String, Object>> tableColumns = (List<Map<String, Object>>) entry.getValue();
+            TableInfo tableInfo = new TableInfo(tableColumns.size());
+            tableInfo.setDatabase(database);
+            tableInfo.setTableName(tableName);
+            for (Map<String, Object> column : tableColumns) {
+                tableInfo.addColumnAndType(MapUtils.getString(column, TABLE_COLUMN_KEY), MapUtils.getString(column, TABLE_COLUMN_TYPE));
+            }
+            String createTableSql = HiveUtil.getCreateTableHql(tableColumns, delimiter, store);
+            tableInfo.setCreateTableSql(createTableSql);
+            tableInfos.put(tableName, tableInfo);
+        }
     }
 
     private void setHadoopConfiguration() throws Exception {

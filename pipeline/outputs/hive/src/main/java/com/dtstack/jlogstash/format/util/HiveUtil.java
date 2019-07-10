@@ -1,12 +1,11 @@
 package com.dtstack.jlogstash.format.util;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
+import java.util.regex.Pattern;
 
-import com.alibaba.fastjson.JSON;
+import com.dtstack.jlogstash.format.StoreEnum;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,141 +17,117 @@ public class HiveUtil {
 
     private static Logger logger = LoggerFactory.getLogger(HiveUtil.class);
 
-    private String tablesColumn;
 
-    private Connection conn;
-    private String analyticalRules;
-    private String store;
-    private String delimiter;
+    private static final String PATTERN_STR = "Storage\\(Location: (.*), InputFormat: (.*), OutputFormat: (.*) Serde: (.*) Properties: \\[(.*)\\]";
+    private static final Pattern PATTERN = Pattern.compile(PATTERN_STR);
+
+    private static final Pattern DELIMITER_PATTERN = Pattern.compile("field\\.delim=(.*), ");
+
+    private static final String TEXT_FORMAT = "TextOutputFormat";
+    private static final String ORC_FORMAT = "OrcOutputFormat";
+    private static final String PARQUET_FORMAT = "MapredParquetOutputFormat";
+    private static final String NoSuchTableException = "NoSuchTableException";
+
+    private final static String TABLE_COLUMN_KEY = "key";
+    private final static String TABLE_COLUMN_TYPE = "type";
+    
+    private String jdbcUrl;
+    private String username;
+    private String password;
 
     /**
      * 抛出异常,直接终止hive
      */
-    public HiveUtil(String driver,String url,String user,String password,String analyticalRules,String tablesColumn,String store,String delimiter) throws SQLException, ClassNotFoundException {
-        Class.forName(driver);
-        this.conn = DriverManager.getConnection(url, user, password);
-        this.analyticalRules = analyticalRules;
-        this.tablesColumn=tablesColumn;
-        this.store=store;
-        this.delimiter=delimiter;
+    public HiveUtil(String jdbcUrl, String username, String password) {
+        this.jdbcUrl = jdbcUrl;
+        this.username = username;
+        this.password = password;
     }
 
-    public void run(String tablesColumn,Map output){
+    public void createTableForPath(String tablePath, String createSql) {
+        Connection connection = null;
         try {
-            Statement stmt = this.conn.createStatement();
-            try {
-                Map tables = getStructure(tablesColumn);
-//                String sql = createHql(tables, output, analyticalRules);
-//                stmt.execute(sql);
-                List<String> hqls =createHqls(tables,output,analyticalRules);
-                for (String hql:hqls){
-                    try{
-                        stmt.execute(hql);
-                    }catch (SQLException e){
-                        logger.error("",e);
-                    }
-                }
-                stmt.close();
-            } catch (Exception e) {
-                logger.error("", e);
+            connection = DBUtil.getConnection(jdbcUrl, username, password);
+            String sql = String.format(createSql, tablePath);
+            DBUtil.executeSqlWithoutResultSet(connection, sql);
+        } catch (Exception e) {
+            logger.error("", e);
+        } finally {
+            DBUtil.closeDBResources(null, null, connection);
+        }
+    }
+
+//    private void getTargetSyncInfo(String jdbcUrl, String username, String password, String tableName) {
+//        Connection connection = null;
+//        try {
+//            connection = DBUtil.getConnection(jdbcUrl, username, password);
+//            List<Map<String, Object>> result = DBUtil.executeQuery(connection, "desc extended " + tableName);
+//            Iterator<Map<String, Object>> iter = result.iterator();
+//            String colName;
+//            String detail;
+//            while (iter.hasNext()) {
+//                Map<String, Object> row = iter.next();
+//                colName = (String) row.get("col_name");
+//                detail = (String) row.get("data_type");
+//                if (colName.equals("# Detailed Table Information")) {
+//                    if (detail != null) {
+//                        detail = detail.replaceAll("\n", " ");
+//                        Matcher matcher = PATTERN.matcher(detail);
+//                        if (matcher.find()) {
+//                            writer.setPath(matcher.group(1));
+//                            if (matcher.group(3).contains(TEXT_FORMAT)) {
+//                                writer.setFileType(FileType.TEXTFILE.getVal());
+//                                Matcher delimiterMatcher = DELIMITER_PATTERN.matcher(matcher.group(5));
+//                                if (delimiterMatcher.find()) {
+//                                    writer.setFieldDelimiter(delimiterMatcher.group(1));
+//                                }
+//                            } else if (matcher.group(3).contains(ORC_FORMAT)) {
+//                                writer.setFileType(FileType.ORCFILE.getVal());
+//                            } else if (matcher.group(3).contains(PARQUET_FORMAT)) {
+//                                writer.setFileType(FileType.PARQUET.getVal());
+//                            } else {
+//                                throw new RuntimeException("Unsupported fileType:" + matcher.group(3));
+//                            }
+//                        }
+//                    }
+//                    break;
+//                }
+//            }
+//            return writer;
+//        } catch (Exception e) {
+//            logger.error("", e);
+//            if (e.getMessage().contains(NoSuchTableException)) {
+//                throw new RuntimeException(String.format("表%s不存在", tableName));
+//            } else {
+//                throw e;
+//            }
+//        } finally {
+//            DBUtil.closeDBResources(null, null, connection);
+//        }
+//    }
+
+
+    public static String getCreateTableHql(List<Map<String, Object>> tablesColumn, String delimiter, String store) {
+        StringBuilder fieldsb = new StringBuilder("CREATE TABLE %s (");
+        for (int i = 0; i < tablesColumn.size(); i++) {
+            Map<String, Object> fieldColumn = tablesColumn.get(i);
+            fieldsb.append(String.format("%s %s", MapUtils.getString(fieldColumn, TABLE_COLUMN_KEY), convertType(MapUtils.getString(fieldColumn, TABLE_COLUMN_TYPE))));
+            if (i != tablesColumn.size() - 1) {
+                fieldsb.append(",");
             }
-        } catch (SQLException e){
-            logger.error("",e);
         }
+        if (StoreEnum.TEXT.name().equalsIgnoreCase(store)) {
+            fieldsb.append(") ROW FORMAT DELIMITED FIELDS TERMINATED BY '");
+            fieldsb.append(delimiter);
+            fieldsb.append("' LINES TERMINATED BY '\\n' STORED AS TEXTFILE ");
+        } else {
+            fieldsb.append(") STORED AS ORC ");
+        }
+        return fieldsb.toString();
     }
 
-    /**
-     * Json字符串转换为Json->Map对象
-     */
-    public static Map getStructure(String jsonStr){
-        try{
-            Map map = (Map) JSON.parse(jsonStr);
-            return map;
-        } catch (Exception e){
-            logger.error("",e);
-            throw new RuntimeException("getStructure error:{}", e);
-        }
-    }
-
-    /**
-     * 建表HQL
-     */
-    public List<String> createHqls(Map tablesColumn, Map output, String analyticalRules){
-        List<String> res=new ArrayList<>();
-        try{
-            String s="";
-            for (Object key:tablesColumn.keySet()){
-                String tableName = (String) key;
-                tableName =HiveConverter.regaxByRules(output,analyticalRules)+tableName;
-                Object tableFields = tablesColumn.get(key);
-                if (!(tableFields instanceof List)){
-                    throw new Exception("TypeError:tablesColumn->tableFields");
-                }
-                for (Object field:(List)tableFields){
-                    if (!(field instanceof Map)){
-                        throw new Exception("TypeError:tablesColumn->field");
-                    }
-                    String type = (String) ((Map) field).get("type");
-                    type=checkType(type);
-                    s += String.format(",`%s` %s",((Map) field).get("key"),type);
-
-                }
-                s=s.substring(1,s.length());
-                if ("orc".equals(this.store)){
-                    res.add(String.format("CREATE TABLE IF NOT EXISTS %s (%s) stored as orcfile",tableName,s));
-                } else if ("text".equals(this.store)){
-                    res.add(String.format("CREATE TABLE IF NOT EXISTS %s (%s) row format delimited fields terminated by '%s' lines terminated by '\\n' stored as textfile",tableName,s,delimiter));
-                } else {
-                    res.add(String.format("CREATE TABLE IF NOT EXISTS %s (%s)  stored as orcfile",tableName,s));
-                }
-                s="";
-            }
-            return res;
-        }catch (Exception e){
-            logger.error("",e);
-        }
-        return res;
-    }
-    
-    
-    public String createHql(Map tablesColumn, Map output, String analyticalRules){
-        String res = "";
-        try{
-            String s="";
-            for (Object key:tablesColumn.keySet()){
-                String tableName = (String) key;
-                tableName =HiveConverter.regaxByRules(output,analyticalRules)+tableName;
-                Object tableFields = tablesColumn.get(key);
-                if (!(tableFields instanceof List)){
-                    throw new Exception("TypeError:tablesColumn->tableFields");
-                }
-                for (Object field:(List)tableFields){
-                    if (!(field instanceof Map)){
-                        throw new Exception("TypeError:tablesColumn->field");
-                    }
-                    String type = (String) ((Map) field).get("type");
-                    type=checkType(type);
-                    s += String.format("`%s` %s,",((Map) field).get("key"),type);
-
-                }
-                s=s.substring(0,s.length()-1);
-                if ("orc".equals(this.store)){
-                    res +=String.format("CREATE TABLE IF NOT EXISTS %s (%s) stored as orcfile\073",tableName,s);
-                } else if ("text".equals(this.store)){
-                    res +=String.format("CREATE TABLE IF NOT EXISTS %s (%s) row format delimited fields terminated by '%s' lines terminated by '\n' stored as textfile\073",tableName,s,delimiter);
-                } else {
-                    res +=String.format("CREATE TABLE IF NOT EXISTS %s (%s)  stored as orcfile\073",tableName,s);
-                }
-            }
-            return res;
-        }catch (Exception e){
-            logger.error("",e);
-        }
-        return res;
-    }
-
-    private static String checkType(String type){
-        switch(type.toUpperCase()) {
+    private static String convertType(String type) {
+        switch (type.toUpperCase()) {
             case "TINYINT":
                 type = "TINYINT";
                 break;
