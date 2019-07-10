@@ -154,9 +154,7 @@ public class Hive extends BaseOutput {
     @Override
     protected void emit(Map event) {
         try {
-            String tablePath = "user_sink##@@##aa";
-//            String tablePath = HiveConverter.regaxByRules(event, path);
-
+            String tablePath = HiveConverter.regaxByRules(event, path);
             try {
                 lock.lockInterruptibly();
                 getHdfsOutputFormat(tablePath, event).writeRecord(event);
@@ -243,7 +241,7 @@ public class Hive extends BaseOutput {
         if (StringUtils.isBlank(analyticalRules)) {
             path = tableInfos.get(0).getTableName();
         } else {
-            path = "${.table}" + TableInfo.SPECAIL + analyticalRules;
+            path = "{$.table}" + TableInfo.SPECAIL + analyticalRules;
         }
     }
 
