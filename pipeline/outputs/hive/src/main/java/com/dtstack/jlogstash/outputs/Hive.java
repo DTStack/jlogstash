@@ -67,7 +67,7 @@ public class Hive extends BaseOutput {
     private static String delimiter = "\001";
 
     @Required(required = true)
-    private static String url;
+    private static String jdbcUrl;
 
     private String database;
 
@@ -114,7 +114,7 @@ public class Hive extends BaseOutput {
 
     public Hive(Map config) {
         super(config);
-        hiveUtil = new HiveUtil(url, username, password);
+        hiveUtil = new HiveUtil(jdbcUrl, username, password);
     }
 
     @Override
@@ -213,11 +213,11 @@ public class Hive extends BaseOutput {
 
     private void formatSchema() {
         tableInfos = new HashMap<String, TableInfo>();
-        int anythingIdx = StringUtils.indexOf(url, '?');
+        int anythingIdx = StringUtils.indexOf(jdbcUrl, '?');
         if (anythingIdx != -1) {
-            database = StringUtils.substring(url, StringUtils.lastIndexOf(url, '/') + 1, anythingIdx);
+            database = StringUtils.substring(jdbcUrl, StringUtils.lastIndexOf(jdbcUrl, '/') + 1, anythingIdx);
         } else {
-            database = StringUtils.substring(url, StringUtils.lastIndexOf(url, '/') + 1);
+            database = StringUtils.substring(jdbcUrl, StringUtils.lastIndexOf(jdbcUrl, '/') + 1);
         }
         JSONObject tableColumnJson = JSON.parseObject(tablesColumn);
         for (Map.Entry<String, Object> entry : tableColumnJson.entrySet()) {

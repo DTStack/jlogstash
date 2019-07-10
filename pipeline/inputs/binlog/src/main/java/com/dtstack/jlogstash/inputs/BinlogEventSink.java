@@ -87,7 +87,6 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
         }
 
         for(CanalEntry.RowData rowData : rowChange.getRowDatasList()) {
-            Map<String,Object> event = new HashMap<>();
             Map<String,Object> message = new HashMap<>();
             message.put("type", eventType.toString());
             message.put("schema", schema);
@@ -108,8 +107,7 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
                 message.put("after", processColumnList(rowData.getAfterColumnsList()));
             }
 
-            event.put("message", message);
-            binlog.process(event);
+            binlog.process(message);
         }
 
     }
@@ -120,6 +118,10 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
             map.put(column.getName(), column.getValue());
         }
         return map;
+    }
+
+    public void setPavingData(boolean pavingData) {
+        this.pavingData = pavingData;
     }
 
     @Override

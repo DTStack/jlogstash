@@ -30,7 +30,7 @@ public class HiveUtil {
 
     private final static String TABLE_COLUMN_KEY = "key";
     private final static String TABLE_COLUMN_TYPE = "type";
-    
+
     private String jdbcUrl;
     private String username;
     private String password;
