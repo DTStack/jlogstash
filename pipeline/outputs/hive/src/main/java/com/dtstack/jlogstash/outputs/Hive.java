@@ -51,7 +51,6 @@ public class Hive extends BaseOutput {
 
     private static Map<String, Object> hadoopConfigMap;
 
-    @Required(required = true)
     private static String path;
 
     private static String store = "TEXT";
@@ -77,6 +76,7 @@ public class Hive extends BaseOutput {
     @Required(required = true)
     private static String password;
 
+    private static String analyticalRules;
 
     private final static String TABLE_COLUMN_KEY = "key";
     private final static String TABLE_COLUMN_TYPE = "type";
@@ -154,7 +154,9 @@ public class Hive extends BaseOutput {
     @Override
     protected void emit(Map event) {
         try {
-            String tablePath = HiveConverter.parseJson(event, path);
+            String tablePath = "user_sink##@@##aa";
+//            String tablePath = HiveConverter.regaxByRules(event, path);
+
             try {
                 lock.lockInterruptibly();
                 getHdfsOutputFormat(tablePath, event).writeRecord(event);
@@ -171,25 +173,30 @@ public class Hive extends BaseOutput {
     }
 
     public HiveOutputFormat getHdfsOutputFormat(String tablePath, Map event) throws IOException {
-        HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(tablePath);
-        if (hdfsOutputFormat == null) {
-            String tableName = StringUtils.substringBefore(tablePath, "_");
-            TableInfo tableInfo = tableInfos.get(tableName);
-            tableInfo.setTablePath(tablePath);
-            hiveUtil.createTableForPath(tablePath, tableInfo.getCreateTableSql());
-            if (StoreEnum.TEXT.name().equalsIgnoreCase(store)) {
-                hdfsOutputFormat = new HiveTextOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset, delimiter);
-            } else if (StoreEnum.ORC.name().equalsIgnoreCase(store)) {
-                hdfsOutputFormat = new HiveOrcOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset);
-            } else {
-                throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
-            }
-            hdfsOutputFormat.configure();
-            hdfsOutputFormat.open();
-            hdfsOutputFormats.put(tablePath, hdfsOutputFormat);
+        try {
+            HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(tablePath);
+            if (hdfsOutputFormat == null) {
+                String tableName = StringUtils.substringBefore(tablePath, TableInfo.SPECAIL);
+                TableInfo tableInfo = tableInfos.get(tableName);
+                tableInfo.setTablePath(tablePath);
+                hiveUtil.createTableForPath(tableInfo.getTablePath(), tableInfo.getCreateTableSql());
+                if (StoreEnum.TEXT.name().equalsIgnoreCase(store)) {
+                    hdfsOutputFormat = new HiveTextOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset, delimiter);
+                } else if (StoreEnum.ORC.name().equalsIgnoreCase(store)) {
+                    hdfsOutputFormat = new HiveOrcOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset);
+                } else {
+                    throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
+                }
+                hdfsOutputFormat.configure();
+                hdfsOutputFormat.open();
+                hdfsOutputFormats.put(tablePath, hdfsOutputFormat);
 
+            }
+            return hdfsOutputFormat;
+        } catch (Exception e){
+            logger.error("", e);
+            throw e;
         }
-        return hdfsOutputFormat;
     }
 
 
@@ -232,6 +239,11 @@ public class Hive extends BaseOutput {
             String createTableSql = HiveUtil.getCreateTableHql(tableColumns, delimiter, store);
             tableInfo.setCreateTableSql(createTableSql);
             tableInfos.put(tableName, tableInfo);
+        }
+        if (StringUtils.isBlank(analyticalRules)) {
+            path = tableInfos.get(0).getTableName();
+        } else {
+            path = "${.table}" + TableInfo.SPECAIL + analyticalRules;
         }
     }
 

@@ -17,6 +17,7 @@ public class TableInfo {
     private String tablePath;
     private String path;
     private final static String PATH_TEMPLATE = "/user/hive/warehouse/%s.db/%s";
+    public final static String SPECAIL = "##@@##";
 
     public TableInfo(int columnSize) {
         columns = new ArrayList<>(columnSize);
@@ -69,7 +70,7 @@ public class TableInfo {
     }
 
     public String getTablePath() {
-        return tablePath;
+        return tablePath.replace("##@@##", "_");
     }
 
     public void setTablePath(String tablePath) {
@@ -81,7 +82,7 @@ public class TableInfo {
             throw new RuntimeException("tableName must be not null");
         }
         if (path == null) {
-            return String.format(PATH_TEMPLATE, database, tablePath);
+            return String.format(PATH_TEMPLATE, database, getTablePath());
         }
         return path;
     }

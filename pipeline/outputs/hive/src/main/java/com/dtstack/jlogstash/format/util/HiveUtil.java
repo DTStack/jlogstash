@@ -52,6 +52,7 @@ public class HiveUtil {
             DBUtil.executeSqlWithoutResultSet(connection, sql);
         } catch (Exception e) {
             logger.error("", e);
+            throw new RuntimeException(e);
         } finally {
             DBUtil.closeDBResources(null, null, connection);
         }
