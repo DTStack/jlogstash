@@ -70,8 +70,8 @@ public class HiveUtil {
             return map;
         } catch (Exception e){
             logger.error("",e);
+            throw new RuntimeException("getStructure error:{}", e);
         }
-        return null;
     }
 
     /**
