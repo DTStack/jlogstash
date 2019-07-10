@@ -154,7 +154,7 @@ public class Hive extends BaseOutput {
     @Override
     protected void emit(Map event) {
         try {
-            String tablePath = HiveConverter.parseJson(event, path);
+            String tablePath = HiveConverter.regaxByRules(event, path);
             try {
                 lock.lockInterruptibly();
                 getHdfsOutputFormat(tablePath, event).writeRecord(event);

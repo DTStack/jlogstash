@@ -94,13 +94,11 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
             message.put("ts", ts);
 
             if (pavingData){
-                Map after = processColumnList(rowData.getBeforeColumnsList());
-                for(Object key:after.keySet()){
-                    message.put("after_"+key,after.get(key));
+                for (CanalEntry.Column column : rowData.getAfterColumnsList()) {
+                    message.put("after_" + column.getName(), column.getValue());
                 }
-                Map before = processColumnList(rowData.getAfterColumnsList());
-                for(Object key:before.keySet()){
-                    message.put("before_"+key,after.get(key));
+                for (CanalEntry.Column column : rowData.getBeforeColumnsList()){
+                    message.put("before_" + column.getName(), column.getValue());
                 }
             } else {
                 message.put("before", processColumnList(rowData.getBeforeColumnsList()));
