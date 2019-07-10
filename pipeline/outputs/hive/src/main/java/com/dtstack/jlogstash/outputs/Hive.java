@@ -171,30 +171,25 @@ public class Hive extends BaseOutput {
     }
 
     public HiveOutputFormat getHdfsOutputFormat(String tablePath, Map event) throws IOException {
-        try {
-            HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(tablePath);
-            if (hdfsOutputFormat == null) {
-                String tableName = StringUtils.substringBefore(tablePath, TableInfo.SPECAIL);
-                TableInfo tableInfo = tableInfos.get(tableName);
-                tableInfo.setTablePath(tablePath);
-                hiveUtil.createTableForPath(tableInfo.getTablePath(), tableInfo.getCreateTableSql());
-                if (StoreEnum.TEXT.name().equalsIgnoreCase(store)) {
-                    hdfsOutputFormat = new HiveTextOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset, delimiter);
-                } else if (StoreEnum.ORC.name().equalsIgnoreCase(store)) {
-                    hdfsOutputFormat = new HiveOrcOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset);
-                } else {
-                    throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
-                }
-                hdfsOutputFormat.configure();
-                hdfsOutputFormat.open();
-                hdfsOutputFormats.put(tablePath, hdfsOutputFormat);
-
+        HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(tablePath);
+        if (hdfsOutputFormat == null) {
+            String tableName = StringUtils.substringBefore(tablePath, TableInfo.SPECAIL);
+            TableInfo tableInfo = tableInfos.get(tableName);
+            tableInfo.setTablePath(tablePath);
+            hiveUtil.createTableForPath(tableInfo.getTablePath(), tableInfo.getCreateTableSql());
+            if (StoreEnum.TEXT.name().equalsIgnoreCase(store)) {
+                hdfsOutputFormat = new HiveTextOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset, delimiter);
+            } else if (StoreEnum.ORC.name().equalsIgnoreCase(store)) {
+                hdfsOutputFormat = new HiveOrcOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset);
+            } else {
+                throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
             }
-            return hdfsOutputFormat;
-        } catch (Exception e){
-            logger.error("", e);
-            throw e;
+            hdfsOutputFormat.configure();
+            hdfsOutputFormat.open();
+            hdfsOutputFormats.put(tablePath, hdfsOutputFormat);
+
         }
+        return hdfsOutputFormat;
     }
 
 
