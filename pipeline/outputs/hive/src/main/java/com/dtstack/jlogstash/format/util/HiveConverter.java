@@ -26,6 +26,7 @@ public class HiveConverter {
      * @return
      */
     public static String parseJson(Map output, String path) {
+        path="$."+path;
         try {
             String[] keySs = path.split("\\/");
             String result = "";
@@ -80,8 +81,8 @@ public class HiveConverter {
     }
 
     /**
-     * nanqi_{$.table}
-     * 使用正则把{$.table}分离出来
+     * nanqi_${table}
+     * 使用正则把${table}分离出来
      * 并且使用上面的parseJson函数提取拼接
      *
      * @param path
@@ -90,12 +91,12 @@ public class HiveConverter {
     public static String regaxByRules(Map output, String path) {
         String p = path;
         try {
-            String pattern = "\\{\\$.*?}";
+            String pattern = "\\$\\{.*?}";
             Pattern pat1 = Pattern.compile(pattern);
             Matcher mat1 = pat1.matcher(path);
             while (mat1.find()) {
                 StringBuilder res=new StringBuilder();
-                String newPath = parseJson(output, mat1.group().substring(1, mat1.group().length() - 1));
+                String newPath = parseJson(output, mat1.group().substring(2, mat1.group().length() - 1));
                 res.append(newPath);
                 String tPath = String.valueOf(res).replace("/", "");
                 p = p.replace(mat1.group(), tPath);

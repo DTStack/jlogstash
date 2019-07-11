@@ -111,7 +111,7 @@ public class Hive extends BaseOutput {
 
     public Hive(Map config) {
         super(config);
-        hiveUtil = new HiveUtil(jdbcUrl, username, password);
+        hiveUtil = new HiveUtil(jdbcUrl, username, password,writeMode);
     }
 
     @Override
@@ -231,9 +231,9 @@ public class Hive extends BaseOutput {
             tableInfos.put(tableName, tableInfo);
         }
         if (StringUtils.isBlank(analyticalRules)) {
-            path = tableInfos.get(0).getTableName();
+            path = tableInfos.entrySet().iterator().next().getValue().getTableName();
         } else {
-            path = "{$.table}" + TableInfo.SPECIAL_SPLIT + analyticalRules;
+            path = "${table}" + TableInfo.SPECIAL_SPLIT + analyticalRules;
         }
     }
 

@@ -7,6 +7,6 @@ package com.dtstack.jlogstash.format;
 
 public enum ModeEnum {
 	
-	APPEND,NONCONFLICT;
+	APPEND,NONCONFLICT,OVERWRITE;
 
 }
