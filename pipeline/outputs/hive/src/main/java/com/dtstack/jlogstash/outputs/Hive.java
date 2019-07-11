@@ -210,6 +210,10 @@ public class Hive extends BaseOutput {
 
     private void formatSchema() {
         tableInfos = new HashMap<String, TableInfo>();
+        if (jdbcUrl.contains(";principal=")){
+            String[] jdbcStr = jdbcUrl.split(";principal=");
+            jdbcUrl = jdbcStr[0];
+        }
         int anythingIdx = StringUtils.indexOf(jdbcUrl, '?');
         if (anythingIdx != -1) {
             database = StringUtils.substring(jdbcUrl, StringUtils.lastIndexOf(jdbcUrl, '/') + 1, anythingIdx);
