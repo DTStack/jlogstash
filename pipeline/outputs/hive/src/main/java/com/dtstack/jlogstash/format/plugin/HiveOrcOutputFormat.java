@@ -3,8 +3,8 @@ package com.dtstack.jlogstash.format.plugin;
 
 import com.dtstack.jlogstash.format.CompressEnum;
 import com.dtstack.jlogstash.format.HiveOutputFormat;
-import com.dtstack.jlogstash.format.HiveUtil;
 import com.dtstack.jlogstash.format.util.DateUtil;
+import com.dtstack.jlogstash.format.util.HiveUtil;
 import com.dtstack.jlogstash.format.util.HostUtil;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.conf.Configuration;
@@ -139,7 +139,8 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
                     field = new java.sql.Timestamp(d.getTime());
                     break;
                 default:
-                    throw new IllegalArgumentException();
+                    field = rowData;
+
             }
             record[i] = field;
         }
