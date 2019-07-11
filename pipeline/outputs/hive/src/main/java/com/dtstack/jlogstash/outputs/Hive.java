@@ -78,9 +78,6 @@ public class Hive extends BaseOutput {
 
     private static String analyticalRules;
 
-    private final static String TABLE_COLUMN_KEY = "key";
-    private final static String TABLE_COLUMN_TYPE = "type";
-
     /**
      * 间隔 interval 时间对 outputFormat 进行一次 close，触发输出文件的合并
      */
@@ -173,13 +170,13 @@ public class Hive extends BaseOutput {
     public HiveOutputFormat getHdfsOutputFormat(String tablePath, Map event) throws IOException {
         HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(tablePath);
         if (hdfsOutputFormat == null) {
-            String tableName = StringUtils.substringBefore(tablePath, TableInfo.SPECAIL);
+            String tableName = StringUtils.substringBefore(tablePath, TableInfo.SPECIAL_SPLIT);
             TableInfo tableInfo = tableInfos.get(tableName);
             tableInfo.setTablePath(tablePath);
-            hiveUtil.createTableForPath(tableInfo.getTablePath(), tableInfo.getCreateTableSql());
-            if (StoreEnum.TEXT.name().equalsIgnoreCase(store)) {
-                hdfsOutputFormat = new HiveTextOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset, delimiter);
-            } else if (StoreEnum.ORC.name().equalsIgnoreCase(store)) {
+            hiveUtil.createHiveTableWithTableInfo(tableInfo);
+            if (StoreEnum.TEXT.name().equalsIgnoreCase(tableInfo.getStore())) {
+                hdfsOutputFormat = new HiveTextOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset, tableInfo.getDelimiter());
+            } else if (StoreEnum.ORC.name().equalsIgnoreCase(tableInfo.getStore())) {
                 hdfsOutputFormat = new HiveOrcOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset);
             } else {
                 throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
@@ -227,7 +224,7 @@ public class Hive extends BaseOutput {
             tableInfo.setDatabase(database);
             tableInfo.setTableName(tableName);
             for (Map<String, Object> column : tableColumns) {
-                tableInfo.addColumnAndType(MapUtils.getString(column, TABLE_COLUMN_KEY), MapUtils.getString(column, TABLE_COLUMN_TYPE));
+                tableInfo.addColumnAndType(MapUtils.getString(column, HiveUtil.TABLE_COLUMN_KEY), MapUtils.getString(column, HiveUtil.TABLE_COLUMN_TYPE));
             }
             String createTableSql = HiveUtil.getCreateTableHql(tableColumns, delimiter, store);
             tableInfo.setCreateTableSql(createTableSql);
@@ -236,7 +233,7 @@ public class Hive extends BaseOutput {
         if (StringUtils.isBlank(analyticalRules)) {
             path = tableInfos.get(0).getTableName();
         } else {
-            path = "{$.table}" + TableInfo.SPECAIL + analyticalRules;
+            path = "{$.table}" + TableInfo.SPECIAL_SPLIT + analyticalRules;
         }
     }
 

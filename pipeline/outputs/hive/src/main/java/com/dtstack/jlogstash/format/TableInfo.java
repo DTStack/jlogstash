@@ -16,8 +16,11 @@ public class TableInfo {
     private String tableName;
     private String tablePath;
     private String path;
+    private String store;
+    private String delimiter;
+
     private final static String PATH_TEMPLATE = "/user/hive/warehouse/%s.db/%s";
-    public final static String SPECAIL = "##@@##";
+    public final static String SPECIAL_SPLIT = "##@@##";
 
     public TableInfo(int columnSize) {
         columns = new ArrayList<>(columnSize);
@@ -89,5 +92,21 @@ public class TableInfo {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getStore() {
+        return store;
+    }
+
+    public void setStore(String store) {
+        this.store = store;
+    }
+
+    public String getDelimiter() {
+        return delimiter;
+    }
+
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
     }
 }
