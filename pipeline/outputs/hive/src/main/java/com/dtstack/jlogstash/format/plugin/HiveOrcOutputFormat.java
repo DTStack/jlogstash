@@ -33,19 +33,15 @@ import java.util.UUID;
  */
 public class HiveOrcOutputFormat extends HiveOutputFormat {
 	
-	public HiveOrcOutputFormat(Configuration conf, String outputFileDir, List<String> columnNames,
-                               List<String> columnTypes, String compress, String writeMode, Charset charset, String fileName) {
+	public HiveOrcOutputFormat(Configuration conf, String outputFilePath, List<String> columnNames,
+                               List<String> columnTypes, String compress, String writeMode, Charset charset) {
 	   this.conf = conf;
-	   this.outputFileDir = outputFileDir;
+	   this.outputFilePath = outputFilePath;
 	   this.columnNames = columnNames;
 	   this.columnTypes = columnTypes;
 	   this.compress = compress;
 	   this.writeMode = writeMode;
 	   this.charset = charset;
-        if (fileName == null || fileName.length()==0) {
-            fileName = HostUtil.getHostName();
-        }
-        this.fileName = fileName;
 	}
 
 	private static Logger logger = LoggerFactory.getLogger(HiveOrcOutputFormat.class);
@@ -91,7 +87,7 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
 
     @Override
     public void open() throws IOException {
-        String pathStr = String.format("%s/%s-%d-%s.orc", outputFileDir, fileName,Thread.currentThread().getId(),UUID.randomUUID().toString());
+        String pathStr = String.format("%s/%s-%d-%s.orc", outputFilePath, HostUtil.getHostName(),Thread.currentThread().getId(),UUID.randomUUID().toString());
         logger.info("hive path:{}",pathStr);
         FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
         this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);

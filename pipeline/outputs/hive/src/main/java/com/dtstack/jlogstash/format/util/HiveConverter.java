@@ -20,26 +20,27 @@ public class HiveConverter {
     /**
      * path的参数格式，如$.user.id,若不是,返回原path
      * 解析成功返回解析后字符串,解析失败则返回null
+     *
      * @param output
      * @param path
      * @return
      */
-    public static String parseJson(Map output, String path){
+    public static String parseJson(Map output, String path) {
         try {
             String[] keySs = path.split("\\/");
-            String result ="";
-            for (String keYs:keySs) {
+            String result = "";
+            for (String keYs : keySs) {
                 final char c = '$';
-                if(keYs.length()==0){
+                if (keYs.length() == 0) {
                     continue;
                 }
                 if (keYs.charAt(0) != c) {
                     result += String.format("/%s", keYs);
                     continue;
                 }
+                Object obj = output;
                 String[] keys = keYs.split("\\.");
                 int len = keys.length;
-                Object obj = output;
                 boolean isObjList = false;
                 for (int i = 1; i < len; i++) {
                     String key = keys[i];
@@ -72,8 +73,8 @@ public class HiveConverter {
                 }
             }
             return result;
-        }catch (Exception e){
-            logger.error("",e);
+        } catch (Exception e) {
+            logger.error("", e);
         }
         return path;
     }
@@ -82,25 +83,26 @@ public class HiveConverter {
      * nanqi_{$.table}
      * 使用正则把{$.table}分离出来
      * 并且使用上面的parseJson函数提取拼接
+     *
      * @param path
      * @return
      */
-    public static String regaxByRules(Map output,String path){
-        StringBuilder res= new StringBuilder();
-        String p="";
-        try{
-            String pattern="\\{\\$.*?}";
-            Pattern pat1=Pattern.compile(pattern);
+    public static String regaxByRules(Map output, String path) {
+        String p = path;
+        try {
+            String pattern = "\\{\\$.*?}";
+            Pattern pat1 = Pattern.compile(pattern);
             Matcher mat1 = pat1.matcher(path);
-            while (mat1.find()){
-                String newPath = parseJson(output,mat1.group().substring(1,mat1.group().length()-1));
+            while (mat1.find()) {
+                StringBuilder res=new StringBuilder();
+                String newPath = parseJson(output, mat1.group().substring(1, mat1.group().length() - 1));
                 res.append(newPath);
-                String tPath=String.valueOf(res).replace("/","");
-                p=path.replace(mat1.group(),tPath);
+                String tPath = String.valueOf(res).replace("/", "");
+                p = p.replace(mat1.group(), tPath);
             }
             return p;
-        }catch (Exception e){
-            logger.error("",e);
+        } catch (Exception e) {
+            logger.error("", e);
         }
         return path;
     }

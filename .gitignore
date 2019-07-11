@@ -14,4 +14,3 @@ dependency-reduced-pom.xml
 jlogstash.iml
 lib/
 *_output
-/test/
