@@ -233,7 +233,7 @@ public class Hive extends BaseOutput {
         if (StringUtils.isBlank(analyticalRules)) {
             path = tableInfos.get(0).getTableName();
         } else {
-            path = "{$.table}" + TableInfo.SPECIAL_SPLIT + analyticalRules;
+            path = "${table}" + TableInfo.SPECIAL_SPLIT + analyticalRules;
         }
     }
 
