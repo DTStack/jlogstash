@@ -1,6 +1,5 @@
 package com.dtstack.jlogstash.format.util;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -9,11 +8,12 @@ import java.util.regex.Pattern;
 import com.dtstack.jlogstash.format.StoreEnum;
 import com.dtstack.jlogstash.format.TableInfo;
 import org.apache.commons.collections.MapUtils;
-import org.apache.hadoop.hbase.TableExistsException;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.dtstack.jlogstash.format.ModeEnum.OVERWRITE;
 
 /**
  * @author: haisi
@@ -39,17 +39,21 @@ public class HiveUtil {
     public final static String TABLE_COLUMN_KEY = "key";
     public final static String TABLE_COLUMN_TYPE = "type";
 
+//    private static final String OVERWRITE="OVERWRITE";
+
     private String jdbcUrl;
     private String username;
     private String password;
+    private String writeMode;
 
     /**
      * 抛出异常,直接终止hive
      */
-    public HiveUtil(String jdbcUrl, String username, String password) {
+    public HiveUtil(String jdbcUrl, String username, String password,String writeMode) {
         this.jdbcUrl = jdbcUrl;
         this.username = username;
         this.password = password;
+        this.writeMode = writeMode;
     }
 
     public void createHiveTableWithTableInfo(TableInfo tableInfo) {
@@ -74,6 +78,9 @@ public class HiveUtil {
     private void createTable(Connection connection, TableInfo tableInfo) {
         String sql = String.format(tableInfo.getCreateTableSql(), tableInfo.getTablePath());
         try {
+            if(OVERWRITE.equals(writeMode.toUpperCase())) {
+                DBUtil.executeSqlWithoutResultSet(connection,String.format("DROP TABLE IF EXISTS %s",tableInfo.getTableName()));
+            }
             DBUtil.executeSqlWithoutResultSet(connection, sql);
         } catch (Exception e) {
             logger.error("{}", e);

@@ -111,7 +111,7 @@ public class Hive extends BaseOutput {
 
     public Hive(Map config) {
         super(config);
-        hiveUtil = new HiveUtil(jdbcUrl, username, password);
+        hiveUtil = new HiveUtil(jdbcUrl, username, password,writeMode);
     }
 
     @Override
