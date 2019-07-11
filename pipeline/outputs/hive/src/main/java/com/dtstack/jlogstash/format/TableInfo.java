@@ -73,7 +73,7 @@ public class TableInfo {
     }
 
     public String getTablePath() {
-        return tablePath.replace("##@@##", "_");
+        return tablePath.replace(SPECIAL_SPLIT, "_");
     }
 
     public void setTablePath(String tablePath) {
