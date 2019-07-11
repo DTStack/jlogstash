@@ -35,21 +35,17 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 
 	private String delimiter;
 
-	public HiveTextOutputFormat(Configuration conf, String outputFileDir,
+	public HiveTextOutputFormat(Configuration conf, String outputFilePath,
 								List<String> columnNames, List<String> columnTypes,
-								String compress, String writeMode, Charset charset, String delimiter, String fileName) {
+								String compress, String writeMode, Charset charset, String delimiter) {
 		this.conf = conf;
-		this.outputFileDir = outputFileDir;
+		this.outputFilePath = outputFilePath;
 		this.columnNames = columnNames;
 		this.columnTypes = columnTypes;
 		this.compress = compress;
 		this.writeMode = writeMode;
 		this.charset = charset;
 		this.delimiter = delimiter;
-		if (fileName == null || fileName.length()==0) {
-			fileName = HostUtil.getHostName();
-		}
-		this.fileName = fileName;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -77,9 +73,9 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 	public void open() throws IOException {
 		String pathStr = null;
 		if (outputFormat instanceof TextOutputFormatBak){
-			 pathStr = String.format("%s/%s-%d.txt", outputFileDir, fileName, Thread.currentThread().getId());
+			 pathStr = String.format("%s/%s-%d.txt", outputFilePath, HostUtil.getHostName(), Thread.currentThread().getId());
 		} else {
-			 pathStr = String.format("%s/%s-%d-%s.txt", outputFileDir, fileName, Thread.currentThread().getId(), UUID.randomUUID().toString());
+			 pathStr = String.format("%s/%s-%d-%s.txt", outputFilePath, HostUtil.getHostName(), Thread.currentThread().getId(), UUID.randomUUID().toString());
 		}
 		logger.info("hive path:{}", pathStr);
 		// // 此处好像并没有什么卵用
@@ -88,8 +84,7 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 				+ "_0001_m_000000_" +Thread.currentThread().getId();
 		jobConf.set("mapreduce.task.attempt.id", attempt);
 		FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
-		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf,
-				pathStr, Reporter.NULL);
+		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
 	}
 
 	@SuppressWarnings("unchecked")

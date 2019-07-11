@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public abstract class HiveOutputFormat implements  OutputFormat {
 
-	public static String slash = "/";
+    protected static final String SP = "/";
     protected static final int NEWLINE = 10;
     protected Charset charset;
     protected String writeMode;
@@ -27,7 +27,7 @@ public abstract class HiveOutputFormat implements  OutputFormat {
     protected List<String> columnNames;
     protected int columnSize;
     protected List<String> columnTypes;
-    protected  String outputFileDir;
+    protected  String outputFilePath;
     protected  FileOutputFormat<?, ?> outputFormat;
     protected  JobConf jobConf;
     protected  Configuration conf;

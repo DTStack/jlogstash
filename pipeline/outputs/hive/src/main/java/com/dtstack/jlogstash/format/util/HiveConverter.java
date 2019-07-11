@@ -38,9 +38,9 @@ public class HiveConverter {
                     result += String.format("/%s", keYs);
                     continue;
                 }
+                Object obj = output;
                 String[] keys = keYs.split("\\.");
                 int len = keys.length;
-                Object obj = output;
                 boolean isObjList = false;
                 for (int i = 1; i < len; i++) {
                     String key = keys[i];
@@ -88,17 +88,17 @@ public class HiveConverter {
      * @return
      */
     public static String regaxByRules(Map output, String path) {
-        StringBuilder res = new StringBuilder();
-        String p = "";
+        String p = path;
         try {
             String pattern = "\\{\\$.*?}";
             Pattern pat1 = Pattern.compile(pattern);
             Matcher mat1 = pat1.matcher(path);
             while (mat1.find()) {
+                StringBuilder res=new StringBuilder();
                 String newPath = parseJson(output, mat1.group().substring(1, mat1.group().length() - 1));
                 res.append(newPath);
                 String tPath = String.valueOf(res).replace("/", "");
-                p = path.replace(mat1.group(), tPath);
+                p = p.replace(mat1.group(), tPath);
             }
             return p;
         } catch (Exception e) {
