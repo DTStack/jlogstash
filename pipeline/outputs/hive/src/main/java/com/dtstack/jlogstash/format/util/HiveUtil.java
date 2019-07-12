@@ -78,8 +78,8 @@ public class HiveUtil {
     private void createTable(Connection connection, TableInfo tableInfo) {
         String sql = String.format(tableInfo.getCreateTableSql(), tableInfo.getTablePath());
         try {
-            if(OVERWRITE.equals(writeMode.toUpperCase())) {
-                DBUtil.executeSqlWithoutResultSet(connection,String.format("DROP TABLE IF EXISTS %s",tableInfo.getTableName()));
+            if(OVERWRITE.name().equalsIgnoreCase(writeMode)) {
+                DBUtil.executeSqlWithoutResultSet(connection,String.format("DROP TABLE IF EXISTS %s",tableInfo.getTablePath()));
             }
             DBUtil.executeSqlWithoutResultSet(connection, sql);
         } catch (Exception e) {
