@@ -17,12 +17,12 @@
  */
 package com.dtstack.jlogstash.decoder;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.codehaus.jackson.map.ObjectMapper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Reason: TODO ADD REASON(可选)
@@ -31,8 +31,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  *
  * @author sishu.yss
  */
-public class JsonDecoder implements IDecode {
-    private static Logger logger = LoggerFactory.getLogger(JsonDecoder.class);
+public class JsonMessageDecoder implements IDecode {
+    private static Logger logger = LoggerFactory.getLogger(JsonMessageDecoder.class);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -42,6 +42,9 @@ public class JsonDecoder implements IDecode {
         Map<String, Object> event = null;
         try {
             event = objectMapper.readValue(message, Map.class);
+            if (!event.containsKey("message")) {
+                event.put("message", message);
+            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             event = new HashMap<String, Object>() {
