@@ -73,6 +73,7 @@ public class Hive extends BaseOutput {
     @Required(required = true)
     private static String password;
 
+    @Required(required = true)
     private static String analyticalRules;
 
     /**
