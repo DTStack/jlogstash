@@ -49,7 +49,7 @@ public class HiveUtil {
     /**
      * 抛出异常,直接终止hive
      */
-    public HiveUtil(String jdbcUrl, String username, String password,String writeMode) {
+    public HiveUtil(String jdbcUrl, String username, String password, String writeMode) {
         this.jdbcUrl = jdbcUrl;
         this.username = username;
         this.password = password;
@@ -76,16 +76,17 @@ public class HiveUtil {
      * @param tableInfo
      */
     private void createTable(Connection connection, TableInfo tableInfo) {
-        String sql = String.format(tableInfo.getCreateTableSql(), tableInfo.getTablePath());
+        boolean overwrite = OVERWRITE.name().equalsIgnoreCase(writeMode);
+        if (overwrite) {
+            DBUtil.executeSqlWithoutResultSet(connection, String.format("DROP TABLE IF EXISTS %s", tableInfo.getTablePath()));
+        }
         try {
-            if(OVERWRITE.name().equalsIgnoreCase(writeMode)) {
-                DBUtil.executeSqlWithoutResultSet(connection,String.format("DROP TABLE IF EXISTS %s",tableInfo.getTablePath()));
-            }
+            String sql = String.format(tableInfo.getCreateTableSql(), tableInfo.getTablePath());
             DBUtil.executeSqlWithoutResultSet(connection, sql);
         } catch (Exception e) {
             logger.error("{}", e);
-            if (!e.getMessage().contains(TableExistException) && !e.getMessage().contains(TableAlreadyExistsException)) {
-                throw e;
+            if (overwrite || !e.getMessage().contains(TableExistException) && !e.getMessage().contains(TableAlreadyExistsException)){
+                System.exit(-1);
             }
         }
     }
@@ -193,7 +194,7 @@ public class HiveUtil {
 
     public static ObjectInspector columnTypeToObjectInspetor(String columnType) {
         ObjectInspector objectInspector = null;
-        switch(columnType.toUpperCase()) {
+        switch (columnType.toUpperCase()) {
             case "TINYINT":
                 objectInspector = ObjectInspectorFactory.getReflectionObjectInspector(Byte.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
                 break;
