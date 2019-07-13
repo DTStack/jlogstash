@@ -50,7 +50,9 @@ public class Hive extends BaseOutput {
 
     private static String path;
 
-    private static String store = "TEXT";
+    private boolean autoCreateTable = false;
+
+    private static String store = "ORC";
 
     private static String writeMode = "APPEND";
 
@@ -138,6 +140,7 @@ public class Hive extends BaseOutput {
                 try {
                     lock.lockInterruptibly();
                     release();
+                    resetWriteStrategy();
                     logger.warn("hdfs commit again...");
                 } catch (InterruptedException e) {
                     logger.error("{}", e);
@@ -148,13 +151,19 @@ public class Hive extends BaseOutput {
         }, 1000, 1000, TimeUnit.MILLISECONDS);
     }
 
+    private void resetWriteStrategy(){
+        dataSize.set(0L);
+        lastTime = System.currentTimeMillis();
+    }
+
     @Override
     protected void emit(Map event) {
         try {
             String tablePath = HiveConverter.regaxByRules(event, path);
+
             try {
                 lock.lockInterruptibly();
-                getHdfsOutputFormat(tablePath).writeRecord(event);
+                getHdfsOutputFormat(tablePath, event).writeRecord(event);
                 dataSize.addAndGet(ObjectSizeCalculator.getObjectSize(event));
             } catch (Throwable e) {
                 throw e;
@@ -167,9 +176,9 @@ public class Hive extends BaseOutput {
         }
     }
 
-    public HiveOutputFormat getHdfsOutputFormat(String tablePath) throws IOException {
+    public HiveOutputFormat getHdfsOutputFormat(String tablePath, Map event) throws IOException {
         HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(tablePath);
-        TableInfo tableInfo = checkCreateTable(tablePath);
+        TableInfo tableInfo = checkCreateTable(tablePath, event);
         if (hdfsOutputFormat == null) {
             if (StoreEnum.TEXT.name().equalsIgnoreCase(tableInfo.getStore())) {
                 hdfsOutputFormat = new HiveTextOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset, tableInfo.getDelimiter());
@@ -186,11 +195,14 @@ public class Hive extends BaseOutput {
         return hdfsOutputFormat;
     }
 
-    private TableInfo checkCreateTable(String tablePath){
+    private TableInfo checkCreateTable(String tablePath, Map event){
         if (!tableCache.containsKey(tablePath)){
             synchronized (Hive.class) {
                 if (!tableCache.containsKey(tablePath)) {
-                    String tableName = StringUtils.substringBefore(tablePath, TableInfo.SPECIAL_SPLIT);
+                    String tableName = tablePath;
+                    if (autoCreateTable) {
+                        tableName = MapUtils.getString(event, "table");
+                    }
                     TableInfo tableInfo = tableInfos.get(tableName);
                     tableInfo.setTablePath(tablePath);
                     hiveUtil.createHiveTableWithTableInfo(tableInfo);
@@ -250,7 +262,8 @@ public class Hive extends BaseOutput {
         if (StringUtils.isBlank(analyticalRules)) {
             path = tableInfos.entrySet().iterator().next().getValue().getTableName();
         } else {
-            path =  analyticalRules;
+            path = analyticalRules;
+            autoCreateTable = true;
         }
     }
 

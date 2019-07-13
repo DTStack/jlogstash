@@ -20,7 +20,6 @@ public class TableInfo {
     private String delimiter;
 
     private final static String PATH_TEMPLATE = "/user/hive/warehouse/%s.db/%s";
-    public final static String SPECIAL_SPLIT = "##@@##";
 
     public TableInfo(int columnSize) {
         columns = new ArrayList<>(columnSize);
@@ -73,7 +72,7 @@ public class TableInfo {
     }
 
     public String getTablePath() {
-        return tablePath.replace(SPECIAL_SPLIT, "_");
+        return tablePath;
     }
 
     public void setTablePath(String tablePath) {
