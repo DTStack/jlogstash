@@ -52,7 +52,7 @@ public class Hive extends BaseOutput {
 
     private boolean autoCreateTable = false;
 
-    private static String store = "TEXT";
+    private static String store = "ORC";
 
     private static String writeMode = "APPEND";
 
@@ -140,6 +140,7 @@ public class Hive extends BaseOutput {
                 try {
                     lock.lockInterruptibly();
                     release();
+                    resetWriteStrategy();
                     logger.warn("hdfs commit again...");
                 } catch (InterruptedException e) {
                     logger.error("{}", e);
@@ -148,6 +149,11 @@ public class Hive extends BaseOutput {
                 }
             }
         }, 1000, 1000, TimeUnit.MILLISECONDS);
+    }
+
+    private void resetWriteStrategy(){
+        dataSize.set(0L);
+        lastTime = System.currentTimeMillis();
     }
 
     @Override
