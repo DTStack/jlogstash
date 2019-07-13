@@ -1,6 +1,5 @@
 package com.dtstack.jlogstash.format.util;
 
-import com.beust.jcommander.internal.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Map;
@@ -40,15 +39,5 @@ public class HiveConverter {
         return path;
     }
 
-
-    public static void main(String[] args){
-
-        String ss = "sss_${ysq}_${name}_${ysq}/ysq/ysq/yyy.txt";
-
-        Map<String,String> evnets = Maps.newHashMap();
-        evnets.put("ysq","bac");
-        evnets.put("name","bbbb");
-        System.out.println(regaxByRules(evnets,ss));
-    }
 }
 
