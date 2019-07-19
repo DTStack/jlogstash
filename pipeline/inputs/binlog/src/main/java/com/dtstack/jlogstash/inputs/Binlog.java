@@ -120,6 +120,8 @@ public class Binlog extends BaseInput {
 
     private volatile EntryPosition entryPosition;
 
+    private EntryPosition lastEntryPosition;
+
     private List<String> categories = new ArrayList<>();
 
     public Binlog(Map config) {
@@ -290,9 +292,12 @@ public class Binlog extends BaseInput {
     }
 
     private void savePos() {
-        if (entryPosition == null || entryPosition.getPosition() == null) {
+        if (entryPosition == null || entryPosition.getPosition() == null || entryPosition.getJournalName() == null
+                || lastEntryPosition != null && lastEntryPosition.getPosition().equals(entryPosition.getPosition()) && lastEntryPosition.getJournalName().equals(entryPosition.getJournalName())
+                ) {
             return;
         }
+        lastEntryPosition = entryPosition;
         if (configuration != null) {
             FSDataOutputStream out = null;
             try {
