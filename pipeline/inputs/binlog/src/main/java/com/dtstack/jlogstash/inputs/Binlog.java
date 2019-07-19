@@ -118,7 +118,7 @@ public class Binlog extends BaseInput {
 
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private volatile EntryPosition entryPosition = new EntryPosition();
+    private volatile EntryPosition entryPosition;
 
     private List<String> categories = new ArrayList<>();
 
@@ -290,6 +290,9 @@ public class Binlog extends BaseInput {
     }
 
     private void savePos() {
+        if (entryPosition == null || entryPosition.getPosition() == null) {
+            return;
+        }
         if (configuration != null) {
             FSDataOutputStream out = null;
             try {
