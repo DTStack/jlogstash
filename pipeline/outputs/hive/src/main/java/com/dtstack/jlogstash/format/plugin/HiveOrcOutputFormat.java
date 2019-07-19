@@ -100,7 +100,8 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
         for(int i = 0; i < this.columnSize; i++) {
             Object data = row.get(this.columnNames.get(i));
             if(data == null) {
-                data = "";
+                record[i] = null;
+                continue;
             }
             String rowData = data.toString();
             Object field = null;
