@@ -199,6 +199,9 @@ public class Hive extends BaseOutput {
         if (!tableCache.containsKey(tablePath)){
             synchronized (Hive.class) {
                 if (!tableCache.containsKey(tablePath)) {
+
+                    logger.info("tablePath:{} even:{}", tablePath, event);
+
                     String tableName = tablePath;
                     if (autoCreateTable) {
                         tableName = MapUtils.getString(event, "table");
@@ -257,6 +260,9 @@ public class Hive extends BaseOutput {
             }
             String createTableSql = HiveUtil.getCreateTableHql(tableColumns, delimiter, store);
             tableInfo.setCreateTableSql(createTableSql);
+
+            logger.info("TableInfo:{}", tableInfo);
+
             tableInfos.put(tableName, tableInfo);
         }
         if (StringUtils.isBlank(analyticalRules)) {

@@ -108,4 +108,19 @@ public class TableInfo {
     public void setDelimiter(String delimiter) {
         this.delimiter = delimiter;
     }
+
+    @Override
+    public String toString() {
+        return "TableInfo{" +
+                "database='" + database + '\'' +
+                ", columns=" + columns +
+                ", columnTypes=" + columnTypes +
+                ", createTableSql='" + createTableSql + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", tablePath='" + tablePath + '\'' +
+                ", path='" + path + '\'' +
+                ", store='" + store + '\'' +
+                ", delimiter='" + delimiter + '\'' +
+                '}';
+    }
 }
