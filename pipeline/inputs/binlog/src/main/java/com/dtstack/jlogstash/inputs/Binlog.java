@@ -306,6 +306,9 @@ public class Binlog extends BaseInput {
                 out = dfs.create(posPathTmp);
                 dfs.setPermission(posPathTmp, new FsPermission(FsPermission.createImmutable((short) 0777)));
                 out.writeUTF(new ObjectMapper().writeValueAsString(entryPosition));
+                if (dfs.exists(posPath)) {
+                    dfs.delete(posPath);
+                }
                 dfs.rename(posPathTmp, posPath);
             } catch (IOException e) {
                 throw new RuntimeException(e);
