@@ -77,6 +77,7 @@ public class Binlog extends BaseInput {
 
     private FileSystem dfs;
 
+    private Path posPathTmp;
     private Path posPath;
 
     /**
@@ -187,6 +188,7 @@ public class Binlog extends BaseInput {
 
             setHadoopConfiguration();
             if (configuration != null) {
+                posPathTmp = new Path(configuration.get("fs.defaultFS"), "/user/jlogstash/." + taskId + "_output");
                 posPath = new Path(configuration.get("fs.defaultFS"), "/user/jlogstash/" + taskId + "_output");
                 dfs = FileSystem.get(configuration);
             }
@@ -301,8 +303,10 @@ public class Binlog extends BaseInput {
         if (configuration != null) {
             FSDataOutputStream out = null;
             try {
-                out = FileSystem.create(posPath.getFileSystem(configuration), posPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
+                out = dfs.create(posPathTmp);
+                dfs.setPermission(posPathTmp, new FsPermission(FsPermission.createImmutable((short) 0777)));
                 out.writeUTF(new ObjectMapper().writeValueAsString(entryPosition));
+                dfs.rename(posPathTmp, posPath);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
