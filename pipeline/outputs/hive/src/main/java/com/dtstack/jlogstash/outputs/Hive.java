@@ -210,8 +210,7 @@ public class Hive extends BaseOutput {
                     }
                     TableInfo tableInfo = tableInfos.get(tableName);
                     //单独过滤.，需要在tableInfos之后处理，否则会取不到TableInfo
-                    tablePath = tablePath.replace(".", "_");
-                    tableInfo.setTablePath(tablePath);
+                    tableInfo.setTablePath(tablePath.replace(".", "_"));
                     hiveUtil.createHiveTableWithTableInfo(tableInfo);
                     tableCache.put(tablePath, tableInfo);
                     return tableInfo;
