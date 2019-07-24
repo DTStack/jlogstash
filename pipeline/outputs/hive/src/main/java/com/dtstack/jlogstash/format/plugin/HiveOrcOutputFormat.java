@@ -7,13 +7,17 @@ import com.dtstack.jlogstash.format.util.DateUtil;
 import com.dtstack.jlogstash.format.util.HiveUtil;
 import com.dtstack.jlogstash.format.util.HostUtil;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hive.common.type.HiveDecimal;
 import org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat;
 import org.apache.hadoop.hive.ql.io.orc.OrcSerde;
+import org.apache.hadoop.hive.serde2.io.HiveDecimalWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.FileOutputFormat;
@@ -22,7 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -98,12 +106,16 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
     public void writeRecord(Map<String,Object> row) throws IOException {
         Object[] record = new Object[this.columnSize];
         for(int i = 0; i < this.columnSize; i++) {
-            Object data = row.get(this.columnNames.get(i));
-            if(data == null) {
+            Object column = row.get(this.columnNames.get(i));
+            if(column == null) {
                 record[i] = null;
                 continue;
             }
-            String rowData = data.toString();
+            String rowData = column.toString();
+            if(StringUtils.isBlank(rowData)){
+                record[i] = null;
+                continue;
+            }
             Object field = null;
             switch(this.columnTypes.get(i).toUpperCase()) {
                 case "TINYINT":
@@ -116,7 +128,16 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
                     field = Integer.valueOf(rowData);
                     break;
                 case "BIGINT":
-                    field = Long.valueOf(rowData);
+                    if (column instanceof Timestamp){
+                        field=((Timestamp) column).getTime();
+                        break;
+                    }
+                    BigInteger data = new BigInteger(rowData);
+                    if (data.compareTo(new BigInteger(String.valueOf(Long.MAX_VALUE))) > 0){
+                        field = data;
+                    } else {
+                        field = Long.valueOf(rowData);
+                    }
                     break;
                 case "FLOAT":
                     field = Float.valueOf(rowData);
@@ -124,20 +145,32 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
                 case "DOUBLE":
                     field = Double.valueOf(rowData);
                     break;
+                case "DECIMAL":
+                    HiveDecimal hiveDecimal = HiveDecimal.create(new BigDecimal(rowData));
+                    HiveDecimalWritable hiveDecimalWritable = new HiveDecimalWritable(hiveDecimal);
+                    field = hiveDecimalWritable;
+                    break;
                 case "STRING":
                 case "VARCHAR":
                 case "CHAR":
-                    field = rowData;
+                    if (column instanceof Timestamp){
+                        SimpleDateFormat fm = DateUtil.getDateTimeFormatter();
+                        field = fm.format(column);
+                    }else {
+                        field = rowData;
+                    }
                     break;
                 case "BOOLEAN":
                     field = Boolean.valueOf(rowData);
                     break;
                 case "DATE":
-                    field = DateUtil.columnToDate(data);
+                    field = DateUtil.columnToDate(column, null);
                     break;
                 case "TIMESTAMP":
-                    java.sql.Date d = DateUtil.columnToDate(data);
-                    field = new java.sql.Timestamp(d.getTime());
+                    field = DateUtil.columnToTimestamp(column, null);
+                    break;
+                case "BINARY":
+                    field = new BytesWritable(rowData.getBytes());
                     break;
                 default:
                     field = rowData;

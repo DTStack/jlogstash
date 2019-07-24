@@ -8,7 +8,7 @@ import com.dtstack.jlogstash.format.StoreEnum;
 import com.dtstack.jlogstash.format.TableInfo;
 import com.dtstack.jlogstash.format.plugin.HiveOrcOutputFormat;
 import com.dtstack.jlogstash.format.plugin.HiveTextOutputFormat;
-import com.dtstack.jlogstash.format.util.HiveConverter;
+import com.dtstack.jlogstash.format.util.PathConverterUtil;
 import com.dtstack.jlogstash.format.util.HiveUtil;
 import com.google.common.collect.Maps;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
@@ -99,6 +99,8 @@ public class Hive extends BaseOutput {
     @Required(required = true)
     private static String tablesColumn;
 
+    private static String distributeTable;
+
     private Map<String, HiveOutputFormat> hdfsOutputFormats = Maps.newConcurrentMap();
 
     private static Map<String, TableInfo> tableCache = new HashMap<>();
@@ -159,7 +161,7 @@ public class Hive extends BaseOutput {
     @Override
     protected void emit(Map event) {
         try {
-            String tablePath = HiveConverter.regaxByRules(event, path);
+            String tablePath = PathConverterUtil.regaxByRules(event, path);
 
             try {
                 lock.lockInterruptibly();

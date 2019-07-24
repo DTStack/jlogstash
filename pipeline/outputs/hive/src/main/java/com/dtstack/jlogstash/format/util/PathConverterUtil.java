@@ -11,9 +11,9 @@ import java.util.regex.Pattern;
  * @date 2019-06-18 14:44
  */
 
-public class HiveConverter {
+public class PathConverterUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(HiveConverter.class);
+    private static Logger logger = LoggerFactory.getLogger(PathConverterUtil.class);
 
     private static Pattern pat1 = Pattern.compile( "\\$\\{.*?\\}");
 
