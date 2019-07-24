@@ -84,9 +84,13 @@ public class HiveUtil {
             String sql = String.format(tableInfo.getCreateTableSql(), tableInfo.getTablePath());
             DBUtil.executeSqlWithoutResultSet(connection, sql);
         } catch (Exception e) {
-            logger.error("{}", e);
-            if (overwrite || !e.getMessage().contains(TableExistException) && !e.getMessage().contains(TableAlreadyExistsException)){
+            if (overwrite || !e.getMessage().contains(TableExistException) && !e.getMessage().contains(TableAlreadyExistsException)) {
+                logger.error("create table happens error:{}", e);
                 System.exit(-1);
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Not need create table:{}, it's already exist", tableInfo.getTablePath());
+                }
             }
         }
     }

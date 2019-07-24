@@ -224,7 +224,7 @@ public class Hive extends BaseOutput {
 
     @Override
     public void sendFailedMsg(Object msg) {
-        emit((Map) msg);
+        logger.error("sendFailedMsg:{}", msg);
     }
 
     @Override
