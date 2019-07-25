@@ -16,15 +16,36 @@
  * limitations under the License.
  */
 
-package com.dtstack.jlogstash.format;
+package com.dtstack.jlogstash.format.dirty;
 
+import java.util.Map;
 
-/**
- * @author haisi
- */
+public class WriteRecordException extends Exception {
 
-public enum CompressEnum {
-	
-	NONE,GZIP,BZIP2,SNAPPY;
+    private int colIndex = -1;
+    private Map row;
+
+    public int getColIndex() {
+        return colIndex;
+    }
+
+    public Map getRow() {
+        return row;
+    }
+
+    public WriteRecordException(String message, Throwable cause, int colIndex, Map row) {
+        super(message, cause);
+        this.colIndex = colIndex;
+        this.row = row;
+    }
+
+    public WriteRecordException(String message, Throwable cause) {
+        this(message, cause, -1, null);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "\n" + getCause().toString();
+    }
 
 }

@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dtstack.jlogstash.format.util;
 
 import java.sql.Connection;
@@ -27,6 +45,7 @@ public class HiveUtil {
     private static final Pattern PATTERN = Pattern.compile(PATTERN_STR);
     private static final String CREATE_PARTITION_TEMPLATE = "alter table %s add if not exists partition (%s)";
     private static final Pattern DELIMITER_PATTERN = Pattern.compile("field\\.delim=(.*), ");
+    private static final String CREATE_DIRTY_DATA_TABLE_TEMPLATE = "CREATE TABLE IF NOT EXISTS %s (event STRING, error STRING)";
 
     private static final String TEXT_FORMAT = "TextOutputFormat";
     private static final String ORC_FORMAT = "OrcOutputFormat";
@@ -51,6 +70,20 @@ public class HiveUtil {
         this.username = username;
         this.password = password;
         this.writeMode = writeMode;
+    }
+
+    public void createDirtyDataTable(String tableName) {
+        Connection connection = null;
+        try {
+            connection = DBUtil.getConnection(jdbcUrl, username, password);
+            String sql = String.format(CREATE_DIRTY_DATA_TABLE_TEMPLATE, tableName);
+            DBUtil.executeSqlWithoutResultSet(connection, sql);
+        } catch (Exception e) {
+            logger.error("", e);
+            throw e;
+        } finally {
+            DBUtil.closeDBResources(null, null, connection);
+        }
     }
 
     public void createHiveTableWithTableInfo(TableInfo tableInfo) {
