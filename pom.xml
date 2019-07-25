@@ -20,7 +20,7 @@
 
     <modules>
         <module>core</module>
-        <module>pipeline/filters</module>
+        <!--<module>pipeline/filters</module>-->
         <module>pipeline/inputs</module>
         <module>pipeline/outputs</module>
     </modules>

@@ -39,8 +39,6 @@ public class HiveUtil {
     public final static String TABLE_COLUMN_KEY = "key";
     public final static String TABLE_COLUMN_TYPE = "type";
 
-//    private static final String OVERWRITE="OVERWRITE";
-
     private String jdbcUrl;
     private String username;
     private String password;

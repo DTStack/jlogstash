@@ -96,6 +96,8 @@ public class Hive extends BaseOutput {
 
     private Map<String, TableInfo> tableInfos;
 
+    private Map<String, String> distributeTableMapping;
+
     @Required(required = true)
     private static String tablesColumn;
 
@@ -115,7 +117,7 @@ public class Hive extends BaseOutput {
 
     public Hive(Map config) {
         super(config);
-        hiveUtil = new HiveUtil(jdbcUrl, username, password,writeMode);
+        hiveUtil = new HiveUtil(jdbcUrl, username, password, writeMode);
     }
 
     @Override
@@ -153,7 +155,7 @@ public class Hive extends BaseOutput {
         }, 1000, 1000, TimeUnit.MILLISECONDS);
     }
 
-    private void resetWriteStrategy(){
+    private void resetWriteStrategy() {
         dataSize.set(0L);
         lastTime = System.currentTimeMillis();
     }
@@ -161,7 +163,7 @@ public class Hive extends BaseOutput {
     @Override
     protected void emit(Map event) {
         try {
-            String tablePath = PathConverterUtil.regaxByRules(event, path);
+            String tablePath = PathConverterUtil.regaxByRules(event, path, distributeTableMapping);
 
             try {
                 lock.lockInterruptibly();
@@ -197,8 +199,8 @@ public class Hive extends BaseOutput {
         return hdfsOutputFormat;
     }
 
-    private TableInfo checkCreateTable(String tablePath, Map event){
-        if (!tableCache.containsKey(tablePath)){
+    private TableInfo checkCreateTable(String tablePath, Map event) {
+        if (!tableCache.containsKey(tablePath)) {
             synchronized (Hive.class) {
                 if (!tableCache.containsKey(tablePath)) {
 
@@ -207,10 +209,10 @@ public class Hive extends BaseOutput {
                     String tableName = tablePath;
                     if (autoCreateTable) {
                         tableName = MapUtils.getString(event, "table");
+                        tableName = distributeTableMapping.getOrDefault(tableName, tableName);
                     }
                     TableInfo tableInfo = tableInfos.get(tableName);
-                    //单独过滤.，需要在tableInfos之后处理，否则会取不到TableInfo
-                    tableInfo.setTablePath(tablePath.replace(".", "_"));
+                    tableInfo.setTablePath(tablePath);
                     hiveUtil.createHiveTableWithTableInfo(tableInfo);
                     tableCache.put(tablePath, tableInfo);
                     return tableInfo;
@@ -240,8 +242,24 @@ public class Hive extends BaseOutput {
     }
 
     private void formatSchema() {
-        tableInfos = new HashMap<String, TableInfo>();
-        if (jdbcUrl.contains(";principal=")){
+        /**
+         * 分表的映射关系
+         * distributeTableMapping 的数据结构为<tableName,groupName>
+         * tableInfos的数据结构为<groupName,TableInfo>
+         */
+        distributeTableMapping = new HashMap<String, String>();
+        if (StringUtils.isNotBlank(distributeTable)) {
+            JSONObject distributeTableJson = JSON.parseObject(distributeTable);
+            for (Map.Entry<String, Object> entry : distributeTableJson.entrySet()) {
+                String groupName = entry.getKey();
+                List<String> groupTables = (List<String>) entry.getValue();
+                for (String tableName : groupTables) {
+                    distributeTableMapping.put(tableName, groupName);
+                }
+            }
+        }
+
+        if (jdbcUrl.contains(";principal=")) {
             String[] jdbcStr = jdbcUrl.split(";principal=");
             jdbcUrl = jdbcStr[0];
         }
@@ -251,6 +269,8 @@ public class Hive extends BaseOutput {
         } else {
             database = StringUtils.substring(jdbcUrl, StringUtils.lastIndexOf(jdbcUrl, '/') + 1);
         }
+
+        tableInfos = new HashMap<String, TableInfo>();
         JSONObject tableColumnJson = JSON.parseObject(tablesColumn);
         for (Map.Entry<String, Object> entry : tableColumnJson.entrySet()) {
             String tableName = entry.getKey();
