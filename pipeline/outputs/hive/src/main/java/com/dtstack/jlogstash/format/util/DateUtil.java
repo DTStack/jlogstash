@@ -24,6 +24,10 @@ public class DateUtil {
 
     private static final String YEAR_FORMAT = "yearFormatter";
 
+    private static final String DAY_FORMAT = "dayFormatter";
+
+    private static final String HOUR_FORMAT = "hourFormatter";
+
     private static final String START_TIME = "1970-01-01";
 
     public final static String DATE_REGEX = "(?i)date";
@@ -56,6 +60,14 @@ public class DateUtil {
         SimpleDateFormat yearFormatter = new SimpleDateFormat("yyyy");
         yearFormatter.setTimeZone(timeZone);
         formatterMap.put(YEAR_FORMAT,yearFormatter);
+
+        SimpleDateFormat dayFormatter = new SimpleDateFormat("yyyyMMdd");
+        dayFormatter.setTimeZone(timeZone);
+        formatterMap.put(DAY_FORMAT,dayFormatter);
+
+        SimpleDateFormat hourFormatter = new SimpleDateFormat("yyyyMMddHH");
+        hourFormatter.setTimeZone(timeZone);
+        formatterMap.put(HOUR_FORMAT,hourFormatter);
 
         return formatterMap;
     });
@@ -193,6 +205,15 @@ public class DateUtil {
 
     public static SimpleDateFormat getDateTimeFormatter(){
         return datetimeFormatter.get().get(STANDARD_DATETIME_FORMAT);
+    }
+
+
+    public static SimpleDateFormat getDayFormatter(){
+        return datetimeFormatter.get().get(DAY_FORMAT);
+    }
+
+    public static SimpleDateFormat getHourFormatter(){
+        return datetimeFormatter.get().get(HOUR_FORMAT);
     }
 
     public static SimpleDateFormat getDateFormatter(){

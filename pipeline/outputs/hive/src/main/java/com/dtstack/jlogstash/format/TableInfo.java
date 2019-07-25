@@ -18,12 +18,14 @@ public class TableInfo {
     private String path;
     private String store;
     private String delimiter;
+    private List<String> partitions;
 
     private final static String PATH_TEMPLATE = "/user/hive/warehouse/%s.db/%s";
 
     public TableInfo(int columnSize) {
         columns = new ArrayList<>(columnSize);
         columnTypes = new ArrayList<>(columnSize);
+        partitions = new ArrayList<>();
     }
 
     public void addColumnAndType(String columnName, String columnType) {
@@ -109,6 +111,18 @@ public class TableInfo {
         this.delimiter = delimiter;
     }
 
+    public List<String> getPartitions() {
+        return partitions;
+    }
+
+    public void setPartitions(List<String> partitions) {
+        this.partitions = partitions;
+    }
+
+    public void addPartition(String partitionField) {
+        this.partitions.add(partitionField);
+    }
+
     @Override
     public String toString() {
         return "TableInfo{" +
@@ -121,6 +135,7 @@ public class TableInfo {
                 ", path='" + path + '\'' +
                 ", store='" + store + '\'' +
                 ", delimiter='" + delimiter + '\'' +
+                ", partitions='" + partitions + '\'' +
                 '}';
     }
 }

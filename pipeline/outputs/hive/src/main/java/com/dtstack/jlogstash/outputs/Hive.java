@@ -6,6 +6,7 @@ import com.dtstack.jlogstash.annotation.Required;
 import com.dtstack.jlogstash.format.HiveOutputFormat;
 import com.dtstack.jlogstash.format.StoreEnum;
 import com.dtstack.jlogstash.format.TableInfo;
+import com.dtstack.jlogstash.format.TimePartitionFormat;
 import com.dtstack.jlogstash.format.plugin.HiveOrcOutputFormat;
 import com.dtstack.jlogstash.format.plugin.HiveTextOutputFormat;
 import com.dtstack.jlogstash.format.util.PathConverterUtil;
@@ -21,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
@@ -103,6 +103,12 @@ public class Hive extends BaseOutput {
 
     private static String distributeTable;
 
+    private final static String PARTITION_TEMPLATE = "%s=%s";
+
+    private static String partitionField = "pt";
+
+    private static String partitionType;
+
     private Map<String, HiveOutputFormat> hdfsOutputFormats = Maps.newConcurrentMap();
 
     private static Map<String, TableInfo> tableCache = new HashMap<>();
@@ -110,6 +116,8 @@ public class Hive extends BaseOutput {
     private Lock lock = new ReentrantLock();
 
     private HiveUtil hiveUtil;
+
+    private TimePartitionFormat partitionFormat;
 
     static {
         Thread.currentThread().setContextClassLoader(null);
@@ -124,6 +132,9 @@ public class Hive extends BaseOutput {
     public void prepare() {
         try {
             charset = Charset.forName(charsetName);
+            if (StringUtils.isNotBlank(partitionType) && StringUtils.isNotBlank(partitionField)) {
+                partitionFormat = TimePartitionFormat.getInstance(partitionType);
+            }
             formatSchema();
             setHadoopConfiguration();
             process();
@@ -162,64 +173,81 @@ public class Hive extends BaseOutput {
 
     @Override
     protected void emit(Map event) {
+
+        String tablePath = PathConverterUtil.regaxByRules(event, path, distributeTableMapping);
         try {
-            String tablePath = PathConverterUtil.regaxByRules(event, path, distributeTableMapping);
+            lock.lockInterruptibly();
+            HiveOutputFormat format = getHdfsOutputFormat(tablePath, event);
 
             try {
-                lock.lockInterruptibly();
-                getHdfsOutputFormat(tablePath, event).writeRecord(event);
+                format.writeRecord(event);
                 dataSize.addAndGet(ObjectSizeCalculator.getObjectSize(event));
             } catch (Throwable e) {
-                throw e;
-            } finally {
-                lock.unlock();
+                this.addFailedMsg(event);
+                logger.error("", e);
             }
         } catch (Throwable e) {
-            this.addFailedMsg(event);
             logger.error("", e);
+        } finally {
+            lock.unlock();
         }
     }
 
-    public HiveOutputFormat getHdfsOutputFormat(String tablePath, Map event) throws IOException {
-        HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(tablePath);
+    public HiveOutputFormat getHdfsOutputFormat(String tablePath, Map event) throws Exception {
         TableInfo tableInfo = checkCreateTable(tablePath, event);
+        String hiveTablePath = tablePath;
+        String partitionPath = "";
+        if (partitionFormat != null) {
+            partitionPath = String.format(PARTITION_TEMPLATE, partitionField, partitionFormat.currentTime());
+            hiveTablePath += "/" + partitionPath;
+        }
+        HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(hiveTablePath);
         if (hdfsOutputFormat == null) {
+            hiveUtil.createPartition(tableInfo, partitionPath);
+            String path = tableInfo.getPath() + "/" + partitionPath;
             if (StoreEnum.TEXT.name().equalsIgnoreCase(tableInfo.getStore())) {
-                hdfsOutputFormat = new HiveTextOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset, tableInfo.getDelimiter());
+                hdfsOutputFormat = new HiveTextOutputFormat(configuration, path, tableInfo.getColumns(), tableInfo.getColumnTypes(),
+                        compression, writeMode, charset, tableInfo.getDelimiter());
             } else if (StoreEnum.ORC.name().equalsIgnoreCase(tableInfo.getStore())) {
-                hdfsOutputFormat = new HiveOrcOutputFormat(configuration, tableInfo.getPath(), tableInfo.getColumns(), tableInfo.getColumnTypes(), compression, writeMode, charset);
+                hdfsOutputFormat = new HiveOrcOutputFormat(configuration, path, tableInfo.getColumns(), tableInfo.getColumnTypes(),
+                        compression, writeMode, charset);
             } else {
                 throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
             }
             hdfsOutputFormat.configure();
             hdfsOutputFormat.open();
-            hdfsOutputFormats.put(tablePath, hdfsOutputFormat);
+            hdfsOutputFormats.put(hiveTablePath, hdfsOutputFormat);
 
         }
         return hdfsOutputFormat;
     }
 
-    private TableInfo checkCreateTable(String tablePath, Map event) {
-        if (!tableCache.containsKey(tablePath)) {
-            synchronized (Hive.class) {
-                if (!tableCache.containsKey(tablePath)) {
+    private TableInfo checkCreateTable(String tablePath, Map event) throws Exception {
+        try {
+            if (!tableCache.containsKey(tablePath)) {
+                synchronized (Hive.class) {
+                    if (!tableCache.containsKey(tablePath)) {
 
-                    logger.info("tablePath:{} even:{}", tablePath, event);
+                        logger.info("tablePath:{} even:{}", tablePath, event);
 
-                    String tableName = tablePath;
-                    if (autoCreateTable) {
-                        tableName = MapUtils.getString(event, "table");
-                        tableName = distributeTableMapping.getOrDefault(tableName, tableName);
+                        String tableName = tablePath;
+                        if (autoCreateTable) {
+                            tableName = MapUtils.getString(event, "table");
+                            tableName = distributeTableMapping.getOrDefault(tableName, tableName);
+                        }
+                        TableInfo tableInfo = tableInfos.get(tableName);
+                        tableInfo.setTablePath(tablePath);
+                        hiveUtil.createHiveTableWithTableInfo(tableInfo);
+                        tableCache.put(tablePath, tableInfo);
+                        return tableInfo;
                     }
-                    TableInfo tableInfo = tableInfos.get(tableName);
-                    tableInfo.setTablePath(tablePath);
-                    hiveUtil.createHiveTableWithTableInfo(tableInfo);
-                    tableCache.put(tablePath, tableInfo);
-                    return tableInfo;
                 }
             }
+            return tableCache.get(tablePath);
+        } catch (Throwable e) {
+            throw new Exception(e);
         }
-        return tableCache.get(tablePath);
+
     }
 
 
@@ -230,11 +258,12 @@ public class Hive extends BaseOutput {
 
     @Override
     public synchronized void release() {
-        Set<Map.Entry<String, HiveOutputFormat>> entrys = hdfsOutputFormats.entrySet();
-        for (Map.Entry<String, HiveOutputFormat> entry : entrys) {
+        Iterator<Map.Entry<String, HiveOutputFormat>> entryIterator = hdfsOutputFormats.entrySet().iterator();
+        while (entryIterator.hasNext()) {
             try {
+                Map.Entry<String, HiveOutputFormat> entry = entryIterator.next();
                 entry.getValue().close();
-                hdfsOutputFormats.remove(entry.getKey());
+                entryIterator.remove();
             } catch (Exception e) {
                 logger.error("", e);
             }
@@ -277,11 +306,14 @@ public class Hive extends BaseOutput {
             List<Map<String, Object>> tableColumns = (List<Map<String, Object>>) entry.getValue();
             TableInfo tableInfo = new TableInfo(tableColumns.size());
             tableInfo.setDatabase(database);
+            tableInfo.addPartition(partitionField);
+            tableInfo.setDelimiter(delimiter);
+            tableInfo.setStore(store);
             tableInfo.setTableName(tableName);
             for (Map<String, Object> column : tableColumns) {
                 tableInfo.addColumnAndType(MapUtils.getString(column, HiveUtil.TABLE_COLUMN_KEY), MapUtils.getString(column, HiveUtil.TABLE_COLUMN_TYPE));
             }
-            String createTableSql = HiveUtil.getCreateTableHql(tableColumns, delimiter, store);
+            String createTableSql = HiveUtil.getCreateTableHql(tableInfo);
             tableInfo.setCreateTableSql(createTableSql);
 
             logger.info("TableInfo:{}", tableInfo);
