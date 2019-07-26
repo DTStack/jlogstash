@@ -46,6 +46,8 @@ public class DateUtil {
 
     private static final String HOUR_FORMAT = "hourFormatter";
 
+    private static final String MINUTE_FORMAT = "minuteFormatter";
+
     private static final String START_TIME = "1970-01-01";
 
     public final static String DATE_REGEX = "(?i)date";
@@ -86,6 +88,10 @@ public class DateUtil {
         SimpleDateFormat hourFormatter = new SimpleDateFormat("yyyyMMddHH");
         hourFormatter.setTimeZone(timeZone);
         formatterMap.put(HOUR_FORMAT,hourFormatter);
+
+        SimpleDateFormat minuteFormatter = new SimpleDateFormat("yyyyMMddHHmm");
+        minuteFormatter.setTimeZone(timeZone);
+        formatterMap.put(MINUTE_FORMAT,minuteFormatter);
 
         return formatterMap;
     });
@@ -232,6 +238,10 @@ public class DateUtil {
 
     public static SimpleDateFormat getHourFormatter(){
         return datetimeFormatter.get().get(HOUR_FORMAT);
+    }
+
+    public static SimpleDateFormat getMinuteFormatter(){
+        return datetimeFormatter.get().get(MINUTE_FORMAT);
     }
 
     public static SimpleDateFormat getDateFormatter(){

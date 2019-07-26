@@ -43,6 +43,8 @@ public class TimePartitionFormat {
             partitionEnum = PartitionEnum.DAY;
         } else if (PartitionEnum.HOUR.name().equalsIgnoreCase(peStr)) {
             partitionEnum = PartitionEnum.HOUR;
+        } else if (PartitionEnum.MINUTE.name().equalsIgnoreCase(peStr)) {
+            partitionEnum = PartitionEnum.MINUTE;
         } else {
             throw new UnsupportedOperationException("partitionEnum=" + peStr + " is undefined!");
         }
@@ -57,13 +59,15 @@ public class TimePartitionFormat {
             return DateUtil.getDayFormatter().format(new Date());
         } else if (PartitionEnum.HOUR == partitionEnum) {
             return DateUtil.getHourFormatter().format(new Date());
+        } else if (PartitionEnum.MINUTE == partitionEnum) {
+            return DateUtil.getMinuteFormatter().format(new Date());
         }
 
         throw new UnsupportedOperationException("partitionEnum=" + partitionEnum + " is undefined!");
     }
 
     enum PartitionEnum {
-        DAY, HOUR
+        DAY, HOUR, MINUTE
     }
 
 }

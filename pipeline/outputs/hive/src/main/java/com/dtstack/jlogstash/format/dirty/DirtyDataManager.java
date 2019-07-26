@@ -21,6 +21,7 @@ package com.dtstack.jlogstash.format.dirty;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.jlogstash.format.TableInfo;
 import com.dtstack.jlogstash.format.util.DateUtil;
+import com.dtstack.jlogstash.format.util.HostUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -57,7 +58,7 @@ public class DirtyDataManager {
     public void open() {
         try {
             FileSystem fs = FileSystem.get(config);
-            String location = tableInfo.getPath() + "/" + UUID.randomUUID() + ".txt";
+            String location = String.format("%s/%s-%d.txt", tableInfo.getPath(), HostUtil.getHostName(), Thread.currentThread().getId());
             Path path = new Path(location);
             bw = new BufferedWriter(new OutputStreamWriter(fs.create(path, true)));
         } catch (IOException e) {
