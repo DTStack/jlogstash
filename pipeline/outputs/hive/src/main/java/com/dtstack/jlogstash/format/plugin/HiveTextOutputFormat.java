@@ -89,6 +89,7 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 
 	@Override
 	public void open() throws IOException {
+		super.open();
 		String pathStr = null;
 		if (outputFormat instanceof TextOutputFormatBak){
 			 pathStr = String.format("%s/%s-%d.txt", outputFilePath, HostUtil.getHostName(), Thread.currentThread().getId());

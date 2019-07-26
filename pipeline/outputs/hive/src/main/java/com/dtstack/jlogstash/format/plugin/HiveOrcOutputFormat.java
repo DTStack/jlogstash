@@ -113,6 +113,7 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
 
     @Override
     public void open() throws IOException {
+        super.open();
         String pathStr = String.format("%s/%s-%d-%s.orc", outputFilePath, HostUtil.getHostName(),Thread.currentThread().getId(),UUID.randomUUID().toString());
         logger.info("hive path:{}",pathStr);
         FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));

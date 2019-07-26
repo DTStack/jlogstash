@@ -218,7 +218,6 @@ public class Hive extends BaseOutput {
     }
 
     public HiveOutputFormat getHdfsOutputFormat(String tablePath, Map event) throws Exception {
-        TableInfo tableInfo = checkCreateTable(tablePath, event);
         String hiveTablePath = tablePath;
         String partitionPath = "";
         if (partitionFormat != null) {
@@ -227,6 +226,7 @@ public class Hive extends BaseOutput {
         }
         HiveOutputFormat hdfsOutputFormat = hdfsOutputFormats.get(hiveTablePath);
         if (hdfsOutputFormat == null) {
+            TableInfo tableInfo = checkCreateTable(tablePath, event);
             hiveUtil.createPartition(tableInfo, partitionPath);
             String path = tableInfo.getPath() + "/" + partitionPath;
             if (StoreEnum.TEXT.name().equalsIgnoreCase(tableInfo.getStore())) {
@@ -239,9 +239,10 @@ public class Hive extends BaseOutput {
                 throw new UnsupportedOperationException("The hdfs store type is unsupported, please use (" + StoreEnum.listStore() + ")");
             }
             hdfsOutputFormat.configure();
-            hdfsOutputFormat.open();
             hdfsOutputFormats.put(hiveTablePath, hdfsOutputFormat);
-
+        }
+        if (hdfsOutputFormat.isClosed()){
+            hdfsOutputFormat.open();
         }
         return hdfsOutputFormat;
     }
@@ -286,7 +287,6 @@ public class Hive extends BaseOutput {
             try {
                 Map.Entry<String, HiveOutputFormat> entry = entryIterator.next();
                 entry.getValue().close();
-                entryIterator.remove();
             } catch (Exception e) {
                 logger.error("", e);
             }
