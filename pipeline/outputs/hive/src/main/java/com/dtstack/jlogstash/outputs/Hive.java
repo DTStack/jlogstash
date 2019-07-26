@@ -47,6 +47,7 @@ import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -141,6 +142,8 @@ public class Hive extends BaseOutput {
 
     private DirtyDataManager dirtyDataManager;
 
+    private static AtomicBoolean dirtyDataRunning = new AtomicBoolean(false);
+
     static {
         Thread.currentThread().setContextClassLoader(null);
     }
@@ -159,7 +162,6 @@ public class Hive extends BaseOutput {
             }
             formatSchema();
             setHadoopConfiguration();
-            createDirtyData();
             process();
             if (Thread.currentThread().getContextClassLoader() == null) {
                 Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
@@ -207,6 +209,9 @@ public class Hive extends BaseOutput {
                 format.writeRecord(event);
                 dataSize.addAndGet(ObjectSizeCalculator.getObjectSize(event));
             } catch (Throwable e) {
+                if (dirtyDataRunning.compareAndSet(false, true)) {
+                    createDirtyData();
+                }
                 dirtyDataManager.writeData(event, e);
                 logger.error("", e);
             }
@@ -241,7 +246,7 @@ public class Hive extends BaseOutput {
             hdfsOutputFormat.configure();
             hdfsOutputFormats.put(hiveTablePath, hdfsOutputFormat);
         }
-        if (hdfsOutputFormat.isClosed()){
+        if (hdfsOutputFormat.isClosed()) {
             hdfsOutputFormat.open();
         }
         return hdfsOutputFormat;
@@ -281,7 +286,7 @@ public class Hive extends BaseOutput {
         closeDirtyDataManagerWriter(false);
     }
 
-    private void closeHdfsOutputFormats(){
+    private void closeHdfsOutputFormats() {
         Iterator<Map.Entry<String, HiveOutputFormat>> entryIterator = hdfsOutputFormats.entrySet().iterator();
         while (entryIterator.hasNext()) {
             try {
@@ -360,9 +365,11 @@ public class Hive extends BaseOutput {
     }
 
     private void closeDirtyDataManagerWriter(boolean reopen) {
-        this.dirtyDataManager.close();
-        if (reopen) {
-            this.dirtyDataManager.open();
+        if (dirtyDataRunning.get()) {
+            this.dirtyDataManager.close();
+            if (reopen) {
+                this.dirtyDataManager.open();
+            }
         }
     }
 
