@@ -100,9 +100,6 @@ public class TableInfo {
     }
 
     public String getPath() {
-        if (tableName == null) {
-            throw new RuntimeException("tableName must be not null");
-        }
         if (path == null) {
             return String.format(PATH_TEMPLATE, database, getTablePath());
         }
