@@ -19,6 +19,7 @@
 package com.dtstack.jlogstash.format.dirty;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.jlogstash.format.TableInfo;
 import com.dtstack.jlogstash.format.util.DateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -32,53 +33,31 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.dtstack.jlogstash.format.dirty.WriteErrorTypes.*;
-
 public class DirtyDataManager {
 
-    private String location;
+    private TableInfo tableInfo;
     private Configuration config;
     private BufferedWriter bw;
 
-    private static final String FIELD_DELIMITER = "\u0001";
-    private static final String LINE_DELIMITER = "\n";
-
-
-    public DirtyDataManager(String path, Map<String, String> configMap) {
-        location = path + "/" + UUID.randomUUID() + ".txt";
-        config = new Configuration();
-        if (configMap != null) {
-            for (Map.Entry<String, String> entry : configMap.entrySet()) {
-                config.set(entry.getKey(), entry.getValue());
-            }
-        }
-        config.set("fs.hdfs.impl.disable.cache", "true");
+    public DirtyDataManager(TableInfo tableInfo, Configuration configuration) {
+        this.tableInfo = tableInfo;
+        this.config = configuration;
     }
 
-    public String writeData(Map row, WriteRecordException ex) {
+    public void writeData(Map row, Throwable ex) {
         String content = JSONObject.toJSONString(row);
-        String errorType = retrieveCategory(ex);
-        String line = StringUtils.join(new String[]{content, errorType, JSONObject.toJSONString(ex.toString()), DateUtil.timestampToString(new Date())}, FIELD_DELIMITER);
+        String line = StringUtils.join(new String[]{content, JSONObject.toJSONString(ex.toString()), DateUtil.timestampToString(new Date())}, tableInfo.getDelimiter());
         try {
             bw.write(line);
-            bw.write(LINE_DELIMITER);
-            return errorType;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String retrieveCategory(WriteRecordException ex) {
-        Throwable cause = ex.getCause();
-        if (cause instanceof NullPointerException) {
-            return ERR_NULL_POINTER;
-        }
-        return ERR_FORMAT_TRANSFORM;
-    }
-
     public void open() {
         try {
             FileSystem fs = FileSystem.get(config);
+            String location = tableInfo.getPath() + "/" + UUID.randomUUID() + ".txt";
             Path path = new Path(location);
             bw = new BufferedWriter(new OutputStreamWriter(fs.create(path, true)));
         } catch (IOException e) {

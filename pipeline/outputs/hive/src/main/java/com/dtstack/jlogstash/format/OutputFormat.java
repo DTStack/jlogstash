@@ -35,7 +35,7 @@ public interface OutputFormat extends Serializable {
 	void open() throws IOException;
 	
 	
-	void writeRecord(Map<String, Object> row) throws IOException;
+	void writeRecord(Map<String, Object> row) throws Exception;
 	
 
 	void close() throws IOException;

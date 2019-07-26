@@ -107,7 +107,7 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void writeRecord(Map<String, Object> row) throws IOException {
+	public void writeRecord(Map<String, Object> row) throws Exception {
 		String[] record = new String[this.columnSize];
 		for (int i = 0; i < this.columnSize; i++) {
 			Object obj = row.get(this.columnNames.get(i));

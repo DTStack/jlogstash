@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -72,12 +72,16 @@ public class HiveUtil {
         this.writeMode = writeMode;
     }
 
-    public void createDirtyDataTable(String tableName) {
+    public TableInfo createDirtyDataTable(String tableName) {
         Connection connection = null;
         try {
             connection = DBUtil.getConnection(jdbcUrl, username, password);
             String sql = String.format(CREATE_DIRTY_DATA_TABLE_TEMPLATE, tableName);
             DBUtil.executeSqlWithoutResultSet(connection, sql);
+            TableInfo tableInfo = new TableInfo(0);
+            tableInfo.setTablePath(tableName);
+            fillTableInfo(connection, tableInfo);
+            return tableInfo;
         } catch (Exception e) {
             logger.error("", e);
             throw e;

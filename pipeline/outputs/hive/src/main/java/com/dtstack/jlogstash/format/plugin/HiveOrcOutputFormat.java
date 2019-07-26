@@ -121,7 +121,7 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
 
     @SuppressWarnings("unchecked")
 	@Override
-    public void writeRecord(Map<String,Object> row) throws IOException {
+    public void writeRecord(Map<String,Object> row) throws Exception {
         Object[] record = new Object[this.columnSize];
         for(int i = 0; i < this.columnSize; i++) {
             Object column = row.get(this.columnNames.get(i));
@@ -135,65 +135,72 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
                 continue;
             }
             Object field = null;
-            switch(this.columnTypes.get(i).toUpperCase()) {
-                case "TINYINT":
-                    field = Byte.valueOf(rowData);
-                    break;
-                case "SMALLINT":
-                    field = Short.valueOf(rowData);
-                    break;
-                case "INT":
-                    field = Integer.valueOf(rowData);
-                    break;
-                case "BIGINT":
-                    if (column instanceof Timestamp){
-                        field=((Timestamp) column).getTime();
+            try {
+                switch(this.columnTypes.get(i).toUpperCase()) {
+                    case "TINYINT":
+                        field = Byte.valueOf(rowData);
                         break;
-                    }
-                    BigInteger data = new BigInteger(rowData);
-                    if (data.compareTo(new BigInteger(String.valueOf(Long.MAX_VALUE))) > 0){
-                        field = data;
-                    } else {
-                        field = Long.valueOf(rowData);
-                    }
-                    break;
-                case "FLOAT":
-                    field = Float.valueOf(rowData);
-                    break;
-                case "DOUBLE":
-                    field = Double.valueOf(rowData);
-                    break;
-                case "DECIMAL":
-                    HiveDecimal hiveDecimal = HiveDecimal.create(new BigDecimal(rowData));
-                    HiveDecimalWritable hiveDecimalWritable = new HiveDecimalWritable(hiveDecimal);
-                    field = hiveDecimalWritable;
-                    break;
-                case "STRING":
-                case "VARCHAR":
-                case "CHAR":
-                    if (column instanceof Timestamp){
-                        SimpleDateFormat fm = DateUtil.getDateTimeFormatter();
-                        field = fm.format(column);
-                    }else {
+                    case "SMALLINT":
+                        field = Short.valueOf(rowData);
+                        break;
+                    case "INT":
+                        field = Integer.valueOf(rowData);
+                        break;
+                    case "BIGINT":
+                        if (column instanceof Timestamp){
+                            field=((Timestamp) column).getTime();
+                            break;
+                        }
+                        BigInteger data = new BigInteger(rowData);
+                        if (data.compareTo(new BigInteger(String.valueOf(Long.MAX_VALUE))) > 0){
+                            field = data;
+                        } else {
+                            field = Long.valueOf(rowData);
+                        }
+                        break;
+                    case "FLOAT":
+                        field = Float.valueOf(rowData);
+                        break;
+                    case "DOUBLE":
+                        field = Double.valueOf(rowData);
+                        break;
+                    case "DECIMAL":
+                        HiveDecimal hiveDecimal = HiveDecimal.create(new BigDecimal(rowData));
+                        HiveDecimalWritable hiveDecimalWritable = new HiveDecimalWritable(hiveDecimal);
+                        field = hiveDecimalWritable;
+                        break;
+                    case "STRING":
+                    case "VARCHAR":
+                    case "CHAR":
+                        if (column instanceof Timestamp){
+                            SimpleDateFormat fm = DateUtil.getDateTimeFormatter();
+                            field = fm.format(column);
+                        }else {
+                            field = rowData;
+                        }
+                        break;
+                    case "BOOLEAN":
+                        field = Boolean.valueOf(rowData);
+                        break;
+                    case "DATE":
+                        field = DateUtil.columnToDate(column, null);
+                        break;
+                    case "TIMESTAMP":
+                        field = DateUtil.columnToTimestamp(column, null);
+                        break;
+                    case "BINARY":
+                        field = new BytesWritable(rowData.getBytes());
+                        break;
+                    default:
                         field = rowData;
-                    }
-                    break;
-                case "BOOLEAN":
-                    field = Boolean.valueOf(rowData);
-                    break;
-                case "DATE":
-                    field = DateUtil.columnToDate(column, null);
-                    break;
-                case "TIMESTAMP":
-                    field = DateUtil.columnToTimestamp(column, null);
-                    break;
-                case "BINARY":
-                    field = new BytesWritable(rowData.getBytes());
-                    break;
-                default:
-                    field = rowData;
 
+                }
+            } catch (Exception e) {
+                throw new Exception("field convert error,columnName:" + this.columnNames.get(i) +
+                        " columnType:" + this.columnTypes.get(i) +
+                        " rowData:" + rowData, e);
             }
+
             record[i] = field;
         }
         this.recordWriter.write(NullWritable.get(), this.orcSerde.serialize(Arrays.asList(record), this.inspector));

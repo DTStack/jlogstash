@@ -64,7 +64,7 @@ public abstract class HiveOutputFormat implements  OutputFormat {
     }
 
     @Override
-    public abstract void writeRecord(Map<String,Object> row) throws IOException;
+    public abstract void writeRecord(Map<String,Object> row) throws Exception;
 
     @Override
     public void close() throws IOException {

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import com.dtstack.jlogstash.format.HiveOutputFormat;
 import com.dtstack.jlogstash.format.StoreEnum;
 import com.dtstack.jlogstash.format.TableInfo;
 import com.dtstack.jlogstash.format.TimePartitionFormat;
+import com.dtstack.jlogstash.format.dirty.DirtyDataManager;
 import com.dtstack.jlogstash.format.plugin.HiveOrcOutputFormat;
 import com.dtstack.jlogstash.format.plugin.HiveTextOutputFormat;
 import com.dtstack.jlogstash.format.util.PathConverterUtil;
@@ -138,6 +139,8 @@ public class Hive extends BaseOutput {
 
     private TimePartitionFormat partitionFormat;
 
+    private DirtyDataManager dirtyDataManager;
+
     static {
         Thread.currentThread().setContextClassLoader(null);
     }
@@ -174,7 +177,8 @@ public class Hive extends BaseOutput {
                     || dataSize.get() >= bufferSize) {
                 try {
                     lock.lockInterruptibly();
-                    release();
+                    closeHdfsOutputFormats();
+                    closeDirtyDataManagerWriter(true);
                     resetWriteStrategy();
                     logger.warn("hdfs commit again...");
                 } catch (InterruptedException e) {
@@ -203,7 +207,7 @@ public class Hive extends BaseOutput {
                 format.writeRecord(event);
                 dataSize.addAndGet(ObjectSizeCalculator.getObjectSize(event));
             } catch (Throwable e) {
-                this.addFailedMsg(event);
+                dirtyDataManager.writeData(event, e);
                 logger.error("", e);
             }
         } catch (Throwable e) {
@@ -270,15 +274,13 @@ public class Hive extends BaseOutput {
 
     }
 
-
-    @Override
-    public void sendFailedMsg(Object msg) {
-        logger.error("sendFailedMsg:{}", msg);
-
-    }
-
     @Override
     public synchronized void release() {
+        closeHdfsOutputFormats();
+        closeDirtyDataManagerWriter(false);
+    }
+
+    private void closeHdfsOutputFormats(){
         Iterator<Map.Entry<String, HiveOutputFormat>> entryIterator = hdfsOutputFormats.entrySet().iterator();
         while (entryIterator.hasNext()) {
             try {
@@ -351,7 +353,17 @@ public class Hive extends BaseOutput {
 
     private void createDirtyData() {
         String taskId = CmdLineParams.getName();
-        hiveUtil.createDirtyDataTable(taskId);
+        TableInfo tableInfo = hiveUtil.createDirtyDataTable(taskId);
+
+        this.dirtyDataManager = new DirtyDataManager(tableInfo, configuration);
+        this.dirtyDataManager.open();
+    }
+
+    private void closeDirtyDataManagerWriter(boolean reopen) {
+        this.dirtyDataManager.close();
+        if (reopen) {
+            this.dirtyDataManager.open();
+        }
     }
 
     private void setHadoopConfiguration() throws Exception {
