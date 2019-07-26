@@ -292,6 +292,9 @@ public class Hive extends BaseOutput {
             try {
                 Map.Entry<String, HiveOutputFormat> entry = entryIterator.next();
                 entry.getValue().close();
+                if (entry.getValue().isTimeout(TimePartitionFormat.getPartitionEnum())){
+                    entryIterator.remove();
+                }
             } catch (Exception e) {
                 logger.error("", e);
             }

@@ -66,6 +66,10 @@ public class TimePartitionFormat {
         throw new UnsupportedOperationException("partitionEnum=" + partitionEnum + " is undefined!");
     }
 
+    public static PartitionEnum getPartitionEnum() {
+        return partitionEnum;
+    }
+
     enum PartitionEnum {
         DAY, HOUR, MINUTE
     }

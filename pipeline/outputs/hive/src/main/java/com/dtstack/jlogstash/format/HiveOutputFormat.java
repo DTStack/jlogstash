@@ -53,7 +53,8 @@ public abstract class HiveOutputFormat implements OutputFormat {
     protected Map<String, Integer> columnNameIndexMap;
     protected RecordWriter recordWriter;
     protected String fileName;
-    protected volatile boolean isClosed;
+    protected volatile boolean isClosed = true;
+    protected long lastRecordTime = System.currentTimeMillis();
 
 
     public static ObjectMapper objectMapper = new ObjectMapper();
@@ -65,7 +66,9 @@ public abstract class HiveOutputFormat implements OutputFormat {
     }
 
     @Override
-    public abstract void writeRecord(Map<String, Object> row) throws Exception;
+    public void writeRecord(Map<String, Object> row) throws Exception {
+        lastRecordTime = System.currentTimeMillis();
+    }
 
     @Override
     public void open() throws IOException {
@@ -83,5 +86,19 @@ public abstract class HiveOutputFormat implements OutputFormat {
 
     public boolean isClosed() {
         return isClosed;
+    }
+
+    public boolean isTimeout(TimePartitionFormat.PartitionEnum partitionEnum) {
+        if (null == partitionEnum) {
+            return false;
+        } else if (TimePartitionFormat.PartitionEnum.DAY == partitionEnum) {
+            return (System.currentTimeMillis() - lastRecordTime) >= 86400000 * 2;
+        } else if (TimePartitionFormat.PartitionEnum.HOUR == partitionEnum) {
+            return (System.currentTimeMillis() - lastRecordTime) >= 3600000 * 2;
+        } else if (TimePartitionFormat.PartitionEnum.MINUTE == partitionEnum) {
+            return (System.currentTimeMillis() - lastRecordTime) >= 60000 * 2;
+        } else {
+            return true;
+        }
     }
 }

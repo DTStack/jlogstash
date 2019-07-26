@@ -123,6 +123,7 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
     @SuppressWarnings("unchecked")
 	@Override
     public void writeRecord(Map<String,Object> row) throws Exception {
+        super.writeRecord(row);
         Object[] record = new Object[this.columnSize];
         for(int i = 0; i < this.columnSize; i++) {
             Object column = row.get(this.columnNames.get(i));

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,14 +48,16 @@ public class PathConverterUtil {
             while (mat1.find()) {
                 String pkey = mat1.group();
                 String key = pkey.substring(2, pkey.length() - 1);
-                String value = output.get(key).toString();
+                Object value = output.get(key);
+                if (value == null) {
+                    value = "";
+                }
+                String ruleValue = value.toString();
                 if (KEY_TABLE.equals(key)) {
-                    value = distributeTableMapping.getOrDefault(value, value);
+                    ruleValue = distributeTableMapping.getOrDefault(ruleValue, ruleValue);
                 }
-                if (value != null) {
-                    //.在sql中会视为db.table的分隔符，需要单独过滤特殊字符 '.'
-                    path = path.replace(pkey, value).replace(".", "_");
-                }
+                //.在sql中会视为db.table的分隔符，需要单独过滤特殊字符 '.'
+                path = path.replace(pkey, ruleValue).replace(".", "_");
             }
         } catch (Exception e) {
             logger.error("parser path rules is fail", e);
