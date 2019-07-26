@@ -83,7 +83,7 @@ public class Hive extends BaseOutput {
 
     private Charset charset;
 
-    private static String delimiter = "\001";
+    private static String delimiter = "\u0001";
 
     @Required(required = true)
     private static String jdbcUrl;

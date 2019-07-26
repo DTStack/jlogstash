@@ -198,9 +198,9 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
 
                 }
             } catch (Exception e) {
-                throw new Exception("field convert error,columnName:" + this.columnNames.get(i) +
-                        " columnType:" + this.columnTypes.get(i) +
-                        " rowData:" + rowData, e);
+                throw new Exception("field convert error, columnName=" + this.columnNames.get(i) +
+                        ", columnType=" + this.columnTypes.get(i) +
+                        ", fieldData=" + rowData, e);
             }
 
             record[i] = field;

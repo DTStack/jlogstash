@@ -60,7 +60,7 @@ public class DirtyDataManager {
             FileSystem fs = FileSystem.get(config);
             String location = String.format("%s/%s-%d.txt", tableInfo.getPath(), HostUtil.getHostName(), Thread.currentThread().getId());
             Path path = new Path(location);
-            bw = new BufferedWriter(new OutputStreamWriter(fs.create(path, true)));
+            bw = new BufferedWriter(new OutputStreamWriter(fs.create(path, false)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

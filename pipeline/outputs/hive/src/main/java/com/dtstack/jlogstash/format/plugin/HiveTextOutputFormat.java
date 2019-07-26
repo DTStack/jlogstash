@@ -112,15 +112,20 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 		super.writeRecord(row);
 		String[] record = new String[this.columnSize];
 		for (int i = 0; i < this.columnSize; i++) {
-			Object obj = row.get(this.columnNames.get(i));
-			if (obj == null) {
-				record[i] = "";
-			} else {
-				if (obj instanceof Map) {
-					record[i] = objectMapper.writeValueAsString(obj);
+			Object fieldData = row.get(this.columnNames.get(i));
+			try {
+				if (fieldData == null) {
+					record[i] = "";
 				} else {
-					record[i] = obj.toString();
+					if (fieldData instanceof Map) {
+						record[i] = objectMapper.writeValueAsString(fieldData);
+					} else {
+						record[i] = fieldData.toString();
+					}
 				}
+			} catch (Exception e) {
+				throw new Exception("field convert error, columnName=" + this.columnNames.get(i) +
+						", fieldData=" + fieldData, e);
 			}
 		}
 		recordWriter.write(NullWritable.get(),
