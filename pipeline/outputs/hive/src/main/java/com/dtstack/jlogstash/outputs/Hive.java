@@ -158,8 +158,8 @@ public class Hive extends BaseOutput {
                 partitionFormat = TimePartitionFormat.getInstance(partitionType);
             }
             formatSchema();
-            createDirtyData();
             setHadoopConfiguration();
+            createDirtyData();
             process();
             if (Thread.currentThread().getContextClassLoader() == null) {
                 Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
