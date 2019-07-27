@@ -20,7 +20,9 @@ package com.dtstack.jlogstash.format.plugin;
 
 import com.dtstack.jlogstash.format.CompressEnum;
 import com.dtstack.jlogstash.format.HiveOutputFormat;
+import com.dtstack.jlogstash.format.util.DateUtil;
 import com.dtstack.jlogstash.format.util.HostUtil;
+import com.dtstack.jlogstash.utils.ExceptionUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
@@ -35,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -98,8 +99,7 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 		}
 		logger.info("hive path:{}", pathStr);
 		// // 此处好像并没有什么卵用
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-		String attempt = "attempt_" + dateFormat.format(new Date())
+		String attempt = "attempt_" + DateUtil.getUnstandardFormatter().format(new Date())
 				+ "_0001_m_000000_" +Thread.currentThread().getId();
 		jobConf.set("mapreduce.task.attempt.id", attempt);
 		FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
@@ -124,7 +124,7 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 					}
 				}
 			} catch (Exception e) {
-				throw new Exception("field convert error, columnName=" + this.columnNames.get(i) +
+				throw new Exception("field convert error:"+ ExceptionUtil.getStackTrace(e)+", columnName=" + this.columnNames.get(i) +
 						", fieldData=" + fieldData, e);
 			}
 		}

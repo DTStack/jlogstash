@@ -53,7 +53,7 @@ public class DirtyDataManager {
         this.tableInfo = tableInfo;
         this.config = configuration;
         this.jobConf = new JobConf(config);
-        outputFormat = new TextOutputFormatBak<>();
+        this.outputFormat = new TextOutputFormatBak<>();
     }
 
     public void writeData(Map row, Throwable ex) {
@@ -68,6 +68,9 @@ public class DirtyDataManager {
     public void open() {
         try {
             String location = String.format("%s/%s-%d.txt", tableInfo.getPath(), HostUtil.getHostName(), Thread.currentThread().getId());
+            String attempt = "attempt_" + DateUtil.getUnstandardFormatter().format(new Date())
+                    + "_0001_m_000000_" +Thread.currentThread().getId();
+            jobConf.set("mapreduce.task.attempt.id", attempt);
             FileOutputFormat.setOutputPath(jobConf, new Path(location));
             this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, location, Reporter.NULL);
 

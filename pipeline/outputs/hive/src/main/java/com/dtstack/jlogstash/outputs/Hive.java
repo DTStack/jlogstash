@@ -142,7 +142,7 @@ public class Hive extends BaseOutput {
 
     private DirtyDataManager dirtyDataManager;
 
-    private static AtomicBoolean dirtyDataRunning = new AtomicBoolean(false);
+    private AtomicBoolean dirtyDataRunning = new AtomicBoolean(false);
 
     static {
         Thread.currentThread().setContextClassLoader(null);

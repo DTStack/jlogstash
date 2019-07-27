@@ -22,6 +22,7 @@ package com.dtstack.jlogstash.format.plugin;
 import com.dtstack.jlogstash.format.CompressEnum;
 import com.dtstack.jlogstash.format.HiveOutputFormat;
 import com.dtstack.jlogstash.format.util.DateUtil;
+import com.dtstack.jlogstash.utils.ExceptionUtil;
 import com.dtstack.jlogstash.format.util.HiveUtil;
 import com.dtstack.jlogstash.format.util.HostUtil;
 import com.google.common.collect.Lists;
@@ -198,7 +199,7 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
 
                 }
             } catch (Exception e) {
-                throw new Exception("field convert error, columnName=" + this.columnNames.get(i) +
+                throw new Exception("field convert error:"+ ExceptionUtil.getStackTrace(e)+", columnName=" + this.columnNames.get(i) +
                         ", columnType=" + this.columnTypes.get(i) +
                         ", fieldData=" + rowData, e);
             }

@@ -231,6 +231,10 @@ public class DateUtil {
         return datetimeFormatter.get().get(STANDARD_DATETIME_FORMAT);
     }
 
+    public static SimpleDateFormat getUnstandardFormatter(){
+        return datetimeFormatter.get().get(UN_STANDARD_DATETIME_FORMAT);
+    }
+
 
     public static SimpleDateFormat getDayFormatter(){
         return datetimeFormatter.get().get(DAY_FORMAT);
