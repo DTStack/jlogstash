@@ -203,10 +203,11 @@ public class Hive extends BaseOutput {
         String tablePath = PathConverterUtil.regaxByRules(event, path, distributeTableMapping);
         try {
             lock.lockInterruptibly();
+
             HiveOutputFormat format = getHdfsOutputFormat(tablePath, event);
 
             try {
-                format.writeRecord(event);
+                format.writeRecord(format.convert2Record(event));
                 dataSize.addAndGet(ObjectSizeCalculator.getObjectSize(event));
             } catch (Throwable e) {
                 if (dirtyDataRunning.compareAndSet(false, true)) {
@@ -245,9 +246,6 @@ public class Hive extends BaseOutput {
             }
             hdfsOutputFormat.configure();
             hdfsOutputFormats.put(hiveTablePath, hdfsOutputFormat);
-        }
-        if (hdfsOutputFormat.isClosed()) {
-            hdfsOutputFormat.open();
         }
         return hdfsOutputFormat;
     }
@@ -292,7 +290,7 @@ public class Hive extends BaseOutput {
             try {
                 Map.Entry<String, HiveOutputFormat> entry = entryIterator.next();
                 entry.getValue().close();
-                if (entry.getValue().isTimeout(TimePartitionFormat.getPartitionEnum())){
+                if (entry.getValue().isTimeout(TimePartitionFormat.getPartitionEnum())) {
                     entryIterator.remove();
                 }
             } catch (Exception e) {

@@ -59,7 +59,7 @@ import java.util.UUID;
  * @author haisi
  */
 public class HiveOrcOutputFormat extends HiveOutputFormat {
-	
+
 	public HiveOrcOutputFormat(Configuration conf, String outputFilePath, List<String> columnNames,
                                List<String> columnTypes, String compress, String writeMode, Charset charset) {
 	   this.conf = conf;
@@ -85,7 +85,7 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
     	super.configure();
         this.orcSerde = new OrcSerde();
         this.outputFormat = new OrcOutputFormat();
-        
+
         this.columnTypeList = Lists.newArrayList();
         for(String columnType : columnTypes) {
             this.columnTypeList.add(HiveUtil.columnTypeToObjectInspetor(columnType));
@@ -121,10 +121,8 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
         this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
     }
 
-    @SuppressWarnings("unchecked")
-	@Override
-    public void writeRecord(Map<String,Object> row) throws Exception {
-        super.writeRecord(row);
+    @Override
+    public Object[] convert2Record(Map<String, Object> row) throws Exception {
         Object[] record = new Object[this.columnSize];
         for(int i = 0; i < this.columnSize; i++) {
             Object column = row.get(this.columnNames.get(i));
@@ -206,6 +204,14 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
 
             record[i] = field;
         }
+        return record;
+    }
+
+    @SuppressWarnings("unchecked")
+	@Override
+    public void writeRecord(Object[] record) throws Exception {
+        super.writeRecord(record);
+
         this.recordWriter.write(NullWritable.get(), this.orcSerde.serialize(Arrays.asList(record), this.inspector));
     }
 }

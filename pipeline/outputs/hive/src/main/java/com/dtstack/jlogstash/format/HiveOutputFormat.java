@@ -66,8 +66,11 @@ public abstract class HiveOutputFormat implements OutputFormat {
     }
 
     @Override
-    public void writeRecord(Map<String, Object> row) throws Exception {
+    public void writeRecord(Object[] record) throws Exception {
         lastRecordTime = System.currentTimeMillis();
+        if (isClosed()) {
+            open();
+        }
     }
 
     @Override

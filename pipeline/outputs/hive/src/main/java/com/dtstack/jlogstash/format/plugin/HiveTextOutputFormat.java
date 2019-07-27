@@ -31,7 +31,6 @@ import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormatBak;
-import org.apache.hadoop.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,10 +105,8 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void writeRecord(Map<String, Object> row) throws Exception {
-		super.writeRecord(row);
+	public Object[] convert2Record(Map<String, Object> row) throws Exception {
 		String[] record = new String[this.columnSize];
 		for (int i = 0; i < this.columnSize; i++) {
 			Object fieldData = row.get(this.columnNames.get(i));
@@ -128,7 +125,23 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 						", fieldData=" + fieldData, e);
 			}
 		}
-		recordWriter.write(NullWritable.get(),
-				new Text(StringUtils.join(delimiter, record)));
+		return record;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void writeRecord(Object[] record) throws Exception {
+		super.writeRecord(record);
+		StringBuilder sb = new StringBuilder();
+		boolean first = true;
+		for (Object s : record) {
+			if (first) {
+				first = false;
+			} else {
+				sb.append(delimiter);
+			}
+			sb.append(s.toString());
+		}
+		recordWriter.write(NullWritable.get(), new Text(sb.toString()));
 	}
 }
