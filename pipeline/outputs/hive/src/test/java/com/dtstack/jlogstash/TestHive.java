@@ -20,6 +20,8 @@ package com.dtstack.jlogstash;
 
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
@@ -42,9 +44,13 @@ public class TestHive {
         conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
         JobConf jobConf = new JobConf(conf);
 
-        FileOutputFormat.setOutputPath(jobConf, new Path("/tmp/zhaotoutian.orc"));
-        OrcOutputFormat outputFormat = new OrcOutputFormat();
-        outputFormat.getRecordWriter(null, jobConf, "/tmp/zhaotoutian.orc", Reporter.NULL);
 
+//        FileOutputFormat.setOutputPath(jobConf, new Path("/tmp/zhaotoutian.orc"));
+//        OrcOutputFormat outputFormat = new OrcOutputFormat();
+//        outputFormat.getRecordWriter(null, jobConf, "/tmp/zhaotoutian.orc", Reporter.NULL);
+
+        FileStatus fs = FileSystem.get(jobConf).listStatus(new Path("/user/hive/warehouse/xq_0702.db/stream_dtstack8_employee/pt=2019072915/dtstack3-34-7cd7ec0f-141e-46d4-8b23-73e0e4aae3f6.orc"))[0];
+        System.out.println(fs.getLen());
+        System.out.println(fs.getBlockSize());
     }
 }

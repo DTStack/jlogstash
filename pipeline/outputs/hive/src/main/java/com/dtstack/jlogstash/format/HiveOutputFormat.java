@@ -37,6 +37,7 @@ public abstract class HiveOutputFormat implements OutputFormat {
 
     protected static final String SP = "/";
     protected static final String DATA_SUBDIR = ".data";
+    protected static final String TRASH_SUBDIR = ".trash";
     protected Charset charset;
     protected String writeMode;
     protected String compress;

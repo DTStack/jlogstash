@@ -127,7 +127,16 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
     @Override
     public void close() throws IOException {
         super.close();
-        FileSystem.get(jobConf).rename(new Path(tmpPath), new Path(finishedPath));
+        Path pathOfFinished =new Path(finishedPath);
+        if (FileSystem.get(jobConf).exists(pathOfFinished)){
+            String trashPath = String.format("%s/%s/%s", outputFilePath, TRASH_SUBDIR, fileName);
+            FileSystem.get(jobConf).rename(pathOfFinished, new Path(trashPath));
+        }
+        Path pathOfTmp =new Path(tmpPath);
+        if (FileSystem.get(jobConf).listStatus(pathOfTmp)[0].getLen() == 0){
+            return;
+        }
+        FileSystem.get(jobConf).rename(pathOfTmp, pathOfFinished);
     }
 
     @Override
