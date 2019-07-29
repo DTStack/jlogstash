@@ -90,19 +90,20 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 	@Override
 	public void open() throws IOException {
 		super.open();
-		String pathStr = null;
 		if (outputFormat instanceof TextOutputFormatBak){
-			 pathStr = String.format("%s/%s-%d.txt", outputFilePath, HostUtil.getHostName(), Thread.currentThread().getId());
+			fileName = String.format("%s-%d.txt", HostUtil.getHostName(), Thread.currentThread().getId());
 		} else {
-			 pathStr = String.format("%s/%s-%d-%s.txt", outputFilePath, HostUtil.getHostName(), Thread.currentThread().getId(), UUID.randomUUID().toString());
+			fileName = String.format("%s-%d-%s.txt", HostUtil.getHostName(), Thread.currentThread().getId(), UUID.randomUUID().toString());
 		}
-		logger.info("hive path:{}", pathStr);
+		tmpPath = String.format("%s/%s/%s", outputFilePath, DATA_SUBDIR, fileName);
+		finishedPath = String.format("%s/%s", outputFilePath, fileName);
+		logger.info("hive tmpPath:{}", tmpPath);
 		// // 此处好像并没有什么卵用
 		String attempt = "attempt_" + DateUtil.getUnstandardFormatter().format(new Date())
 				+ "_0001_m_000000_" +Thread.currentThread().getId();
 		jobConf.set("mapreduce.task.attempt.id", attempt);
-		FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
-		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
+		FileOutputFormat.setOutputPath(jobConf, new Path(tmpPath));
+		this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, tmpPath, Reporter.NULL);
 	}
 
 	@Override

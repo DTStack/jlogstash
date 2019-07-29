@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.common.type.HiveDecimal;
-import org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat;
+import org.apache.hadoop.hive.ql.io.orc.OrcOutputFormatBak;
 import org.apache.hadoop.hive.ql.io.orc.OrcSerde;
 import org.apache.hadoop.hive.serde2.io.HiveDecimalWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
@@ -84,7 +84,7 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
     public void configure() {
     	super.configure();
         this.orcSerde = new OrcSerde();
-        this.outputFormat = new OrcOutputFormat();
+        this.outputFormat = new OrcOutputFormatBak();
 
         this.columnTypeList = Lists.newArrayList();
         for(String columnType : columnTypes) {
@@ -115,10 +115,12 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
     @Override
     public void open() throws IOException {
         super.open();
-        String pathStr = String.format("%s/%s-%d-%s.orc", outputFilePath, HostUtil.getHostName(),Thread.currentThread().getId(),UUID.randomUUID().toString());
-        logger.info("hive path:{}",pathStr);
-        FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
-        this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
+        fileName = String.format("%s-%d-%s.orc", HostUtil.getHostName(), Thread.currentThread().getId(), UUID.randomUUID().toString());
+        tmpPath = String.format("%s/%s/%s", outputFilePath, DATA_SUBDIR, fileName);
+        finishedPath = String.format("%s/%s", outputFilePath, fileName);
+        logger.info("hive tmpPath:{}",tmpPath);
+        FileOutputFormat.setOutputPath(jobConf, new Path(tmpPath));
+        this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, tmpPath, Reporter.NULL);
     }
 
     @Override

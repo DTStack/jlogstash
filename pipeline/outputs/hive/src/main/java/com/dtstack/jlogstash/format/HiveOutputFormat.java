@@ -19,6 +19,9 @@
 package com.dtstack.jlogstash.format;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordWriter;
@@ -37,10 +40,9 @@ import java.util.Map;
 public abstract class HiveOutputFormat implements OutputFormat {
 
     protected static final String SP = "/";
-    protected static final int NEWLINE = 10;
+    protected static final String DATA_SUBDIR = ".data";
     protected Charset charset;
     protected String writeMode;
-    protected boolean overwrite;
     protected String compress;
     protected List<String> columnNames;
     protected int columnSize;
@@ -49,12 +51,12 @@ public abstract class HiveOutputFormat implements OutputFormat {
     protected FileOutputFormat<?, ?> outputFormat;
     protected JobConf jobConf;
     protected Configuration conf;
-    protected Map<String, String> columnNameTypeMap;
-    protected Map<String, Integer> columnNameIndexMap;
     protected RecordWriter recordWriter;
-    protected String fileName;
     protected volatile boolean isClosed = true;
     protected long lastRecordTime = System.currentTimeMillis();
+    protected String fileName;
+    protected String tmpPath;
+    protected String finishedPath;
 
 
     public static ObjectMapper objectMapper = new ObjectMapper();
@@ -85,6 +87,7 @@ public abstract class HiveOutputFormat implements OutputFormat {
             rw.close(Reporter.NULL);
         }
         isClosed = true;
+        FileSystem.get(jobConf).rename(new Path(tmpPath), new Path(finishedPath));
     }
 
     public boolean isClosed() {
