@@ -39,7 +39,6 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 
 /**
@@ -90,11 +89,7 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 	@Override
 	public void open() throws IOException {
 		super.open();
-		if (outputFormat instanceof TextOutputFormatBak){
-			fileName = String.format("%s-%d.txt", HostUtil.getHostName(), Thread.currentThread().getId());
-		} else {
-			fileName = String.format("%s-%d-%s.txt", HostUtil.getHostName(), Thread.currentThread().getId(), UUID.randomUUID().toString());
-		}
+		fileName = String.format("%s-%d.txt", HostUtil.getHostName(), Thread.currentThread().getId());
 		tmpPath = String.format("%s/%s", outputFilePath, fileName);
 		finishedPath = tmpPath;
 		logger.info("hive tmpPath:{} finishedPath:{}", tmpPath, finishedPath);
