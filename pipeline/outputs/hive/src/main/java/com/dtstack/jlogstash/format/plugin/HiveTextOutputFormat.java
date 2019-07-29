@@ -95,9 +95,9 @@ public class HiveTextOutputFormat extends HiveOutputFormat {
 		} else {
 			fileName = String.format("%s-%d-%s.txt", HostUtil.getHostName(), Thread.currentThread().getId(), UUID.randomUUID().toString());
 		}
-		tmpPath = String.format("%s/%s/%s", outputFilePath, DATA_SUBDIR, fileName);
-		finishedPath = String.format("%s/%s", outputFilePath, fileName);
-		logger.info("hive tmpPath:{}", tmpPath);
+		tmpPath = String.format("%s/%s", outputFilePath, fileName);
+		finishedPath = tmpPath;
+		logger.info("hive tmpPath:{} finishedPath:{}", tmpPath, finishedPath);
 		// // 此处好像并没有什么卵用
 		String attempt = "attempt_" + DateUtil.getUnstandardFormatter().format(new Date())
 				+ "_0001_m_000000_" +Thread.currentThread().getId();

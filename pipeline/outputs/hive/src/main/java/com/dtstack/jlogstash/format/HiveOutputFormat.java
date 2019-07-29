@@ -19,9 +19,6 @@
 package com.dtstack.jlogstash.format;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordWriter;
@@ -31,7 +28,6 @@ import org.apache.htrace.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -87,7 +83,6 @@ public abstract class HiveOutputFormat implements OutputFormat {
             rw.close(Reporter.NULL);
         }
         isClosed = true;
-        FileSystem.get(jobConf).rename(new Path(tmpPath), new Path(finishedPath));
     }
 
     public boolean isClosed() {

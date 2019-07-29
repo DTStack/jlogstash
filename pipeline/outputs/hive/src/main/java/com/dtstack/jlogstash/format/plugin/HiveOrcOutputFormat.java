@@ -28,6 +28,7 @@ import com.dtstack.jlogstash.format.util.HostUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.common.type.HiveDecimal;
 import org.apache.hadoop.hive.ql.io.orc.OrcOutputFormatBak;
@@ -118,9 +119,15 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
         fileName = String.format("%s-%d-%s.orc", HostUtil.getHostName(), Thread.currentThread().getId(), UUID.randomUUID().toString());
         tmpPath = String.format("%s/%s/%s", outputFilePath, DATA_SUBDIR, fileName);
         finishedPath = String.format("%s/%s", outputFilePath, fileName);
-        logger.info("hive tmpPath:{}",tmpPath);
+        logger.info("hive tmpPath:{} finishedPath:{}",tmpPath, finishedPath);
         FileOutputFormat.setOutputPath(jobConf, new Path(tmpPath));
         this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, tmpPath, Reporter.NULL);
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        FileSystem.get(jobConf).rename(new Path(tmpPath), new Path(finishedPath));
     }
 
     @Override
