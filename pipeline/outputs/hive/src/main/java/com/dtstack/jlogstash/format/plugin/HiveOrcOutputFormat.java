@@ -1,17 +1,37 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dtstack.jlogstash.format.plugin;
 
 
 import com.dtstack.jlogstash.format.CompressEnum;
 import com.dtstack.jlogstash.format.HiveOutputFormat;
 import com.dtstack.jlogstash.format.util.DateUtil;
+import com.dtstack.jlogstash.utils.ExceptionUtil;
 import com.dtstack.jlogstash.format.util.HiveUtil;
 import com.dtstack.jlogstash.format.util.HostUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.common.type.HiveDecimal;
-import org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat;
+import org.apache.hadoop.hive.ql.io.orc.OrcOutputFormatBak;
 import org.apache.hadoop.hive.ql.io.orc.OrcSerde;
 import org.apache.hadoop.hive.serde2.io.HiveDecimalWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
@@ -40,7 +60,7 @@ import java.util.UUID;
  * @author haisi
  */
 public class HiveOrcOutputFormat extends HiveOutputFormat {
-	
+
 	public HiveOrcOutputFormat(Configuration conf, String outputFilePath, List<String> columnNames,
                                List<String> columnTypes, String compress, String writeMode, Charset charset) {
 	   this.conf = conf;
@@ -65,8 +85,8 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
     public void configure() {
     	super.configure();
         this.orcSerde = new OrcSerde();
-        this.outputFormat = new OrcOutputFormat();
-        
+        this.outputFormat = new OrcOutputFormatBak();
+
         this.columnTypeList = Lists.newArrayList();
         for(String columnType : columnTypes) {
             this.columnTypeList.add(HiveUtil.columnTypeToObjectInspetor(columnType));
@@ -95,15 +115,32 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
 
     @Override
     public void open() throws IOException {
-        String pathStr = String.format("%s/%s-%d-%s.orc", outputFilePath, HostUtil.getHostName(),Thread.currentThread().getId(),UUID.randomUUID().toString());
-        logger.info("hive path:{}",pathStr);
-        FileOutputFormat.setOutputPath(jobConf, new Path(pathStr));
-        this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, pathStr, Reporter.NULL);
+        super.open();
+        fileName = String.format("%s-%d-%s.orc", HostUtil.getHostName(), Thread.currentThread().getId(), UUID.randomUUID().toString());
+        tmpPath = String.format("%s/%s/%s", outputFilePath, DATA_SUBDIR, fileName);
+        finishedPath = String.format("%s/%s", outputFilePath, fileName);
+        logger.info("hive tmpPath:{} finishedPath:{}",tmpPath, finishedPath);
+        FileOutputFormat.setOutputPath(jobConf, new Path(tmpPath));
+        this.recordWriter = this.outputFormat.getRecordWriter(null, jobConf, tmpPath, Reporter.NULL);
     }
 
-    @SuppressWarnings("unchecked")
-	@Override
-    public void writeRecord(Map<String,Object> row) throws IOException {
+    @Override
+    public void close() throws IOException {
+        super.close();
+        Path pathOfFinished =new Path(finishedPath);
+        if (FileSystem.get(jobConf).exists(pathOfFinished)){
+            String trashPath = String.format("%s/%s/%s", outputFilePath, TRASH_SUBDIR, fileName);
+            FileSystem.get(jobConf).rename(pathOfFinished, new Path(trashPath));
+        }
+        Path pathOfTmp =new Path(tmpPath);
+        if (FileSystem.get(jobConf).listStatus(pathOfTmp)[0].getLen() == 0){
+            return;
+        }
+        FileSystem.get(jobConf).rename(pathOfTmp, pathOfFinished);
+    }
+
+    @Override
+    public Object[] convert2Record(Map<String, Object> row) throws Exception {
         Object[] record = new Object[this.columnSize];
         for(int i = 0; i < this.columnSize; i++) {
             Object column = row.get(this.columnNames.get(i));
@@ -117,67 +154,82 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
                 continue;
             }
             Object field = null;
-            switch(this.columnTypes.get(i).toUpperCase()) {
-                case "TINYINT":
-                    field = Byte.valueOf(rowData);
-                    break;
-                case "SMALLINT":
-                    field = Short.valueOf(rowData);
-                    break;
-                case "INT":
-                    field = Integer.valueOf(rowData);
-                    break;
-                case "BIGINT":
-                    if (column instanceof Timestamp){
-                        field=((Timestamp) column).getTime();
+            try {
+                switch(this.columnTypes.get(i).toUpperCase()) {
+                    case "TINYINT":
+                        field = Byte.valueOf(rowData);
                         break;
-                    }
-                    BigInteger data = new BigInteger(rowData);
-                    if (data.compareTo(new BigInteger(String.valueOf(Long.MAX_VALUE))) > 0){
-                        field = data;
-                    } else {
-                        field = Long.valueOf(rowData);
-                    }
-                    break;
-                case "FLOAT":
-                    field = Float.valueOf(rowData);
-                    break;
-                case "DOUBLE":
-                    field = Double.valueOf(rowData);
-                    break;
-                case "DECIMAL":
-                    HiveDecimal hiveDecimal = HiveDecimal.create(new BigDecimal(rowData));
-                    HiveDecimalWritable hiveDecimalWritable = new HiveDecimalWritable(hiveDecimal);
-                    field = hiveDecimalWritable;
-                    break;
-                case "STRING":
-                case "VARCHAR":
-                case "CHAR":
-                    if (column instanceof Timestamp){
-                        SimpleDateFormat fm = DateUtil.getDateTimeFormatter();
-                        field = fm.format(column);
-                    }else {
+                    case "SMALLINT":
+                        field = Short.valueOf(rowData);
+                        break;
+                    case "INT":
+                        field = Integer.valueOf(rowData);
+                        break;
+                    case "BIGINT":
+                        if (column instanceof Timestamp){
+                            field=((Timestamp) column).getTime();
+                            break;
+                        }
+                        BigInteger data = new BigInteger(rowData);
+                        if (data.compareTo(new BigInteger(String.valueOf(Long.MAX_VALUE))) > 0){
+                            field = data;
+                        } else {
+                            field = Long.valueOf(rowData);
+                        }
+                        break;
+                    case "FLOAT":
+                        field = Float.valueOf(rowData);
+                        break;
+                    case "DOUBLE":
+                        field = Double.valueOf(rowData);
+                        break;
+                    case "DECIMAL":
+                        HiveDecimal hiveDecimal = HiveDecimal.create(new BigDecimal(rowData));
+                        HiveDecimalWritable hiveDecimalWritable = new HiveDecimalWritable(hiveDecimal);
+                        field = hiveDecimalWritable;
+                        break;
+                    case "STRING":
+                    case "VARCHAR":
+                    case "CHAR":
+                        if (column instanceof Timestamp){
+                            SimpleDateFormat fm = DateUtil.getDateTimeFormatter();
+                            field = fm.format(column);
+                        }else {
+                            field = rowData;
+                        }
+                        break;
+                    case "BOOLEAN":
+                        field = Boolean.valueOf(rowData);
+                        break;
+                    case "DATE":
+                        field = DateUtil.columnToDate(column, null);
+                        break;
+                    case "TIMESTAMP":
+                        field = DateUtil.columnToTimestamp(column, null);
+                        break;
+                    case "BINARY":
+                        field = new BytesWritable(rowData.getBytes());
+                        break;
+                    default:
                         field = rowData;
-                    }
-                    break;
-                case "BOOLEAN":
-                    field = Boolean.valueOf(rowData);
-                    break;
-                case "DATE":
-                    field = DateUtil.columnToDate(column, null);
-                    break;
-                case "TIMESTAMP":
-                    field = DateUtil.columnToTimestamp(column, null);
-                    break;
-                case "BINARY":
-                    field = new BytesWritable(rowData.getBytes());
-                    break;
-                default:
-                    field = rowData;
 
+                }
+            } catch (Exception e) {
+                throw new Exception("field convert error:"+ ExceptionUtil.getStackTrace(e)+", columnName=" + this.columnNames.get(i) +
+                        ", columnType=" + this.columnTypes.get(i) +
+                        ", fieldData=" + rowData, e);
             }
+
             record[i] = field;
         }
+        return record;
+    }
+
+    @SuppressWarnings("unchecked")
+	@Override
+    public void writeRecord(Object[] record) throws Exception {
+        super.writeRecord(record);
+
         this.recordWriter.write(NullWritable.get(), this.orcSerde.serialize(Arrays.asList(record), this.inspector));
     }
 }

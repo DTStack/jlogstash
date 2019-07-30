@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dtstack.jlogstash.format;
 
 import org.apache.hadoop.conf.Configuration;
@@ -10,31 +28,35 @@ import org.apache.htrace.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 
 
 /**
  * @author haisi
  */
-public abstract class HiveOutputFormat implements  OutputFormat {
+public abstract class HiveOutputFormat implements OutputFormat {
 
     protected static final String SP = "/";
-    protected static final int NEWLINE = 10;
+    protected static final String DATA_SUBDIR = ".data";
+    protected static final String TRASH_SUBDIR = ".trash";
+    private static final long CONSTANT_TWO_DAY_TIME = 1000 * 60 * 60 * 24 * 2;
+    private static final long CONSTANT_TWO_HOUR_TIME = 1000 * 60 * 60 * 2;
+    private static final long CONSTANT_TWO_MINUTE_TIME = 1000 * 60 * 2;
     protected Charset charset;
     protected String writeMode;
-    protected boolean overwrite;
     protected String compress;
     protected List<String> columnNames;
     protected int columnSize;
     protected List<String> columnTypes;
-    protected  String outputFilePath;
-    protected  FileOutputFormat<?, ?> outputFormat;
-    protected  JobConf jobConf;
-    protected  Configuration conf;
-    protected  Map<String, String> columnNameTypeMap;
-    protected  Map<String, Integer> columnNameIndexMap;
-    protected  RecordWriter recordWriter;
+    protected String outputFilePath;
+    protected FileOutputFormat<?, ?> outputFormat;
+    protected JobConf jobConf;
+    protected Configuration conf;
+    protected RecordWriter recordWriter;
+    protected volatile boolean isClosed = true;
+    protected long lastRecordTime = System.currentTimeMillis();
     protected String fileName;
+    protected String tmpPath;
+    protected String finishedPath;
 
 
     public static ObjectMapper objectMapper = new ObjectMapper();
@@ -46,14 +68,42 @@ public abstract class HiveOutputFormat implements  OutputFormat {
     }
 
     @Override
-    public abstract void writeRecord(Map<String,Object> row) throws IOException;
+    public void writeRecord(Object[] record) throws Exception {
+        lastRecordTime = System.currentTimeMillis();
+        if (isClosed()) {
+            open();
+        }
+    }
+
+    @Override
+    public void open() throws IOException {
+        isClosed = false;
+    }
 
     @Override
     public void close() throws IOException {
         RecordWriter<?, ?> rw = this.recordWriter;
-        if(rw != null) {
+        if (rw != null && !isClosed) {
             rw.close(Reporter.NULL);
         }
+        isClosed = true;
     }
-    
+
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    public boolean isTimeout(TimePartitionFormat.PartitionEnum partitionEnum) {
+        if (null == partitionEnum) {
+            return false;
+        } else if (TimePartitionFormat.PartitionEnum.DAY == partitionEnum) {
+            return (System.currentTimeMillis() - lastRecordTime) >= CONSTANT_TWO_DAY_TIME;
+        } else if (TimePartitionFormat.PartitionEnum.HOUR == partitionEnum) {
+            return (System.currentTimeMillis() - lastRecordTime) >= CONSTANT_TWO_HOUR_TIME;
+        } else if (TimePartitionFormat.PartitionEnum.MINUTE == partitionEnum) {
+            return (System.currentTimeMillis() - lastRecordTime) >= CONSTANT_TWO_MINUTE_TIME;
+        } else {
+            return true;
+        }
+    }
 }

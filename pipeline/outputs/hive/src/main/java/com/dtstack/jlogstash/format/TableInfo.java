@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dtstack.jlogstash.format;
 
 import java.util.ArrayList;
@@ -18,12 +36,14 @@ public class TableInfo {
     private String path;
     private String store;
     private String delimiter;
+    private List<String> partitions;
 
     private final static String PATH_TEMPLATE = "/user/hive/warehouse/%s.db/%s";
 
     public TableInfo(int columnSize) {
         columns = new ArrayList<>(columnSize);
         columnTypes = new ArrayList<>(columnSize);
+        partitions = new ArrayList<>();
     }
 
     public void addColumnAndType(String columnName, String columnType) {
@@ -80,9 +100,6 @@ public class TableInfo {
     }
 
     public String getPath() {
-        if (tableName == null) {
-            throw new RuntimeException("tableName must be not null");
-        }
         if (path == null) {
             return String.format(PATH_TEMPLATE, database, getTablePath());
         }
@@ -109,6 +126,18 @@ public class TableInfo {
         this.delimiter = delimiter;
     }
 
+    public List<String> getPartitions() {
+        return partitions;
+    }
+
+    public void setPartitions(List<String> partitions) {
+        this.partitions = partitions;
+    }
+
+    public void addPartition(String partitionField) {
+        this.partitions.add(partitionField);
+    }
+
     @Override
     public String toString() {
         return "TableInfo{" +
@@ -121,6 +150,7 @@ public class TableInfo {
                 ", path='" + path + '\'' +
                 ", store='" + store + '\'' +
                 ", delimiter='" + delimiter + '\'' +
+                ", partitions='" + partitions + '\'' +
                 '}';
     }
 }

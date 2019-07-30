@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dtstack.jlogstash.format.util;
 
 import java.sql.Connection;
@@ -7,7 +25,6 @@ import java.util.regex.Pattern;
 
 import com.dtstack.jlogstash.format.StoreEnum;
 import com.dtstack.jlogstash.format.TableInfo;
-import org.apache.commons.collections.MapUtils;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.slf4j.Logger;
@@ -26,8 +43,9 @@ public class HiveUtil {
 
     private static final String PATTERN_STR = "Storage\\(Location: (.*), InputFormat: (.*), OutputFormat: (.*) Serde: (.*) Properties: \\[(.*)\\]";
     private static final Pattern PATTERN = Pattern.compile(PATTERN_STR);
-
+    private static final String CREATE_PARTITION_TEMPLATE = "alter table %s add if not exists partition (%s)";
     private static final Pattern DELIMITER_PATTERN = Pattern.compile("field\\.delim=(.*), ");
+    private static final String CREATE_DIRTY_DATA_TABLE_TEMPLATE = "CREATE TABLE IF NOT EXISTS dirty_%s (event STRING, error STRING, created STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\u0001' LINES TERMINATED BY '\\n' STORED AS TEXTFILE";
 
     private static final String TEXT_FORMAT = "TextOutputFormat";
     private static final String ORC_FORMAT = "OrcOutputFormat";
@@ -38,8 +56,6 @@ public class HiveUtil {
 
     public final static String TABLE_COLUMN_KEY = "key";
     public final static String TABLE_COLUMN_TYPE = "type";
-
-//    private static final String OVERWRITE="OVERWRITE";
 
     private String jdbcUrl;
     private String username;
@@ -56,6 +72,24 @@ public class HiveUtil {
         this.writeMode = writeMode;
     }
 
+    public TableInfo createDirtyDataTable(String tableName) {
+        Connection connection = null;
+        try {
+            connection = DBUtil.getConnection(jdbcUrl, username, password);
+            String sql = String.format(CREATE_DIRTY_DATA_TABLE_TEMPLATE, tableName);
+            DBUtil.executeSqlWithoutResultSet(connection, sql);
+            TableInfo tableInfo = new TableInfo(0);
+            tableInfo.setTablePath(tableName);
+            fillTableInfo(connection, tableInfo);
+            return tableInfo;
+        } catch (Exception e) {
+            logger.error("", e);
+            throw e;
+        } finally {
+            DBUtil.closeDBResources(null, null, connection);
+        }
+    }
+
     public void createHiveTableWithTableInfo(TableInfo tableInfo) {
         Connection connection = null;
         try {
@@ -64,6 +98,24 @@ public class HiveUtil {
             fillTableInfo(connection, tableInfo);
         } catch (Exception e) {
             logger.error("", e);
+            throw e;
+        } finally {
+            DBUtil.closeDBResources(null, null, connection);
+        }
+    }
+
+    /**
+     * 创建hive的分区
+     */
+    public void createPartition(TableInfo tableInfo, String partition) {
+        Connection connection = null;
+        try {
+            connection = DBUtil.getConnection(jdbcUrl, username, password);
+            String sql = String.format(CREATE_PARTITION_TEMPLATE, tableInfo.getTablePath(), partition);
+            DBUtil.executeSqlWithoutResultSet(connection, sql);
+        } catch (Exception e) {
+            logger.error("", e);
+            throw e;
         } finally {
             DBUtil.closeDBResources(null, null, connection);
         }
@@ -86,7 +138,7 @@ public class HiveUtil {
         } catch (Exception e) {
             if (overwrite || !e.getMessage().contains(TableExistException) && !e.getMessage().contains(TableAlreadyExistsException)) {
                 logger.error("create table happens error:{}", e);
-                System.exit(-1);
+                throw new RuntimeException("create table happens error", e);
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Not need create table:{}, it's already exist", tableInfo.getTablePath());
@@ -138,22 +190,29 @@ public class HiveUtil {
     }
 
 
-    public static String getCreateTableHql(List<Map<String, Object>> tablesColumn, String delimiter, String store) {
+    public static String getCreateTableHql(TableInfo tableInfo) {
         //不要使用create table if not exist，可能以后会在业务逻辑中判断表是否已经存在
         StringBuilder fieldsb = new StringBuilder("CREATE TABLE %s (");
-        for (int i = 0; i < tablesColumn.size(); i++) {
-            Map<String, Object> fieldColumn = tablesColumn.get(i);
-            fieldsb.append(String.format("%s %s", MapUtils.getString(fieldColumn, TABLE_COLUMN_KEY), convertType(MapUtils.getString(fieldColumn, TABLE_COLUMN_TYPE))));
-            if (i != tablesColumn.size() - 1) {
+        for (int i = 0; i < tableInfo.getColumns().size(); i++) {
+            fieldsb.append(String.format("`%s` %s", tableInfo.getColumns().get(i), convertType(tableInfo.getColumnTypes().get(i))));
+            if (i != tableInfo.getColumns().size() - 1) {
                 fieldsb.append(",");
             }
         }
-        if (StoreEnum.TEXT.name().equalsIgnoreCase(store)) {
-            fieldsb.append(") ROW FORMAT DELIMITED FIELDS TERMINATED BY '");
-            fieldsb.append(delimiter);
+        fieldsb.append(") ");
+        if (!tableInfo.getPartitions().isEmpty()) {
+            fieldsb.append(" PARTITIONED BY (");
+            for (String partitionField : tableInfo.getPartitions()) {
+                fieldsb.append(String.format("`%s` string", partitionField));
+            }
+            fieldsb.append(") ");
+        }
+        if (StoreEnum.TEXT.name().equalsIgnoreCase(tableInfo.getStore())) {
+            fieldsb.append(" ROW FORMAT DELIMITED FIELDS TERMINATED BY '");
+            fieldsb.append(tableInfo.getDelimiter());
             fieldsb.append("' LINES TERMINATED BY '\\n' STORED AS TEXTFILE ");
         } else {
-            fieldsb.append(") STORED AS ORC ");
+            fieldsb.append(" STORED AS ORC ");
         }
         return fieldsb.toString();
     }
