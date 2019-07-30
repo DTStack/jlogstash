@@ -49,17 +49,22 @@ public class JlogstashMetric {
 
     public static JlogstashMetric getInstance(List<Map> m) {
         metrics = m;
+        init();
         return jlogstashMetric;
     }
 
+
+
     public JlogstashMetric() {
+    }
+
+    private static void init(){
         String hostname = LocalIpAddressUtil.getLocalAddress();
 
         metricRegistry = new MetricRegistryImpl(metrics);
         jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry);
         pipelineInputMetricGroup = new PipelineInputMetricGroup<>(metricRegistry, hostname, "input", "", CmdLineParams.getName());
         pipelineOutputMetricGroup = new PipelineOutputMetricGroup<>(metricRegistry, hostname, "output", "", CmdLineParams.getName());
-
     }
 
     public static JlogstashJobMetricGroup getJlogstashJobMetricGroup() {
