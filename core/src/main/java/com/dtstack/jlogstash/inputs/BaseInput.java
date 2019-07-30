@@ -28,11 +28,8 @@ package com.dtstack.jlogstash.inputs;
 
 import java.util.Map;
 
-import com.dtstack.jlogstash.assembly.CmdLineParams;
 import com.dtstack.jlogstash.decoder.JsonMessageDecoder;
-import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
-import com.dtstack.jlogstash.metrics.groups.PipelineInputMetricGroup;
-import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
+import com.dtstack.jlogstash.metrics.JlogstashMetric;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +54,6 @@ public abstract class BaseInput implements IBaseInput, java.io.Serializable {
     protected Map<String, Object> addFields = null;
 
     protected static BasePluginUtil basePluginUtil = new BasePluginUtil();
-
-    private static MetricRegistryImpl metricRegistry;
-
-    private PipelineInputMetricGroup pipelineInputMetricGroup;
 
     private IDecode createDecoder() {
         String codec = (String) this.config.get("codec");
@@ -113,11 +106,6 @@ public abstract class BaseInput implements IBaseInput, java.io.Serializable {
         if (this.config != null) {
             addFields = (Map<String, Object>) this.config.get("addFields");
         }
-        if (metricRegistry != null) {
-            String hostname = LocalIpAddressUtil.getLocalAddress();
-            String pluginName = this.getClass().getSimpleName();
-            pipelineInputMetricGroup = new PipelineInputMetricGroup(metricRegistry, hostname, "input", pluginName, CmdLineParams.getName());
-        }
     }
 
     public void process(Map<String, Object> event) {
@@ -125,9 +113,9 @@ public abstract class BaseInput implements IBaseInput, java.io.Serializable {
             if (addFields != null) {
                 basePluginUtil.addFields(event, addFields);
             }
-            if (pipelineInputMetricGroup != null) {
-                pipelineInputMetricGroup.getNumRecordsInCounter().inc();
-                pipelineInputMetricGroup.getNumBytesInLocalCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+            if (JlogstashMetric.getPipelineInputMetricGroup() != null) {
+                JlogstashMetric.getPipelineInputMetricGroup().getNumRecordsInCounter().inc();
+                JlogstashMetric.getPipelineInputMetricGroup().getNumBytesInLocalCounter().inc(ObjectSizeCalculator.getObjectSize(event));
             }
             inputQueueList.put(event);
         }
@@ -146,7 +134,4 @@ public abstract class BaseInput implements IBaseInput, java.io.Serializable {
         return inputQueueList;
     }
 
-    public static void setMetricRegistry(MetricRegistryImpl metricRegistry) {
-        BaseInput.metricRegistry = metricRegistry;
-    }
 }

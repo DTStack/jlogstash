@@ -20,8 +20,7 @@ package com.dtstack.jlogstash.assembly;
 import java.util.List;
 
 import com.dtstack.jlogstash.inputs.IBaseInput;
-import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
-import com.dtstack.jlogstash.metrics.groups.JlogstashJobMetricGroup;
+import com.dtstack.jlogstash.metrics.JlogstashMetric;
 import com.dtstack.jlogstash.outputs.IBaseOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,22 +46,18 @@ public class ShutDownHook {
 
     private List<IBaseOutput> baseOutputs;
 
-    private MetricRegistryImpl metricRegistry;
-
-    private JlogstashJobMetricGroup jlogstashJobMetricGroup;
+    private JlogstashMetric jlogstashMetric;
 
     public ShutDownHook(QueueList initFilterQueueList,
                         QueueList initOutputQueueList,
                         List<IBaseInput> baseInputs,
                         List<IBaseOutput> baseOutputs,
-                        MetricRegistryImpl metricRegistry,
-                        JlogstashJobMetricGroup jlogstashJobMetricGroup) {
+                        JlogstashMetric jlogstashMetric) {
         this.initFilterQueueList = initFilterQueueList;
         this.initOutputQueueList = initOutputQueueList;
         this.baseInputs = baseInputs;
         this.baseOutputs = baseOutputs;
-        this.metricRegistry = metricRegistry;
-        this.jlogstashJobMetricGroup = jlogstashJobMetricGroup;
+        this.jlogstashMetric = jlogstashMetric;
     }
 
     public void addShutDownHook() {
@@ -100,13 +95,8 @@ public class ShutDownHook {
         }
 
         private void metricsRelease() {
-            if (jlogstashJobMetricGroup != null) {
-                jlogstashJobMetricGroup.close();
-            }
-            // metrics shutdown
-            if (metricRegistry != null) {
-                metricRegistry.shutdown();
-                metricRegistry = null;
+            if (jlogstashMetric != null) {
+                jlogstashMetric.close();
             }
         }
 

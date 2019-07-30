@@ -55,6 +55,7 @@ public class MetricUtils {
 		final JlogstashJobMetricGroup jobMetricGroup = new JlogstashJobMetricGroup(metricRegistry, LocalIpAddressUtil.getLocalAddress(), CmdLineParams.getName());
 
 		MetricGroup statusGroup = jobMetricGroup.addGroup(METRIC_GROUP_STATUS_NAME);
+		MetricGroup pipelineGroup = jobMetricGroup.addGroup("pipeline");
 
 		// Initialize the TM metrics
 		instantiateStatusMetrics(statusGroup);

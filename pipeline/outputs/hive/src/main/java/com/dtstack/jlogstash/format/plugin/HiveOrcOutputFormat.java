@@ -131,9 +131,11 @@ public class HiveOrcOutputFormat extends HiveOutputFormat {
         if (FileSystem.get(jobConf).exists(pathOfFinished)){
             String trashPath = String.format("%s/%s/%s", outputFilePath, TRASH_SUBDIR, fileName);
             FileSystem.get(jobConf).rename(pathOfFinished, new Path(trashPath));
+            logger.warn("finishedPath:{} is already exist, rename to trashPath:{}", finishedPath, trashPath);
         }
         Path pathOfTmp =new Path(tmpPath);
         if (FileSystem.get(jobConf).listStatus(pathOfTmp)[0].getLen() == 0){
+            logger.warn("tmpPath:{} file size is zero, keep it in its original location", tmpPath);
             return;
         }
         FileSystem.get(jobConf).rename(pathOfTmp, pathOfFinished);

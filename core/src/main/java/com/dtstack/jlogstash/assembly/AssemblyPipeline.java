@@ -27,6 +27,7 @@ import com.dtstack.jlogstash.exception.LogstashException;
 import com.dtstack.jlogstash.factory.InputFactory;
 import com.dtstack.jlogstash.inputs.BaseInput;
 import com.dtstack.jlogstash.inputs.IBaseInput;
+import com.dtstack.jlogstash.metrics.JlogstashMetric;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import com.dtstack.jlogstash.metrics.groups.JlogstashJobMetricGroup;
 import com.dtstack.jlogstash.metrics.util.MetricUtils;
@@ -60,9 +61,7 @@ public class AssemblyPipeline {
 
     private List<IBaseOutput> allBaseOutputs = Lists.newCopyOnWriteArrayList();
 
-    private MetricRegistryImpl metricRegistry;
-
-    private JlogstashJobMetricGroup jlogstashJobMetricGroup;
+    private JlogstashMetric jlogstashMetric;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void assemblyPipeline() throws Exception {
@@ -81,10 +80,7 @@ public class AssemblyPipeline {
 
         List<Map> metrics = configs.getMetrics();
         if (CollectionUtils.isNotEmpty(metrics)) {
-            metricRegistry = new MetricRegistryImpl(metrics);
-            jlogstashJobMetricGroup = MetricUtils.instantiateTaskManagerMetricGroup(metricRegistry);
-            BaseInput.setMetricRegistry(metricRegistry);
-            BaseOutput.setMetricRegistry(metricRegistry);
+            jlogstashMetric = JlogstashMetric.getInstance(metrics);
         }
         if (CollectionUtils.isNotEmpty(filters)) {
             initFilterQueueList = FilterQueueList.getFilterQueueListInstance(CmdLineParams.getFilterWork(), CmdLineParams.getFilterQueueSize());
@@ -103,7 +99,7 @@ public class AssemblyPipeline {
     }
 
     private void addShutDownHook() {
-        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs, metricRegistry, jlogstashJobMetricGroup);
+        ShutDownHook shutDownHook = new ShutDownHook(initFilterQueueList, initOutputQueueList, baseInputs, allBaseOutputs, jlogstashMetric);
         shutDownHook.addShutDownHook();
     }
 }
