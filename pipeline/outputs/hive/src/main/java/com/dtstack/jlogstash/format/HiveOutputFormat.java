@@ -38,6 +38,9 @@ public abstract class HiveOutputFormat implements OutputFormat {
     protected static final String SP = "/";
     protected static final String DATA_SUBDIR = ".data";
     protected static final String TRASH_SUBDIR = ".trash";
+    private static final long CONSTANT_TWO_DAY_TIME = 1000 * 60 * 60 * 24 * 2;
+    private static final long CONSTANT_TWO_HOUR_TIME = 1000 * 60 * 60 * 2;
+    private static final long CONSTANT_TWO_MINUTE_TIME = 1000 * 60 * 2;
     protected Charset charset;
     protected String writeMode;
     protected String compress;
@@ -94,11 +97,11 @@ public abstract class HiveOutputFormat implements OutputFormat {
         if (null == partitionEnum) {
             return false;
         } else if (TimePartitionFormat.PartitionEnum.DAY == partitionEnum) {
-            return (System.currentTimeMillis() - lastRecordTime) >= 86400000 * 2;
+            return (System.currentTimeMillis() - lastRecordTime) >= CONSTANT_TWO_DAY_TIME;
         } else if (TimePartitionFormat.PartitionEnum.HOUR == partitionEnum) {
-            return (System.currentTimeMillis() - lastRecordTime) >= 3600000 * 2;
+            return (System.currentTimeMillis() - lastRecordTime) >= CONSTANT_TWO_HOUR_TIME;
         } else if (TimePartitionFormat.PartitionEnum.MINUTE == partitionEnum) {
-            return (System.currentTimeMillis() - lastRecordTime) >= 60000 * 2;
+            return (System.currentTimeMillis() - lastRecordTime) >= CONSTANT_TWO_MINUTE_TIME;
         } else {
             return true;
         }
