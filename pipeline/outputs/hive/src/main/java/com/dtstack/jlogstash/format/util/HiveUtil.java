@@ -45,7 +45,7 @@ public class HiveUtil {
     private static final Pattern PATTERN = Pattern.compile(PATTERN_STR);
     private static final String CREATE_PARTITION_TEMPLATE = "alter table %s add if not exists partition (%s)";
     private static final Pattern DELIMITER_PATTERN = Pattern.compile("field\\.delim=(.*), ");
-    private static final String CREATE_DIRTY_DATA_TABLE_TEMPLATE = "CREATE TABLE IF NOT EXISTS %s (event STRING, error STRING, created STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\u0001' LINES TERMINATED BY '\\n' STORED AS TEXTFILE";
+    private static final String CREATE_DIRTY_DATA_TABLE_TEMPLATE = "CREATE TABLE IF NOT EXISTS %s_dirtydata (event STRING, error STRING, created STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\u0001' LINES TERMINATED BY '\\n' STORED AS TEXTFILE";
 
     private static final String TEXT_FORMAT = "TextOutputFormat";
     private static final String ORC_FORMAT = "OrcOutputFormat";
