@@ -30,13 +30,28 @@ public class ExceptionUtil {
      * @return
      */
     public static String getStackTrace(Throwable t) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
+        StringWriter sw = null;
+        PrintWriter pw = null;
         try {
+            sw = new StringWriter();
+            pw = new PrintWriter(sw);
             t.printStackTrace(pw);
-            return sw.toString();
+            pw.flush();
+            sw.flush();
+            StringBuffer buffer = sw.getBuffer();
+            return buffer.toString();
         } finally {
-            pw.close();
+            if (pw != null) {
+                pw.close();
+            }
+            if (sw != null) {
+                try {
+                    sw.close();
+                } catch (Throwable e) {
+                }
+            }
         }
     }
+
+
 }
