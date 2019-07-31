@@ -18,6 +18,8 @@
 
 package com.dtstack.jlogstash.metrics.base;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * A simple low-overhead {@link Counter} that is not thread-safe.
  *
@@ -26,14 +28,14 @@ package com.dtstack.jlogstash.metrics.base;
 public class SimpleCounter implements Counter {
 
 	/** the current count. */
-	private long count;
+	private AtomicLong count = new AtomicLong(0);
 
 	/**
 	 * Increment the current count by 1.
 	 */
 
 	public void inc() {
-		count++;
+		count.incrementAndGet();
 	}
 
 	/**
@@ -42,14 +44,14 @@ public class SimpleCounter implements Counter {
 	 * @param n value to increment the current count by
 	 */
 	public void inc(long n) {
-		count += n;
+		count.addAndGet(n);
 	}
 
 	/**
 	 * Decrement the current count by 1.
 	 */
 	public void dec() {
-		count--;
+		count.decrementAndGet();
 	}
 
 	/**
@@ -58,7 +60,7 @@ public class SimpleCounter implements Counter {
 	 * @param n value to decrement the current count by
 	 */
 	public void dec(long n) {
-		count -= n;
+		count.addAndGet(-n);
 	}
 
 	/**
@@ -67,7 +69,7 @@ public class SimpleCounter implements Counter {
 	 * @return current count
 	 */
 	public long getCount() {
-		return count;
+		return count.get();
 	}
 
 }

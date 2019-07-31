@@ -113,11 +113,11 @@ public abstract class BaseInput implements IBaseInput, java.io.Serializable {
             if (addFields != null) {
                 basePluginUtil.addFields(event, addFields);
             }
+            inputQueueList.put(event);
             if (JlogstashMetric.getPipelineInputMetricGroup() != null) {
                 JlogstashMetric.getPipelineInputMetricGroup().getNumRecordsInCounter().inc();
                 JlogstashMetric.getPipelineInputMetricGroup().getNumBytesInLocalCounter().inc(ObjectSizeCalculator.getObjectSize(event));
             }
-            inputQueueList.put(event);
         }
     }
 
