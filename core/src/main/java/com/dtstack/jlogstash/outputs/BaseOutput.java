@@ -106,12 +106,12 @@ public abstract class BaseOutput implements IBaseOutput, java.io.Serializable{
 					}
 				}
 			}
-			if (succuess == true) {
-				this.emit(event);
+			if (succuess) {
 				if (JlogstashMetric.getPipelineOutputMetricGroup() !=null){
 					JlogstashMetric.getPipelineOutputMetricGroup().getNumRecordsOutCounter().inc();
 					JlogstashMetric.getPipelineOutputMetricGroup().getNumBytesOutCounter().inc(ObjectSizeCalculator.getObjectSize(event));
 				}
+				this.emit(event);
 			}
 		}
 	}
