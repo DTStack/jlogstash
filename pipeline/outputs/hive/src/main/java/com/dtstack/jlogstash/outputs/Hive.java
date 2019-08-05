@@ -340,7 +340,7 @@ public class Hive extends BaseOutput {
             tableInfo.setStore(store);
             tableInfo.setTableName(tableName);
             for (Map<String, Object> column : tableColumns) {
-                tableInfo.addColumnAndType(MapUtils.getString(column, HiveUtil.TABLE_COLUMN_KEY), MapUtils.getString(column, HiveUtil.TABLE_COLUMN_TYPE));
+                tableInfo.addColumnAndType(MapUtils.getString(column, HiveUtil.TABLE_COLUMN_KEY),  HiveUtil.convertType(MapUtils.getString(column, HiveUtil.TABLE_COLUMN_TYPE)));
             }
             String createTableSql = HiveUtil.getCreateTableHql(tableInfo);
             tableInfo.setCreateTableSql(createTableSql);

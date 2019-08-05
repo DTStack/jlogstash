@@ -194,7 +194,7 @@ public class HiveUtil {
         //不要使用create table if not exist，可能以后会在业务逻辑中判断表是否已经存在
         StringBuilder fieldsb = new StringBuilder("CREATE TABLE %s (");
         for (int i = 0; i < tableInfo.getColumns().size(); i++) {
-            fieldsb.append(String.format("`%s` %s", tableInfo.getColumns().get(i), convertType(tableInfo.getColumnTypes().get(i))));
+            fieldsb.append(String.format("`%s` %s", tableInfo.getColumns().get(i), tableInfo.getColumnTypes().get(i)));
             if (i != tableInfo.getColumns().size() - 1) {
                 fieldsb.append(",");
             }
@@ -217,7 +217,7 @@ public class HiveUtil {
         return fieldsb.toString();
     }
 
-    private static String convertType(String type) {
+    public static String convertType(String type) {
         switch (type.toUpperCase()) {
             case "BIT":
             case "TINYINT":
