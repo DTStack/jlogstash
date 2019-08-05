@@ -219,6 +219,7 @@ public class HiveUtil {
 
     private static String convertType(String type) {
         switch (type.toUpperCase()) {
+            case "BIT":
             case "TINYINT":
                 type = "TINYINT";
                 break;
@@ -226,26 +227,58 @@ public class HiveUtil {
                 type = "SMALLINT";
                 break;
             case "INT":
+            case "MEDIUMINT":
+            case "INTEGER":
+            case "YEAR":
+            case "INT2":
+            case "INT4":
+            case "INT8":
                 type = "INT";
                 break;
             case "BIGINT":
                 type = "BIGINT";
                 break;
+            case "REAL":
             case "FLOAT":
+            case "FLOAT2":
+            case "FLOAT4":
+            case "FLOAT8":
                 type = "FLOAT";
                 break;
             case "DOUBLE":
+            case "BINARY_DOUBLE":
                 type = "DOUBLE";
+                break;
+            case "NUMERIC":
+            case "NUMBER":
+            case "DECIMAL":
+                type = "DECIMAL";
                 break;
             case "STRING":
             case "VARCHAR":
+            case "VARCHAR2":
             case "CHAR":
+            case "CHARACTER":
+            case "NCHAR":
+            case "TINYTEXT":
+            case "TEXT":
+            case "MEDIUMTEXT":
+            case "LONGTEXT":
+            case "LONGVARCHAR":
+            case "LONGNVARCHAR":
+            case "NVARCHAR":
+            case "NVARCHAR2":
                 type = "STRING";
+                break;
+            case "BINARY":
+                type = "BINARY";
                 break;
             case "BOOLEAN":
                 type = "BOOLEAN";
                 break;
             case "DATE":
+                type = "DATE";
+                break;
             case "TIMESTAMP":
                 type = "TIMESTAMP";
                 break;
