@@ -89,7 +89,7 @@ public class Binlog extends BaseInput {
     @Required(required = true)
     private String host;
 
-    private static boolean pavingData = true;
+    private static boolean pavingData = false;
 
     private int port = 3306;
 
