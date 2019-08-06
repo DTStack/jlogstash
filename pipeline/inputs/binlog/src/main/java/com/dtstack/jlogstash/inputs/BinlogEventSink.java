@@ -105,6 +105,9 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
             } else {
                 message.put("before", processColumnList(rowData.getBeforeColumnsList()));
                 message.put("after", processColumnList(rowData.getAfterColumnsList()));
+                Map<String,Object> event = new HashMap<>(1);
+                event.put("message", message);
+                message = event;
             }
 
             binlog.process(message);
