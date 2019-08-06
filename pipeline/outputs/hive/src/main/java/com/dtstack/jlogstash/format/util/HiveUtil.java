@@ -25,8 +25,10 @@ import java.util.regex.Pattern;
 
 import com.dtstack.jlogstash.format.StoreEnum;
 import com.dtstack.jlogstash.format.TableInfo;
+import org.apache.hadoop.hive.serde2.io.HiveDecimalWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
+import org.apache.hadoop.io.BytesWritable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,7 +196,7 @@ public class HiveUtil {
         //不要使用create table if not exist，可能以后会在业务逻辑中判断表是否已经存在
         StringBuilder fieldsb = new StringBuilder("CREATE TABLE %s (");
         for (int i = 0; i < tableInfo.getColumns().size(); i++) {
-            fieldsb.append(String.format("`%s` %s", tableInfo.getColumns().get(i), convertType(tableInfo.getColumnTypes().get(i))));
+            fieldsb.append(String.format("`%s` %s", tableInfo.getColumns().get(i), tableInfo.getColumnTypes().get(i)));
             if (i != tableInfo.getColumns().size() - 1) {
                 fieldsb.append(",");
             }
@@ -217,8 +219,9 @@ public class HiveUtil {
         return fieldsb.toString();
     }
 
-    private static String convertType(String type) {
+    public static String convertType(String type) {
         switch (type.toUpperCase()) {
+            case "BIT":
             case "TINYINT":
                 type = "TINYINT";
                 break;
@@ -226,26 +229,58 @@ public class HiveUtil {
                 type = "SMALLINT";
                 break;
             case "INT":
+            case "MEDIUMINT":
+            case "INTEGER":
+            case "YEAR":
+            case "INT2":
+            case "INT4":
+            case "INT8":
                 type = "INT";
                 break;
             case "BIGINT":
                 type = "BIGINT";
                 break;
+            case "REAL":
             case "FLOAT":
+            case "FLOAT2":
+            case "FLOAT4":
+            case "FLOAT8":
                 type = "FLOAT";
                 break;
             case "DOUBLE":
+            case "BINARY_DOUBLE":
                 type = "DOUBLE";
+                break;
+            case "NUMERIC":
+            case "NUMBER":
+            case "DECIMAL":
+                type = "DECIMAL";
                 break;
             case "STRING":
             case "VARCHAR":
+            case "VARCHAR2":
             case "CHAR":
+            case "CHARACTER":
+            case "NCHAR":
+            case "TINYTEXT":
+            case "TEXT":
+            case "MEDIUMTEXT":
+            case "LONGTEXT":
+            case "LONGVARCHAR":
+            case "LONGNVARCHAR":
+            case "NVARCHAR":
+            case "NVARCHAR2":
                 type = "STRING";
+                break;
+            case "BINARY":
+                type = "BINARY";
                 break;
             case "BOOLEAN":
                 type = "BOOLEAN";
                 break;
             case "DATE":
+                type = "DATE";
+                break;
             case "TIMESTAMP":
                 type = "TIMESTAMP";
                 break;
@@ -276,6 +311,9 @@ public class HiveUtil {
             case "DOUBLE":
                 objectInspector = ObjectInspectorFactory.getReflectionObjectInspector(Double.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
                 break;
+            case "DECIMAL":
+                objectInspector = ObjectInspectorFactory.getReflectionObjectInspector(HiveDecimalWritable.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
+                break;
             case "TIMESTAMP":
                 objectInspector = ObjectInspectorFactory.getReflectionObjectInspector(java.sql.Timestamp.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
                 break;
@@ -289,6 +327,9 @@ public class HiveUtil {
                 break;
             case "BOOLEAN":
                 objectInspector = ObjectInspectorFactory.getReflectionObjectInspector(Boolean.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
+                break;
+            case "BINARY":
+                objectInspector = ObjectInspectorFactory.getReflectionObjectInspector(BytesWritable.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
                 break;
             default:
                 objectInspector = ObjectInspectorFactory.getReflectionObjectInspector(String.class, ObjectInspectorFactory.ObjectInspectorOptions.JAVA);
