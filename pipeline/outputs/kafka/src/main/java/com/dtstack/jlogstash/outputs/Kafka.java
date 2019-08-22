@@ -71,11 +71,6 @@ public class Kafka extends BaseOutput {
 	
 	private static Map<String,String> producerSettings;
 
-	static{
-		Thread.currentThread().setContextClassLoader(null);
-	}
-
-
 	@SuppressWarnings("rawtypes")
 	public Kafka(Map config) {
 		super(config);

@@ -24,6 +24,7 @@
         <module>odps</module>
         <module>performance</module>
         <module>stdout</module>
+        <module>hive</module>
     </modules>
 
     <dependencies>

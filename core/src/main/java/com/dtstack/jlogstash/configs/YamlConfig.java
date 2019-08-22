@@ -25,6 +25,8 @@ import java.net.URLDecoder;
 import java.util.Map;
 
 import com.dtstack.jlogstash.exception.LogstashException;
+import com.dtstack.jlogstash.utils.Base64Util;
+import com.dtstack.jlogstash.utils.GZipUtil;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +56,13 @@ public class YamlConfig implements Config{
     }
 
     @Override
-    public ConfigObject parse(String conf) throws Exception{
+    public ConfigObject parse(String configFile) throws Exception{
 
-        logger.info(conf);
-        conf = URLDecoder.decode(conf, "UTF-8");
+        logger.info("jlogstash config of the configFile:{}", configFile);
+        String conf = Base64Util.baseDecode(GZipUtil.deCompress(configFile));
+//      String conf = URLDecoder.decode(configFile, "UTF-8");
+        logger.info("conf:{}", conf);
+
         ConfigObject configObject = null;
         if(conf.startsWith("{")&&conf.endsWith("}")){
             configObject =  objectMapper.readValue(conf,ConfigObject.class);

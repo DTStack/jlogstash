@@ -34,6 +34,8 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
 
     private Binlog binlog;
 
+    private boolean pavingData;
+
     public BinlogEventSink(Binlog binlog) {
         this.binlog = binlog;
     }
@@ -41,14 +43,15 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
     @Override
     public boolean sink(List<CanalEntry.Entry> entries, InetSocketAddress inetSocketAddress, String s) throws CanalSinkException, InterruptedException {
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("binlog sink, entries.size:{} entryType:{}", entries.size(), entries.size() > 0 ? entries.get(0).getEntryType() : null);
-        }
-
         for (CanalEntry.Entry entry : entries) {
             CanalEntry.EntryType entryType = entry.getEntryType();
+
             if (entryType != CanalEntry.EntryType.ROWDATA) {
                 continue;
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("binlog sink, entryType:{}", entry.getEntryType());
             }
 
             CanalEntry.RowChange rowChange = parseRowChange(entry);
@@ -85,16 +88,28 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
         }
 
         for(CanalEntry.RowData rowData : rowChange.getRowDatasList()) {
-            Map<String,Object> event = new HashMap<>();
             Map<String,Object> message = new HashMap<>();
             message.put("type", eventType.toString());
             message.put("schema", schema);
             message.put("table", table);
             message.put("ts", ts);
-            message.put("before", processColumnList(rowData.getBeforeColumnsList()));
-            message.put("after", processColumnList(rowData.getAfterColumnsList()));
-            event.put("message", message);
-            binlog.process(event);
+
+            if (pavingData){
+                for (CanalEntry.Column column : rowData.getAfterColumnsList()) {
+                    message.put("after_" + column.getName(), column.getValue());
+                }
+                for (CanalEntry.Column column : rowData.getBeforeColumnsList()){
+                    message.put("before_" + column.getName(), column.getValue());
+                }
+            } else {
+                message.put("before", processColumnList(rowData.getBeforeColumnsList()));
+                message.put("after", processColumnList(rowData.getAfterColumnsList()));
+                Map<String,Object> event = new HashMap<>(1);
+                event.put("message", message);
+                message = event;
+            }
+
+            binlog.process(message);
         }
 
     }
@@ -105,6 +120,10 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
             map.put(column.getName(), column.getValue());
         }
         return map;
+    }
+
+    public void setPavingData(boolean pavingData) {
+        this.pavingData = pavingData;
     }
 
     @Override

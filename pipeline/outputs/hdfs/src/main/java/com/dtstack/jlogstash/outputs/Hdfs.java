@@ -176,12 +176,12 @@ public class Hdfs extends BaseOutput{
 		return hdfsOutputFormat;
 	}
 	
-	
+
 	@Override
 	public void sendFailedMsg(Object msg){
-		emit((Map) msg);
+		logger.error("sendFailedMsg:{}", msg);
 	}
-	
+
 	@Override
 	public synchronized void release(){
 		Set<Map.Entry<String, HdfsOutputFormat>> entrys = hdfsOutputFormats.entrySet();

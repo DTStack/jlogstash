@@ -24,10 +24,9 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dtstack.jlogstash.assembly.CmdLineParams;
+import com.dtstack.jlogstash.metrics.JlogstashMetric;
 import com.dtstack.jlogstash.metrics.MetricRegistryImpl;
 import com.dtstack.jlogstash.metrics.groups.PipelineOutputMetricGroup;
-import com.dtstack.jlogstash.utils.LocalIpAddressUtil;
 import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,11 +88,6 @@ public abstract class BaseOutput implements IBaseOutput, java.io.Serializable{
 			consistency = (boolean) this.config.get("consistency");
 		}
 
-		if (metricRegistry!=null){
-			String hostname = LocalIpAddressUtil.getLocalAddress();
-			String pluginName = this.getClass().getSimpleName();
-			pipelineOutputMetricGroup = new PipelineOutputMetricGroup(metricRegistry, hostname, "output", pluginName, CmdLineParams.getName());
-		}
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -112,12 +106,12 @@ public abstract class BaseOutput implements IBaseOutput, java.io.Serializable{
 					}
 				}
 			}
-			if (succuess == true) {
-				this.emit(event);
-				if (pipelineOutputMetricGroup!=null){
-					pipelineOutputMetricGroup.getNumRecordsOutCounter().inc();
-					pipelineOutputMetricGroup.getNumBytesOutCounter().inc(ObjectSizeCalculator.getObjectSize(event));
+			if (succuess) {
+				if (JlogstashMetric.getPipelineOutputMetricGroup() !=null){
+					JlogstashMetric.getPipelineOutputMetricGroup().getNumRecordsOutCounter().inc();
+					JlogstashMetric.getPipelineOutputMetricGroup().getNumBytesOutCounter().inc(ObjectSizeCalculator.getObjectSize(event));
 				}
+				this.emit(event);
 			}
 		}
 	}
@@ -170,7 +164,4 @@ public abstract class BaseOutput implements IBaseOutput, java.io.Serializable{
         return super.clone();
     }
 
-    public static void setMetricRegistry(MetricRegistryImpl metricRegistry) {
-		BaseOutput.metricRegistry = metricRegistry;
-    }
 }

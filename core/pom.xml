@@ -74,10 +74,19 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.dtstack.jlogstash.JlogstashMain</mainClass>
                                 </transformer>
+                                    <transformer
+                                            implementation="com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer"/>
                             </transformers>
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.github.edwgiz</groupId>
+                        <artifactId>maven-shade-plugin.log4j2-cachefile-transformer</artifactId>
+                        <version>2.1</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -125,22 +134,6 @@
                 </executions>
             </plugin>
 
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-gpg-plugin</artifactId>-->
-                <!--<version>1.6</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>sign-artifacts</id>-->
-                        <!--<phase>verify</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>sign</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-
-
         </plugins>
     </build>
 
@@ -151,6 +144,14 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
     </distributionManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>oss.sonatype.org</id>
+            <name>OSS Sonatype Staging</name>
+            <url>https://oss.sonatype.org/content/groups/staging</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -219,6 +220,12 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>${commons-collections-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
         </dependency>
 
         <dependency>

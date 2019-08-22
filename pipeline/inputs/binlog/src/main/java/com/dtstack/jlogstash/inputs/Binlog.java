@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,12 +57,11 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- *
  * Reason: TODO ADD REASON(可选)
  * Date: 2018年8月28日
  * Company: www.dtstack.com
- * @author huyifan.zju@163.com
  *
+ * @author huyifan.zju@163.com
  */
 public class Binlog extends BaseInput {
 
@@ -78,18 +77,25 @@ public class Binlog extends BaseInput {
 
     private FileSystem dfs;
 
+    private Path posPathTmp;
     private Path posPath;
 
-    /** plugin properties */
+    /**
+     * plugin properties
+     */
 
     private String taskId = "defaultTaskId";
 
     @Required(required = true)
     private String host;
 
+    private static boolean pavingData = false;
+
     private int port = 3306;
 
     private long slaveId = 3344L;
+
+    private String jdbcUrl;
 
     @Required(required = true)
     private String username;
@@ -97,19 +103,25 @@ public class Binlog extends BaseInput {
     @Required(required = true)
     private String password;
 
-    private Map<String,Object> start;
+    private Map<String, Object> start;
 
     private String filter;
 
     private String cat;
 
-    /** internal fields */
+    private static List<String> table;
+
+    /**
+     * internal fields
+     */
 
     private MysqlEventParser controller;
 
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private volatile EntryPosition entryPosition = new EntryPosition();
+    private volatile EntryPosition entryPosition;
+
+    private EntryPosition lastEntryPosition;
 
     private List<String> categories = new ArrayList<>();
 
@@ -127,18 +139,18 @@ public class Binlog extends BaseInput {
     }
 
     private void parseCategories() {
-        if(!StringUtils.isBlank(cat)) {
+        if (!StringUtils.isBlank(cat)) {
             System.out.println(categories);
             categories = Arrays.asList(cat.toUpperCase().split(","));
         }
     }
 
     private EntryPosition findStartPosition() {
-        if(start != null && start.size() != 0) {
+        if (start != null && start.size() != 0) {
             EntryPosition startPosition = new EntryPosition();
             String journalName = (String) start.get("journalName");
-            if(StringUtils.isNotEmpty(journalName)) {
-                if(new BinlogJournalValidator(host, port, username, password).check(journalName)) {
+            if (StringUtils.isNotEmpty(journalName)) {
+                if (new BinlogJournalValidator(host, port, username, password).check(journalName)) {
                     startPosition.setJournalName(journalName);
                 } else {
                     throw new IllegalArgumentException("Can't find journalName: " + journalName);
@@ -153,14 +165,14 @@ public class Binlog extends BaseInput {
         if (configuration == null) {
             try {
                 startPosition = BinlogPosUtil.readPos(taskId);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 logger.error("Failed to read pos file: " + e.getMessage());
             }
         } else {
-            try (FSDataInputStream inputStream = dfs.open(posPath)){
+            try (FSDataInputStream inputStream = dfs.open(posPath)) {
                 String json = inputStream.readUTF();
                 startPosition = new ObjectMapper().readValue(json, EntryPosition.class);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 logger.error("Failed to read pos file: " + e.getMessage());
             }
         }
@@ -176,6 +188,7 @@ public class Binlog extends BaseInput {
 
             setHadoopConfiguration();
             if (configuration != null) {
+                posPathTmp = new Path(configuration.get("fs.defaultFS"), "/user/jlogstash/." + taskId + "_output");
                 posPath = new Path(configuration.get("fs.defaultFS"), "/user/jlogstash/" + taskId + "_output");
                 dfs = FileSystem.get(configuration);
             }
@@ -191,22 +204,57 @@ public class Binlog extends BaseInput {
             controller.setParallelBufferSize(256);
             controller.setParallelThreadSize(2);
             controller.setIsGTIDMode(false);
-            controller.setEventSink(new BinlogEventSink(this));
+
+            BinlogEventSink sink = new BinlogEventSink(this);
+            sink.setPavingData(pavingData);
+            controller.setEventSink(sink);
 
             controller.setLogPositionManager(new BinlogPositionManager(this));
 
             EntryPosition startPosition = findStartPosition();
             if (startPosition != null) {
-               controller.setMasterPosition(startPosition);
+                controller.setMasterPosition(startPosition);
             }
 
+            /**
+             * mysql 数据解析关注的表，Perl正则表达式.
+
+             多个正则之间以逗号(,)分隔，转义符需要双斜杠(\\)
+
+
+             常见例子：
+
+             1.  所有表：.*   or  .*\\..*
+             2.  canal schema下所有表： canal\\..*
+             3.  canal下的以canal打头的表：canal\\.canal.*
+             4.  canal schema下的一张表：canal\\.test1
+
+             5.  多个规则组合使用：canal\\..*,mysql.test1,mysql.test2 (逗号分隔)
+             */
+            if (table != null && table.size() != 0 && jdbcUrl != null) {
+                int idx = jdbcUrl.lastIndexOf('?');
+                String database = null;
+                if (idx != -1) {
+                    database = StringUtils.substring(jdbcUrl, jdbcUrl.lastIndexOf('/') + 1, idx);
+                } else {
+                    database = StringUtils.substring(jdbcUrl, jdbcUrl.lastIndexOf('/') + 1);
+                }
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < table.size(); i++) {
+                    sb.append(database).append(".").append(table.get(i));
+                    if (i != table.size() - 1) {
+                        sb.append(",");
+                    }
+                }
+                filter = sb.toString();
+            }
             if (filter != null) {
                 controller.setEventFilter(new AviaterRegexFilter(filter));
             }
 
             logger.info("binlog prepare ended..");
         } catch (Exception e) {
-            logger.error("",e);
+            logger.error("", e);
             System.exit(-1);
         }
     }
@@ -233,11 +281,11 @@ public class Binlog extends BaseInput {
 
         logger.info("binlog release...");
 
-        if(controller != null) {
+        if (controller != null) {
             controller.stop();
         }
 
-        if(scheduler != null) {
+        if (scheduler != null) {
             scheduler.shutdown();
         }
 
@@ -245,12 +293,23 @@ public class Binlog extends BaseInput {
         logger.info("binlog release..., save pos:{}", entryPosition);
     }
 
-    private void savePos(){
+    private void savePos() {
+        if (entryPosition == null || entryPosition.getPosition() == null || entryPosition.getJournalName() == null
+                || lastEntryPosition != null && lastEntryPosition.getPosition().equals(entryPosition.getPosition()) && lastEntryPosition.getJournalName().equals(entryPosition.getJournalName())
+                ) {
+            return;
+        }
+        lastEntryPosition = entryPosition;
         if (configuration != null) {
             FSDataOutputStream out = null;
             try {
-                out = FileSystem.create(posPath.getFileSystem(configuration), posPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
+                out = dfs.create(posPathTmp);
+                dfs.setPermission(posPathTmp, new FsPermission(FsPermission.createImmutable((short) 0777)));
                 out.writeUTF(new ObjectMapper().writeValueAsString(entryPosition));
+                if (dfs.exists(posPath)) {
+                    dfs.delete(posPath);
+                }
+                dfs.rename(posPathTmp, posPath);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -267,13 +326,13 @@ public class Binlog extends BaseInput {
         }
     }
 
-    private void setHadoopConfiguration() throws Exception{
+    private void setHadoopConfiguration() throws Exception {
         if (hadoopUserName != null) {
             System.setProperty("HADOOP_USER_NAME", hadoopUserName);
         }
         if (hadoopConfigMap != null) {
             configuration = new Configuration(false);
-            for(Map.Entry<String,Object> entry : hadoopConfigMap.entrySet()) {
+            for (Map.Entry<String, Object> entry : hadoopConfigMap.entrySet()) {
                 configuration.set(entry.getKey(), entry.getValue().toString());
             }
             configuration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());

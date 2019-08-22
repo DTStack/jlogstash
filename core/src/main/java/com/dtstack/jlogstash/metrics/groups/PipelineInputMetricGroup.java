@@ -29,6 +29,7 @@ import com.dtstack.jlogstash.metrics.base.SimpleCounter;
 import com.dtstack.jlogstash.metrics.scope.ScopeFormat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -94,7 +95,7 @@ public class PipelineInputMetricGroup<C extends ComponentMetricGroup<C>> extends
 
     @Override
     protected Iterable<? extends ComponentMetricGroup> subComponents() {
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     @Override

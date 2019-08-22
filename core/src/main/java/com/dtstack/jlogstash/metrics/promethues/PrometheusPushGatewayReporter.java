@@ -42,7 +42,7 @@ public class PrometheusPushGatewayReporter extends AbstractPrometheusReporter im
 		String host = config.getString("host", null);
 		int port = config.getInteger("port", -1);
 		String configuredJobName = config.getString("jobName", CmdLineParams.getName());
-		deleteOnShutdown = config.getBoolean("deleteOnShutdown", true);
+		deleteOnShutdown = config.getBoolean("deleteOnShutdown", false);
 
 		if (host == null || host.isEmpty() || port < 1) {
 			throw new IllegalArgumentException("Invalid host/port configuration. Host: " + host + " Port: " + port);
