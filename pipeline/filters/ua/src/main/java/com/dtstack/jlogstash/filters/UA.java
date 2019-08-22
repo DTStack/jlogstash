@@ -22,7 +22,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.jlogstash.annotation.Required;
-import com.dtstack.jlogstash.ua.parser.UserAgentUtil;
+import com.dtstack.jlogstash.parser.UserAgentUtil;
 import com.google.common.collect.Maps;
 
 

@@ -80,6 +80,10 @@ public class Kafka extends BaseOutput {
 	public Kafka(Map config) {
 		super(config);
 	}
+
+	static{
+		Thread.currentThread().setContextClassLoader(null);
+	}
 	
 	/**
 	 * default
