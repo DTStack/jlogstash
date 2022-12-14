@@ -160,7 +160,7 @@
         <common-cli-version>1.2</common-cli-version>
         <commons-collections-version>3.2.2</commons-collections-version>
         <hamcrest-version>1.1</hamcrest-version>
-        <snakeyaml-version>1.16</snakeyaml-version>
+        <snakeyaml-version>1.32</snakeyaml-version>
         <log4j-version>1.2.17</log4j-version>
         <prometheus.version>0.5.0</prometheus.version>
     </properties>
